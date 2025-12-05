@@ -1,0 +1,145 @@
+/* ARQUIVO: src/components/Browse/AnimeRow.css */
+
+:root {
+    --row-padding: 4%;
+    --card-gap: 8px;
+    --transition-speed: 0.3s;
+    --color-primary: #8a2be2; /* Cor roxa/violeta, vou manter este */
+    --color-primary-max: #8540ff; /* Cor MaxPlay, se quiser mudar */
+}
+
+/* --- TÍTULO DA LINHA --- */
+.anime-row-title {
+    font-size: clamp(1.2rem, 2vw, 1.8rem);
+    margin-left: var(--row-padding);
+    margin-bottom: 15px;
+    color: white;
+    font-weight: 700;
+}
+
+/* --- CONTAINER DA LINHA --- */
+.row-container {
+    padding-top: 20px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+/* --- ROLAGEM HORIZONTAL --- */
+.cards-container {
+    display: flex;
+    overflow-x: scroll;
+    padding-bottom: 15px;
+    gap: var(--card-gap);
+    padding-left: 20px;
+    flex-wrap: wrap; /* Garante rolagem horizontal */
+    padding-right: var(--row-padding); 
+    
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+}
+.cards-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+
+/* --- CARD INDIVIDUAL (THUMBNAIL) --- */
+.anime-card-container {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden; /* Importante para manter o raio da borda */
+    border-radius: 4px; /* Raio da borda no card */
+    flex-shrink: 0; /* Impede o encolhimento */
+    transition: transform var(--transition-speed);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Sombra sutil */
+}
+
+.anime-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+}
+
+/* --- 1. TAMANHO POSTER (Vertical/2:3) --- */
+.anime-card-container.poster {
+    /* Largura: 150px a 200px. Altura 1.5x a largura. */
+    width: clamp(150px, 12vw, 200px); 
+    height: clamp(225px, 18vw, 300px);
+}
+
+/* --- 2. TAMANHO PADRÃO (Horizontal/16:9) --- */
+.anime-card-container.standard {
+    /* Largura: 280px a 350px. Altura (Largura / 1.78). */
+    width: clamp(280px, 20vw, 350px); 
+    height: clamp(157.5px, 11.25vw, 196.875px);
+}
+
+
+/* ----------------------------------------------------------------
+| NOVO: GRADIENTE E TÍTULO INFERIOR
+| ---------------------------------------------------------------- */
+
+.card-content-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 8px;
+background: #000000;
+background: linear-gradient(0deg, rgba(0, 0, 0, 0.98) 54%, rgba(0, 0, 0, 0.02) 100%);
+    
+    /* Garante que o gradiente fique acima da barra de progresso */
+    z-index: 10; 
+}
+
+.card-title-text {
+    margin: 0;
+    font-size: 0.9rem;
+    color: white;
+    font-weight: 600;
+    /* Limita o texto a 2 linhas com elipses */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* ----------------------------------------------------------------
+| EFEITO HOVER (Melhoria)
+| ---------------------------------------------------------------- */
+
+.anime-card-container:hover {
+   
+    z-index: 20; 
+    /* Adicionamos uma sombra roxa no hover */
+    box-shadow: 0 0 15px rgba(100, 100, 100, 0.7); 
+}
+
+/* Remove a borda no hover (já que temos a sombra) */
+.anime-card-container:hover .anime-card-image {
+    border: none;
+    transition: none;
+}
+
+
+/* --- PROGRESSO DE VISUALIZAÇÃO --- */
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.4);
+    /* Garante que fique acima do gradiente */
+    z-index: 21; 
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: var(--color-primary-max); /* Usa o roxo MaxPlay */
+    border-radius: 4px;
+    transition: width var(--transition-speed);
+}

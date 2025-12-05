@@ -1,0 +1,42 @@
+/* ARQUIVO: src/pages/AdminPage/AdminPage.css */
+
+/* ... (Mantenha todos os estilos existentes) ... */
+
+/* --- Estilo para Preview de Imagem --- */
+.image-preview-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px dashed #555;
+    border-radius: 4px;
+}
+
+.image-preview {
+    flex: 1;
+    max-width: 250px;
+    text-align: center;
+}
+
+.image-preview img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    object-fit: cover;
+}
+
+.image-preview.poster-size img {
+    height: 350px; /* Altura típica de poster vertical */
+}
+
+.image-preview.standard-size img {
+    height: 150px; /* Altura típica de card horizontal */
+}
+
+.image-preview p {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 5px;
+}
