@@ -1,0 +1,6 @@
+.hero-overview {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;   /* número de linhas */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

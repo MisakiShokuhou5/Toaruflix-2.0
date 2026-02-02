@@ -1,0 +1,212 @@
+/* --- Container Principal --- */
+.admin-content-area {
+  background-color: #1a1a1a; /* Fundo escuro suave */
+  color: #e0e0e0; /* Texto quase branco para leitura confortável */
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); /* Sombra elegante */
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* --- Títulos --- */
+.admin-content-area h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+  border-bottom: 1px solid #333;
+  padding-bottom: 15px;
+  margin-top: 0;
+}
+
+.admin-content-area h4 {
+  font-size: 1.1rem;
+  color: #a0a0a0;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+/* --- Select (Dropdown) --- */
+.admin-select {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #252525;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none; /* Remove estilo padrão do navegador */
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 0.65em auto;
+}
+
+.admin-select:focus {
+  outline: none;
+  border-color: #646cff; /* Cor de destaque (Roxo/Azul moderno) */
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.15);
+}
+
+/* --- Inputs e Textarea --- */
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.admin-input {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #252525;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.admin-input::placeholder {
+  color: #666;
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: #646cff;
+  background-color: #2a2a2a;
+}
+
+.admin-input:disabled {
+  background-color: #1f1f1f;
+  border-color: #333;
+  color: #555;
+  cursor: not-allowed;
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* --- Prévia das Imagens --- */
+.image-preview-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin: 10px 0 20px 0;
+  padding: 20px;
+  background-color: #222; /* Destaque sutil para a área de preview */
+  border-radius: 8px;
+  border: 1px dashed #444;
+}
+
+.image-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+
+.image-preview:hover {
+  transform: translateY(-2px);
+  border: 1px solid #646cff;
+}
+
+.image-preview img {
+  display: block;
+  object-fit: cover;
+  /* Garante que a imagem preencha o container */
+}
+
+.image-preview p {
+  width: 100%;
+  margin: 0;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #aaa;
+  background-color: #181818;
+  border-top: 1px solid #333;
+  font-weight: 500;
+}
+
+/* Tamanhos Específicos */
+.poster-size {
+  width: 150px;
+}
+.poster-size img {
+  height: 225px; /* Aspecto 2:3 */
+}
+
+.standard-size {
+  width: 280px;
+}
+.standard-size img {
+  height: 157px; /* Aspecto 16:9 */
+}
+
+/* --- Botão --- */
+.admin-button-primary {
+  background-color: #646cff;
+  color: white;
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 10px;
+}
+
+.admin-button-primary:hover {
+  background-color: #535bf2;
+}
+
+.admin-button-primary:active {
+  transform: scale(0.98);
+}
+
+/* Animação suave ao abrir o formulário */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 600px) {
+  .admin-content-area {
+    padding: 1rem;
+  }
+  
+  .image-preview-group {
+    justify-content: center;
+  }
+  
+  .standard-size, .poster-size {
+    width: 100%;
+  }
+  
+  .poster-size img, .standard-size img {
+    height: auto;
+    aspect-ratio: 2/3;
+  }
+  .standard-size img {
+    aspect-ratio: 16/9;
+  }
+}

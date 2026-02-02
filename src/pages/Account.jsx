@@ -1,430 +1,440 @@
 // ----------------------------------------------------------------
 // ARQUIVO: src/pages/Account.jsx
-// VERSÃO FINAL CORRIGIDA: Inclui todas as funcionalidades, Fundo Preto Puro e Importação Consertada.
 // ----------------------------------------------------------------
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-// 🛑 CORRIGIDO: Adicionado FaCog à lista de importações
-import { FaUserCircle, FaEnvelope, FaLock, FaCheckCircle, FaExclamationTriangle, FaTrash, FaPen, FaBell, FaGlobe, FaCog } from 'react-icons/fa'; 
+import { 
+    FaUserCircle, FaLock, FaCheckCircle, 
+    FaExclamationTriangle, FaTrash, FaPen, 
+    FaSignOutAlt, FaGlobe, FaShieldAlt
+} from 'react-icons/fa'; 
 import Header from '../components/Header';
 import Spinner from '../components/shared/Spinner'; 
 import { useAuth } from '../contexts/AuthContext'; 
+import { useNavigate } from 'react-router-dom';
 
-// --- CONFIGURAÇÃO DE CORES (Paleta Dark Pura/Netflix) ---
+// ✅ IMPORTAÇÕES REAIS DO FIREBASE
+import { 
+    getAuth, 
+    updateProfile, 
+    updatePassword, 
+    deleteUser, 
+    reauthenticateWithCredential, 
+    EmailAuthProvider 
+} from 'firebase/auth';
+
+// --- CORES (Mantendo o tema Dark Premium) ---
 const COLORS = {
-    primary: '#e50914', // Vermelho Netflix
-    secondaryBlue: '#0076a8', 
-    darkestBlack: '#000000', // Preto Puro
-    midBg: '#000000ff', // Fundo dos blocos de conteúdo
+    primary: '#e50914', 
+    background: '#141414',
+    panelBg: '#1f1f1f',
     textLight: '#ffffff',
-    textMuted: '#ffffffff', 
+    textMuted: '#b3b3b3', 
+    border: '#333333',
     success: '#4CAF50',
-    error: '#FF5722',
+    error: '#e50914',
+    inputBg: '#333333',
 };
 
 // --- STYLED COMPONENTS ---
-
-const AccountContainer = styled.div`
-    background-color: ${COLORS.darkestBlack}; /* Fundo Preto Puro */
+const PageContainer = styled.div`
+    background-color: ${COLORS.background};
     min-height: 100vh;
     color: ${COLORS.textLight};
-    padding: 100px 4rem 4rem 4rem;
-    
-    @media (max-width: 768px) {
-        padding: 80px 1rem 2rem 1rem;
-    }
+    padding-top: 90px;
 `;
 
-const ContentWrapper = styled.div`
-    max-width: 900px;
+const MainLayout = styled.div`
+    max-width: 1000px;
     margin: 0 auto;
-    border-radius: 8px;
-    padding: 2.5rem;
-    background-color: ${COLORS.midBg};
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
-`;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 2rem;
 
-const Title = styled.h1`
-    font-size: 2.8rem;
-    font-weight: 800;
-    margin-bottom: 2.5rem;
-    color: ${COLORS.textLight};
-    border-bottom: 3px solid ${COLORS.primary}; /* Destaque Netflix */
-    padding-bottom: 0.5rem;
-`;
-
-const SectionTitle = styled.h2`
-    font-size: 1.6rem;
-    font-weight: 700;
-    margin-top: 2.5rem;
-    margin-bottom: 1.5rem;
-    color: ${COLORS.textLight};
-    padding-bottom: 5px;
-    border-bottom: 1px solid #333;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-`;
-
-const BlockContainer = styled.div`
-    background-color: #0a0a0a8f;
-    padding: 1.5rem;
-    border-radius: 4px;
-    margin-bottom: 2rem;
-    color: white;
-`;
-
-const Detail = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    font-size: 1.1rem;
-    color: ${COLORS.textMuted};
-    margin-bottom: 1rem;
-
-    strong {
-        font-weight: 600;
-        color: ${COLORS.textLight};
-        margin-left: 0.5rem;
+    @media (max-width: 800px) {
+        grid-template-columns: 1fr;
     }
 `;
 
-const Form = styled.form`
+// Sidebar
+const Sidebar = styled.aside`
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
-    padding: 1rem 0;
+    gap: 0.5rem;
+`;
+
+const UserCard = styled.div`
+    background: ${COLORS.panelBg};
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid ${COLORS.border};
+    margin-bottom: 1rem;
+
+    svg { font-size: 3.5rem; color: ${COLORS.textMuted}; margin-bottom: 0.8rem; }
+    h3 { margin-bottom: 0.3rem; font-size: 1.1rem; }
+    p { color: ${COLORS.textMuted}; font-size: 0.8rem; word-break: break-all; }
+`;
+
+const MenuButton = styled.button`
+    background: ${props => props.$active ? COLORS.primary : 'transparent'};
+    color: ${COLORS.textLight};
+    border: none;
+    padding: 12px 15px;
+    text-align: left;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
+    border-left: 3px solid ${props => props.$active ? '#fff' : 'transparent'};
+
+    &:hover {
+        background: ${props => props.$active ? COLORS.primary : '#333'};
+    }
+`;
+
+// Conteúdo
+const ContentArea = styled.main`
+    background: ${COLORS.panelBg};
+    padding: 2.5rem;
+    border-radius: 8px;
+    border: 1px solid ${COLORS.border};
+    min-height: 400px;
+`;
+
+const SectionHeader = styled.div`
+    margin-bottom: 2rem;
+    border-bottom: 1px solid ${COLORS.border};
+    padding-bottom: 1rem;
+    h2 { font-size: 1.6rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
 `;
 
 const FormGroup = styled.div`
+    margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 `;
 
 const Label = styled.label`
-    font-size: 1rem;
     color: ${COLORS.textMuted};
-    font-weight: bold;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
 `;
 
 const Input = styled.input`
-    padding: 14px;
-    background-color: #333;
-    border: 1px solid #555;
-    color: ${COLORS.textLight};
+    background: ${COLORS.inputBg};
+    border: none;
+    padding: 12px 15px;
     border-radius: 4px;
+    color: white;
     font-size: 1rem;
-    transition: border-color 0.2s;
-
+    border-bottom: 2px solid transparent;
     &:focus {
-        border-color: ${COLORS.primary};
         outline: none;
+        background: #404040;
+        border-bottom-color: ${COLORS.primary};
     }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
 `;
 
 const ActionButton = styled.button`
-    background-color: ${props => props.$isDanger ? COLORS.error : COLORS.primary};
-    color: white;
-    padding: 14px 25px;
-    border: none;
+    background-color: ${props => props.$danger ? 'transparent' : COLORS.primary};
+    border: ${props => props.$danger ? `1px solid ${COLORS.error}` : 'none'};
+    color: ${props => props.$danger ? COLORS.error : 'white'};
+    padding: 12px 24px;
     border-radius: 4px;
-    font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.2s, opacity 0.2s;
-    margin-top: 1.5rem;
+    font-size: 0.95rem;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.8rem;
+    gap: 8px;
+    transition: 0.2s;
+    margin-top: 10px;
 
     &:hover {
-        background-color: ${props => props.$isDanger ? '#cc371a' : '#c70810'};
+        background-color: ${props => props.$danger ? 'rgba(229, 9, 20, 0.1)' : '#c40812'};
     }
-    &:disabled {
-        background-color: #555;
-        cursor: not-allowed;
-        opacity: 0.7;
-    }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
 `;
 
-const Message = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 15px;
+const StatusMessage = styled.div`
+    padding: 12px;
     border-radius: 4px;
-    margin-top: 1rem;
-    font-weight: bold;
-    font-size: 1rem;
-    color: ${props => (props.type === 'success' ? COLORS.success : COLORS.error)};
-    background-color: ${props => (props.type === 'success' ? `${COLORS.success}30` : `${COLORS.error}30`)};
-`;
-
-const OptionItem = styled.div`
+    margin-top: 15px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 1rem 0;
-    border-bottom: 1px dashed #333;
-    
-    &:last-child {
-        border-bottom: none;
-    }
-
-    & > span {
-        color: ${COLORS.textLight};
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
+    gap: 10px;
+    font-size: 0.9rem;
+    background: ${props => props.type === 'error' ? 'rgba(229, 9, 20, 0.15)' : 'rgba(76, 175, 80, 0.15)'};
+    color: ${props => props.type === 'error' ? '#ff8a80' : '#81c784'};
+    border: 1px solid ${props => props.type === 'error' ? COLORS.error : COLORS.success};
 `;
 
-// --- MOCK DE FUNÇÕES DE AUTENTICAÇÃO ---
+const DangerZone = styled.div`
+    margin-top: 3rem;
+    border: 1px solid ${COLORS.error};
+    border-radius: 8px;
+    padding: 1.5rem;
+    background: rgba(229, 9, 20, 0.05);
 
-const updateUserPassword = async (oldPassword, newPassword) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    if (oldPassword === '123456') { 
-        throw new Error("A senha atual fornecida está incorreta.");
-    }
-    return true; 
-};
-
-const updateDisplayName = async (newDisplayName) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    if (newDisplayName.length < 3) {
-        throw new Error("O nome deve ter pelo menos 3 caracteres.");
-    }
-    return true; 
-};
-
-const deleteUserAccount = async () => {
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    return true; 
-};
-
-// --- COMPONENTE PRINCIPAL ---
+    h3 { color: ${COLORS.error}; margin-bottom: 10px; font-size: 1.1rem; }
+    p { color: ${COLORS.textMuted}; font-size: 0.9rem; margin-bottom: 1rem; }
+`;
 
 const Account = () => {
-    const { user, loading, logout } = useAuth(); 
-    
-    const [mockUser, setMockUser] = useState(() => user || {
-        displayName: "Usuário MaxPlay Premium",
-        email: "usuario.premium@email.com",
-    });
+    const auth = getAuth(); // Instância direta do Auth
+    const { user, loading, logout } = useAuth();
+    const navigate = useNavigate();
 
-    const [oldPassword, setOldPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmNewPassword, setConfirmNewPassword] = useState('');
-    const [passwordMessage, setPasswordMessage] = useState(null);
-    const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
-
-    const [newDisplayName, setNewDisplayName] = useState(mockUser.displayName);
-    const [displayNameMessage, setDisplayNameMessage] = useState(null);
-    const [isDisplayNameSubmitting, setIsDisplayNameSubmitting] = useState(false);
+    const [activeTab, setActiveTab] = useState('profile');
     
-    const [isDeleting, setIsDeleting] = useState(false);
+    // Estados dos formulários
+    const [displayName, setDisplayName] = useState(user?.displayName || '');
+    const [passwords, setPasswords] = useState({ new: '', confirm: '' });
     
-    const isPasswordFormValid = useMemo(() => {
-        return (
-            oldPassword.length > 0 &&
-            newPassword.length >= 6 && 
-            newPassword === confirmNewPassword &&
-            newPassword !== oldPassword
-        );
-    }, [oldPassword, newPassword, confirmNewPassword]);
+    // Feedback visual
+    const [statusMsg, setStatusMsg] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Handlers
-    const handleChangePassword = useCallback(async (e) => {
+    // --- FUNÇÃO 1: ATUALIZAR NOME (REAL) ---
+    const handleUpdateProfile = async (e) => {
         e.preventDefault();
-        setPasswordMessage(null);
+        setIsSubmitting(true);
+        setStatusMsg(null);
 
-        if (!isPasswordFormValid) {
-            let errorText = "Verifique os campos: ";
-            if (newPassword.length < 6) errorText += "Nova senha deve ter 6+ caracteres. ";
-            if (newPassword !== confirmNewPassword) errorText += "A nova senha não confere. ";
-            if (newPassword === oldPassword) errorText += "A nova senha deve ser diferente da atual.";
+        try {
+            if (auth.currentUser) {
+                await updateProfile(auth.currentUser, { displayName: displayName });
+                setStatusMsg({ type: 'success', text: 'Nome atualizado com sucesso!' });
+            }
+        } catch (error) {
+            console.error(error);
+            setStatusMsg({ type: 'error', text: 'Erro ao atualizar nome: ' + error.message });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
-            setPasswordMessage({ type: 'error', text: errorText });
+    // --- FUNÇÃO 2: ALTERAR SENHA (REAL) ---
+    const handleUpdatePassword = async (e) => {
+        e.preventDefault();
+        setStatusMsg(null);
+
+        if (passwords.new !== passwords.confirm) {
+            setStatusMsg({ type: 'error', text: 'As senhas não coincidem.' });
+            return;
+        }
+        if (passwords.new.length < 6) {
+            setStatusMsg({ type: 'error', text: 'A senha deve ter pelo menos 6 caracteres.' });
             return;
         }
 
-        setIsPasswordSubmitting(true);
+        setIsSubmitting(true);
         try {
-            await updateUserPassword(oldPassword, newPassword); 
-            setPasswordMessage({ type: 'success', text: "Senha alterada com sucesso! Faça login novamente na próxima vez." });
-            setOldPassword('');
-            setNewPassword('');
-            setConfirmNewPassword('');
+            if (auth.currentUser) {
+                await updatePassword(auth.currentUser, passwords.new);
+                setStatusMsg({ type: 'success', text: 'Senha alterada! Use a nova senha no próximo login.' });
+                setPasswords({ new: '', confirm: '' });
+            }
         } catch (error) {
-            setPasswordMessage({ type: 'error', text: error.message.includes('incorreta') ? error.message : "Falha ao alterar senha. Tente novamente mais tarde." });
+            console.error(error);
+            // Se pedir login recente, avisa o usuário
+            if (error.code === 'auth/requires-recent-login') {
+                setStatusMsg({ type: 'error', text: 'Por segurança, faça logout e login novamente antes de alterar a senha.' });
+            } else {
+                setStatusMsg({ type: 'error', text: 'Erro: ' + error.message });
+            }
         } finally {
-            setIsPasswordSubmitting(false);
+            setIsSubmitting(false);
         }
-    }, [oldPassword, newPassword, isPasswordFormValid]);
-    
-    const handleUpdateName = useCallback(async (e) => {
-        e.preventDefault();
-        setDisplayNameMessage(null);
-        
-        if (newDisplayName === mockUser.displayName) {
-            setDisplayNameMessage({ type: 'error', text: "O novo nome é o mesmo que o atual." });
-            return;
-        }
+    };
 
-        setIsDisplayNameSubmitting(true);
-        try {
-            await updateDisplayName(newDisplayName);
-            setMockUser(prev => ({ ...prev, displayName: newDisplayName }));
-            setDisplayNameMessage({ type: 'success', text: "Nome de usuário atualizado com sucesso!" });
-        } catch (error) {
-            setDisplayNameMessage({ type: 'error', text: error.message || "Falha ao atualizar o nome." });
-        } finally {
-            setIsDisplayNameSubmitting(false);
-        }
-    }, [newDisplayName, mockUser.displayName]);
-
-    const handleDeleteAccount = useCallback(async () => {
-        const confirmDelete = window.confirm("ATENÇÃO: Você tem certeza que deseja excluir sua conta permanentemente? Esta ação é irreversível.");
+    // --- FUNÇÃO 3: EXCLUIR CONTA (REAL COM RE-AUTH) ---
+    const handleDeleteAccount = async () => {
+        const confirmDelete = window.confirm("ATENÇÃO: Isso excluirá permanentemente sua conta e todos os dados. Não há como desfazer. Deseja continuar?");
         if (!confirmDelete) return;
 
-        setIsDeleting(true);
+        // Firebase exige re-autenticação para operações sensíveis como deletar
+        const password = window.prompt("Por favor, digite sua senha atual para confirmar a exclusão:");
+        if (!password) return;
+
+        setIsSubmitting(true);
         try {
-            await deleteUserAccount();
-            logout(); 
+            if (auth.currentUser && auth.currentUser.email) {
+                // 1. Re-autenticar o usuário
+                const credential = EmailAuthProvider.credential(auth.currentUser.email, password);
+                await reauthenticateWithCredential(auth.currentUser, credential);
+
+                // 2. Deletar o usuário
+                await deleteUser(auth.currentUser);
+                
+                alert("Sua conta foi excluída com sucesso.");
+                navigate('/'); // Redireciona para home/login
+            }
         } catch (error) {
-            setIsDeleting(false);
-            alert("Erro ao tentar excluir a conta. Por favor, tente reautenticar e tente novamente.");
-            console.error("Delete error:", error);
+            console.error("Erro ao excluir:", error);
+            if (error.code === 'auth/wrong-password') {
+                alert("Senha incorreta. A conta não foi excluída.");
+            } else {
+                alert("Falha ao excluir conta: " + error.message);
+            }
+        } finally {
+            setIsSubmitting(false);
         }
-    }, [logout]);
-    
-    if (loading) {
-        return <AccountContainer style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}><Spinner /></AccountContainer>;
-    }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/');
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    if (loading) return <div style={{height: '100vh', display:'flex', justifyContent:'center', alignItems:'center'}}><Spinner /></div>;
+
+    const renderContent = () => {
+        switch(activeTab) {
+            case 'profile':
+                return (
+                    <>
+                        <SectionHeader>
+                            <h2><FaUserCircle /> Meu Perfil</h2>
+                        </SectionHeader>
+                        <form onSubmit={handleUpdateProfile}>
+                            <FormGroup>
+                                <Label>E-mail (Login)</Label>
+                                <Input disabled value={user?.email || ''} />
+                            </FormGroup>
+                            <FormGroup>
+                                <Label>Nome de Exibição</Label>
+                                <Input 
+                                    value={displayName} 
+                                    onChange={(e) => setDisplayName(e.target.value)} 
+                                    placeholder="Como você quer ser chamado?"
+                                />
+                            </FormGroup>
+                            <ActionButton disabled={isSubmitting || !displayName}>
+                                {isSubmitting ? <Spinner size="small" /> : <><FaPen /> Salvar Alterações</>}
+                            </ActionButton>
+                        </form>
+                    </>
+                );
+            case 'security':
+                return (
+                    <>
+                        <SectionHeader>
+                            <h2><FaLock /> Segurança da Conta</h2>
+                        </SectionHeader>
+                        <form onSubmit={handleUpdatePassword}>
+                            <FormGroup>
+                                <Label>Nova Senha</Label>
+                                <Input 
+                                    type="password" 
+                                    value={passwords.new}
+                                    onChange={e => setPasswords({...passwords, new: e.target.value})}
+                                    placeholder="Mínimo 6 caracteres"
+                                />
+                            </FormGroup>
+                            <FormGroup>
+                                <Label>Confirmar Nova Senha</Label>
+                                <Input 
+                                    type="password" 
+                                    value={passwords.confirm}
+                                    onChange={e => setPasswords({...passwords, confirm: e.target.value})}
+                                    placeholder="Repita a senha"
+                                />
+                            </FormGroup>
+                            <ActionButton disabled={isSubmitting || !passwords.new}>
+                                {isSubmitting ? <Spinner size="small" /> : 'Atualizar Senha'}
+                            </ActionButton>
+                        </form>
+                    </>
+                );
+            case 'settings':
+                return (
+                    <>
+                        <SectionHeader>
+                            <h2><FaShieldAlt /> Configurações Gerais</h2>
+                        </SectionHeader>
+                        
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 0', borderBottom: '1px solid #333'}}>
+                            <div>
+                                <strong style={{display: 'flex', alignItems: 'center', gap: '8px'}}><FaGlobe /> Idioma do Sistema</strong>
+                                <p style={{color: COLORS.textMuted, fontSize: '0.85rem'}}>O idioma padrão da interface.</p>
+                            </div>
+                            <span style={{background: '#333', padding: '5px 10px', borderRadius: '4px', fontSize: '0.9rem'}}>Português (BR)</span>
+                        </div>
+
+                        <DangerZone>
+                            <h3><FaExclamationTriangle /> Zona de Perigo</h3>
+                            <p>Ao excluir sua conta, todos os seus dados (favoritos, histórico) serão apagados permanentemente dos nossos servidores. Esta ação não pode ser desfeita.</p>
+                            <ActionButton 
+                                $danger 
+                                onClick={handleDeleteAccount}
+                                disabled={isSubmitting}
+                            >
+                                <FaTrash /> {isSubmitting ? 'Processando...' : 'Excluir Minha Conta'}
+                            </ActionButton>
+                        </DangerZone>
+                    </>
+                );
+            default: return null;
+        }
+    };
 
     return (
         <>
             <Header />
-            <AccountContainer>
-                
-                <ContentWrapper>
-                    <Title>Configurações da Conta</Title>
-                    
-                    {/* --- 1. DETALHES PESSOAIS --- */}
-                    <SectionTitle>
-                        <FaUserCircle style={{ color: COLORS.secondaryBlue }} />
-                        Detalhes Pessoais
-                    </SectionTitle>
-                    <BlockContainer>
-                        <Detail>
-                            <FaEnvelope style={{ color: COLORS.primary }} />
-                            Email: <strong>{mockUser.email}</strong>
-                        </Detail>
+            <PageContainer>
+                <MainLayout>
+                    {/* MENU LATERAL */}
+                    <Sidebar>
+                        <UserCard>
+                            <FaUserCircle />
+                            <h3>{user?.displayName || 'Usuário'}</h3>
+                            <p>{user?.email}</p>
+                        </UserCard>
                         
-                        {/* Formulário de Nome */}
-                        <Form onSubmit={handleUpdateName}>
-                            <FormGroup style={{ maxWidth: '400px' , color: "white"}}>
-                                <Label htmlFor="displayName">Nome de Exibição</Label>
-                                <Input
-                                    id="displayName"
-                                    type="text"
-                                    value={newDisplayName}
-                                    onChange={(e) => setNewDisplayName(e.target.value)}
-                                    placeholder="Defina seu nome"
-                                    required
-                                />
-                            </FormGroup>
-                            {displayNameMessage && (
-                                <Message type={displayNameMessage.type} style={{ width: 'fit-content' }}>
-                                    {displayNameMessage.type === 'success' ? <FaCheckCircle /> : <FaExclamationTriangle />}
-                                    {displayNameMessage.text}
-                                </Message>
-                            )}
-                            <ActionButton 
-                                type="submit" 
-                                disabled={newDisplayName === mockUser.displayName || isDisplayNameSubmitting} 
-                                style={{ width: 'fit-content' }}
-                            >
-                                <FaPen />
-                                {isDisplayNameSubmitting ? 'Atualizando...' : 'Atualizar Nome'}
-                            </ActionButton>
-                        </Form>
-                    </BlockContainer>
-                    
-                    {/* --- 2. SEGURANÇA E ACESSO --- */}
-                    <SectionTitle>
-                        <FaLock style={{ color: COLORS.secondaryBlue }} />
-                        Segurança e Acesso
-                    </SectionTitle>
-                    <BlockContainer>
-                         <h3 style={{ marginBottom: '1rem', color: COLORS.textLight }}>Alterar Senha</h3>
-                        <Form onSubmit={handleChangePassword}>
-                            <FormGroup>
-                                <Label htmlFor="oldPassword">Senha Atual</Label>
-                                <Input id="oldPassword" type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} placeholder="Digite sua senha atual" required />
-                            </FormGroup>
-                            <FormGroup>
-                                <Label htmlFor="newPassword">Nova Senha (mínimo 6 caracteres)</Label>
-                                <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Digite a nova senha" required minLength="6" />
-                            </FormGroup>
-                            <FormGroup>
-                                <Label htmlFor="confirmNewPassword">Confirme a Nova Senha</Label>
-                                <Input id="confirmNewPassword" type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} placeholder="Confirme a nova senha" required minLength="6" />
-                            </FormGroup>
+                        <nav style={{display:'flex', flexDirection:'column', gap: '5px'}}>
+                            <MenuButton $active={activeTab === 'profile'} onClick={() => {setActiveTab('profile'); setStatusMsg(null);}}>
+                                <FaUserCircle /> Dados Pessoais
+                            </MenuButton>
+                            <MenuButton $active={activeTab === 'security'} onClick={() => {setActiveTab('security'); setStatusMsg(null);}}>
+                                <FaLock /> Senha
+                            </MenuButton>
+                            <MenuButton $active={activeTab === 'settings'} onClick={() => {setActiveTab('settings'); setStatusMsg(null);}}>
+                                <FaShieldAlt /> Configurações
+                            </MenuButton>
+                        </nav>
 
-                            {passwordMessage && (
-                                <Message type={passwordMessage.type}>
-                                    {passwordMessage.type === 'success' ? <FaCheckCircle /> : <FaExclamationTriangle />}
-                                    {passwordMessage.text}
-                                </Message>
-                            )}
-                            
-                            <ActionButton type="submit" disabled={!isPasswordFormValid || isPasswordSubmitting} style={{ width: 'fit-content' }}>
-                                {isPasswordSubmitting ? 'Alterando...' : 'Alterar Senha'}
-                            </ActionButton>
-                        </Form>
-                    </BlockContainer>
-                    
-                    {/* --- 3. CONFIGURAÇÕES GERAIS --- */}
-                     <SectionTitle>
-                        <FaCog style={{ color: COLORS.secondaryBlue }} />
-                        Configurações Gerais
-                    </SectionTitle>
-                    <BlockContainer>
-                        <OptionItem>
-                            <span><FaBell style={{ color: COLORS.primary }} /> Gerenciar Notificações</span>
-                            <ActionButton style={{ background: '#333', padding: '10px 15px', fontSize: '1rem' }}>Editar</ActionButton>
-                        </OptionItem>
-                         <OptionItem style={{ borderBottom: 'none' }}>
-                            <span><FaGlobe style={{ color: COLORS.primary }} /> Idioma Preferido</span>
-                            <ActionButton style={{ background: '#333', padding: '10px 15px', fontSize: '1rem' }}>Português (Brasil)</ActionButton>
-                        </OptionItem>
-                    </BlockContainer>
+                        <MenuButton onClick={handleLogout} style={{marginTop: 'auto', borderTop: '1px solid #333', paddingTop: '1rem'}}>
+                            <FaSignOutAlt /> Sair
+                        </MenuButton>
+                    </Sidebar>
 
-                    {/* --- 4. OPÇÕES DE CONTA (DELETAR) --- */}
-                    <SectionTitle>
-                        <FaTrash style={{ color: COLORS.error }} />
-                        Opções de Risco
-                    </SectionTitle>
-                    <BlockContainer>
-                        <p style={{ color: 'white', marginBottom: '1.5rem' }}>
-                            Ao clicar abaixo, sua conta e todos os dados associados serão excluídos permanentemente do sistema. Esta ação não pode ser desfeita.
-                        </p>
-                        <ActionButton 
-                            $isDanger
-                            onClick={handleDeleteAccount} 
-                            disabled={isDeleting} 
-                            style={{ width: 'fit-content' }}
-                        >
-                            {isDeleting ? 'Excluindo Conta...' : 'Excluir Conta Permanentemente'}
-                        </ActionButton>
-                    </BlockContainer>
-
-                </ContentWrapper>
-            </AccountContainer>
+                    {/* ÁREA DE CONTEÚDO */}
+                    <ContentArea>
+                        {renderContent()}
+                        
+                        {/* MENSAGEM GLOBAL DE STATUS */}
+                        {statusMsg && (
+                            <StatusMessage type={statusMsg.type}>
+                                {statusMsg.type === 'success' ? <FaCheckCircle /> : <FaExclamationTriangle />}
+                                {statusMsg.text}
+                            </StatusMessage>
+                        )}
+                    </ContentArea>
+                </MainLayout>
+            </PageContainer>
         </>
     );
 };

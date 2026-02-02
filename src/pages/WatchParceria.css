@@ -1,0 +1,243 @@
+/* --- LAYOUT GERAL --- */
+.watch-parceria-container {
+    background-color: #050505;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* --- AMBIENT GLOW (Efeito de luz atrás do vídeo) --- */
+.wp-ambient-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80vh; /* Cobre a área do player */
+    background-size: cover;
+    background-position: center top;
+    filter: blur(80px) brightness(0.4); /* O segredo do glow */
+    z-index: 0;
+    opacity: 0.6;
+    pointer-events: none;
+    transition: background-image 1s ease;
+}
+
+/* --- HEADER --- */
+.wp-header {
+    height: 65px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    background: rgba(0, 0, 0, 0.4); /* Mais transparente */
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    z-index: 20;
+}
+
+.wp-back-btn {
+    background: transparent;
+    border: none;
+    color: #ddd;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+.wp-back-btn:hover { color: #fff; transform: translateX(-5px); transition: 0.2s; }
+
+.wp-badge-group {
+    display: flex;
+    gap: 10px;
+}
+
+.badge-hd {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.badge-free {
+    background: #27ae60;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+/* --- PLAYER AREA --- */
+.wp-player-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 30px 40px;
+    z-index: 10; /* Acima do glow */
+}
+
+.wp-video-container {
+    width: 100%;
+    max-width: 1200px;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    position: relative;
+    border-radius: 0px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    
+}
+
+.wp-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.wp-loader-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    z-index: 5;
+}
+
+.wp-spinner {
+    width: 60px; height: 60px;
+    border: 4px solid rgba(255,255,255,0.1);
+    border-top-color: #8a2be2;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* --- INFO BAR --- */
+.wp-info-bar {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px 60px 40px;
+    z-index: 10;
+}
+
+.wp-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.wp-ep-info h2 {
+    font-size: 1.8rem;
+    margin: 0 0 8px 0;
+    font-weight: 700;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.wp-season-tag {
+    color: #ccc;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wp-nav-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.wp-nav-btn {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+.wp-nav-btn:hover:not(:disabled) {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
+.wp-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.wp-nav-btn.locked-btn {
+    background: rgba(231, 76, 60, 0.15);
+    border: 1px solid rgba(231, 76, 60, 0.4);
+    color: #ff6b6b;
+}
+.wp-nav-btn.locked-btn:hover {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+}
+
+/* --- UPSELL --- */
+.wp-upsell-banner {
+    background: linear-gradient(90deg, #1a0b2e 0%, #4a148c 100%);
+    padding: 25px 30px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    box-shadow: 0 10px 30px rgba(74, 20, 140, 0.3);
+}
+
+.wp-upsell-content h4 { margin: 0; font-size: 1.2rem; color: #fff; }
+.wp-upsell-content p { margin: 5px 0 0 0; color: #d1c4e9; }
+
+.wp-upgrade-btn {
+    background: #fff;
+    color: #4a148c;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.wp-upgrade-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+}
+
+@media (max-width: 768px) {
+    .wp-player-section { padding: 0; margin-top: 10px; }
+    .wp-video-container { border-radius: 0; border: none; }
+    .wp-title-row { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .wp-nav-buttons { width: 100%; justify-content: space-between; }
+    .wp-nav-btn { flex: 1; justify-content: center; }
+    .wp-upsell-banner { flex-direction: column; text-align: center; gap: 15px; }
+    .wp-info-bar { padding: 20px; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

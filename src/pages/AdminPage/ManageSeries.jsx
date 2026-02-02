@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config'; 
 import { FaSave, FaTv } from 'react-icons/fa'; 
+import './ManageSeries.css'; // Ou o nome que você salvou
 
 // --- FUNÇÃO AUXILIAR ---
 const slugify = (text) => text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');

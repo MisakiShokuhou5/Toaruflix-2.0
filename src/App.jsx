@@ -10,8 +10,9 @@ import Profiles from './pages/Profiles';
 import EditProfiles from './pages/EditProfiles';
 import Browse from './pages/Browse';
 import Details from './pages/Details';
+import DetailsParceria from './pages/DetailsParceria'; // ✅ NOVA PÁGINA IMPORTADA
 import MyList from './pages/MyList'; 
-import MusicPage from './pages/MusicPage'; // ✅ PÁGINA DE MÚSICA ADICIONADA
+import MusicPage from './pages/MusicPage'; 
 import AdminCentral from './pages/AdminPage';
 import WatchPage from './pages/WatchPage';
 import TierList from './pages/TierList';
@@ -20,8 +21,10 @@ import Manga from './pages/Manga';
 import Account from './pages/Account';
 import Support from './pages/Support'; 
 import Privacy from './pages/Privacy'; 
+import WatchParceria from './pages/WatchParceria'; // ✅ IMPORTAR
 
-// ✅ PÁGINA ESPECIAL DE PARCERIA
+// ✅ PÁGINA ESPECIAL DE PARCERIA (A Landing Page filtrada para Animes)
+// Certifique-se de que o arquivo LandingPage.jsx que editamos está nesta pasta
 import LandingPageFinal from './pages/Parceria/LandingPage'; 
 
 /* --- COMPONENTES --- */
@@ -29,7 +32,7 @@ import Header from './components/Header';
 import CookieConsentBanner from './components/CookieConsentBanner'; 
 
 // --- DADOS ---
-const ADMIN_EMAIL = 'joao@gmail.com'; // Altere para o seu e-mail de admin
+const ADMIN_EMAIL = 'joao@gmail.com'; 
 
 /* --- COMPONENTES AUXILIARES --- */
 
@@ -115,6 +118,8 @@ function App() {
             <Routes>
                 {/* --- ROTAS PÚBLICAS --- */}
                 <Route path="/privacy" element={<Privacy />} /> 
+                
+                {/* Landing Page da Parceria (Animes Only) */}
                 <Route path="/MAXPLAY" element={<LandingPageFinal />} />
                 
                 {/* Se usuário já logado tentar acessar home/login, vai para profiles */}
@@ -127,22 +132,29 @@ function App() {
 
                 {/* --- ROTAS DE CONTEÚDO (Logado + Perfil Selecionado + Header) --- */}
                 <Route path="/browse" element={<ProtectedRoute useLayout={true}><Browse /></ProtectedRoute>} />
+                
+                {/* Detalhes Padrão (Tudo Liberado) */}
                 <Route path="/details/:slug" element={<ProtectedRoute useLayout={true}><Details /></ProtectedRoute>} />
                 
+                {/* ✅ Detalhes Parceria (Bloqueado) - Acessível via /MAXPLAY -> Clica no Card -> Vem pra cá */}
+                <Route path="/details-parceria/:slug" element={<DetailsParceria />} /> 
+                {/* Nota: Removi ProtectedRoute do details-parceria se a ideia é ser acessível publicamente vindo da Landing Parceria. 
+                   Se precisar de login, envolva com <ProtectedRoute useLayout={true}> */}
+
                 {/* ROTA MINHA LISTA */}
                 <Route path="/mylist" element={<ProtectedRoute useLayout={true}><MyList /></ProtectedRoute>} />
 
                 {/* ROTA TIER LIST */}
                 <Route path="/tier-list" element={<ProtectedRoute useLayout={true}><TierList /></ProtectedRoute>} />
                 
-                {/* ✅ ROTA DE MÚSICA (Spotify Style) - Sem Layout Padrão pois ela tem layout próprio */}
+                {/* ROTA DE MÚSICA */}
                 <Route path="/music" element={<ProtectedRoute useLayout={false}><MusicPage /></ProtectedRoute>} />
 
                 <Route path="/light-novels" element={<ProtectedRoute useLayout={true}><LightNovel /></ProtectedRoute>} />
                 <Route path="/manga" element={<ProtectedRoute useLayout={true}><Manga /></ProtectedRoute>} />
                 <Route path="/account" element={<ProtectedRoute useLayout={true}><Account /></ProtectedRoute>} />
                 <Route path="/support" element={<ProtectedRoute useLayout={true}><Support /></ProtectedRoute>} />
-
+<Route path="/watch-parceria/:slug/:episodeId" element={<WatchParceria />} />
                 {/* --- ADMINISTRAÇÃO --- */}
                 <Route path="/admin" element={<AdminRoute useLayout={true}><AdminCentral /></AdminRoute>} />
 
@@ -150,7 +162,9 @@ function App() {
                 <Route path="/watch/:slug/:episodeId" element={<ProtectedRoute useLayout={false}><WatchPage /></ProtectedRoute>} />
 
                 {/* --- 404 --- */}
-                <Route path="*" element={<NotFoundPage />} />
+                <Route path="*" element={<NotFoundPage />} 
+                
+                />
             </Routes>
         </BrowserRouter>
     );

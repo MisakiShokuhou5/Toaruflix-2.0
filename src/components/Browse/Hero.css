@@ -248,3 +248,8 @@
 .indicator-dot.active .indicator-progress-ring circle {
     animation: indicator-fill var(--rotation-duration) linear forwards;
 }
+@media (max-width: 667px){
+    .button-group{
+        flex-direction: column;
+    }
+}

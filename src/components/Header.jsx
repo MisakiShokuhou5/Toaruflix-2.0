@@ -137,9 +137,9 @@ const Header = () => {
             <HeaderNav className={isScrolled ? 'scrolled' : ''}>
                 {/* LADO ESQUERDO: Logo + Links */}
                 <LeftSection>
-                    <MobileMenuIcon onClick={() => setMobileMenuOpen(true)}>
+                    {/* <MobileMenuIcon onClick={() => setMobileMenuOpen(true)}>
                         <FaBars />
-                    </MobileMenuIcon>
+                    </MobileMenuIcon> */}
 
                     <Link to="/browse">
                         <Logo style={{ height: '25px' }} />

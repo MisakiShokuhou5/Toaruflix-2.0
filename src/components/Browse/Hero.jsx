@@ -260,9 +260,7 @@ const Hero = () => {
             <div className="hero-content">
                 
                 {/* Metadados */}
-                <p style={{ color: '#808080', fontSize: '0.9rem', marginBottom: '5px' }}>
-                    SÉRIE | {dummyYear} | <FaStar style={{ color: '#8a2be2' }} /> {dummyRating} PONTOS | {dummyRuntime} MIN
-                </p>
+                
 
                 {/* 1. Título */}
                 <h1 className="hero-title">
