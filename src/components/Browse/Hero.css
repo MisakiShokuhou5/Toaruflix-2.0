@@ -1,0 +1,250 @@
+/* ARQUIVO: src/components/Browse/Hero.css */
+
+/* --- VARIÁVEIS DE TEMA --- */
+:root {
+    --color-primary: #8a2be2; /* Blueviolet */
+    --color-red: #E50914; 
+    --color-black: #141414;
+    --rotation-duration: 60s; /* 1 MINUTO */
+}
+
+/* ------------------- EFEITOS E ANIMAÇÕES ------------------- */
+
+/* Animação para o contorno do SVG (simula preenchimento) */
+@keyframes indicator-fill {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* ------------------- ESTRUTURA PRINCIPAL ------------------- */
+
+.hero-container {
+    position: relative;
+    height: 90vh;
+    min-height: 500px;
+    background-color: var(--color-black);
+    color: white;
+    
+    /* Layout: Alinha o bloco de conteúdo para o centro/topo */
+    display: flex;
+    align-items: center; 
+    padding: 0;
+    overflow: hidden;
+}
+
+/* --- VÍDEO E IMAGEM DE FUNDO --- */
+.hero-background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: opacity 1s ease-in-out;
+}
+
+.teaser-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1; 
+    transition: opacity 1s ease-in-out;
+}
+.teaser-video.hidden {
+    opacity: 0;
+}
+.teaser-video:not(.hidden) {
+    opacity: 1;
+}
+
+.gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Garante contraste para o Header (topo) e para as Fileiras (fundo) */
+    background: linear-gradient(
+        to bottom, 
+        rgba(20,20,20,0.8) 0%, 
+        rgba(20,20,20,0) 50%, 
+        rgba(20,20,20,0.7) 75%, 
+        rgb(0, 0, 0) 95%
+    );
+    z-index: 2;
+}
+
+/* ------------------- CONTEÚDO (TEXTO E BOTÕES) ------------------- */
+
+.hero-content {
+    z-index: 3;
+    padding: 0 4%;
+    width: 100%;
+    max-width: 700px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    
+    /* Alinha o conteúdo mais para cima (compensando o alinhamento central do container) */
+    margin-top: -50px; 
+}
+
+.hero-logo-image {
+    width: 300px;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.hero-title {
+    font-size: 50px;
+    font-weight: 800;
+    margin-bottom: 15px;
+    line-height: 1.1;
+    text-transform: capitalize;
+}
+
+.hero-synopsis {
+    font-size: clamp(1rem, 1.5vw, 1.3rem);
+    font-weight: 400;
+    line-height: 1.4;
+    margin-bottom: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.button-group {
+    display: flex;
+    align-items: center; 
+    gap: 1rem;
+}
+
+.hero-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.2s, transform 0.1s;
+    color: white; 
+}
+
+.play-button {
+    background-color: var(--color-red);
+}
+.play-button:hover {
+    background-color: #f40a16;
+    transform: scale(1.02);
+}
+
+.info-button {
+    background-color: rgba(109, 109, 110, 0.7); 
+}
+.info-button:hover {
+    background-color: rgba(109, 109, 110, 0.9);
+    transform: scale(1.02);
+}
+
+/* ------------------- CONTROLE DE VOLUME ------------------- */
+
+.volume-button {
+    background: rgba(40, 40, 40, 0.8);
+    border: 2px solid white;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+    margin-left: 20px;
+}
+.volume-button:hover {
+    background: rgba(60, 60, 60, 0.9);
+}
+
+
+/* ------------------- INDICADORES DE ROTAÇÃO ------------------- */
+
+.indicator-container {
+    position: absolute;
+    bottom: 30px; 
+    right: 4%; 
+    z-index: 3;
+    display: flex;
+    gap: 10px;
+    opacity: 1; 
+}
+
+.indicator-dot {
+    position: relative;
+    width: 36px; /* Tamanho do SVG e container */
+    height: 16px;
+    cursor: pointer;
+}
+
+/* Base de Fundo do Indicador (O círculo cinza estático) */
+.indicator-base {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.4);
+    transition: all 0.3s;
+    z-index: 10;
+}
+.indicator-dot.active .indicator-base {
+    background-color: var(--color-primary);
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Estilo do SVG Progress Ring */
+.indicator-progress-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: scale(1);
+    transition: transform 0.3s;
+}
+
+.indicator-dot.active .indicator-progress-ring {
+    transform: scale(1.6); /* Aumenta o tamanho para o efeito de progresso ser visível */
+}
+
+.indicator-progress-ring circle {
+    fill: transparent;
+    stroke: var(--color-primary);
+    stroke-width: 2.5px;
+    
+    /* Configuração para Progress Ring */
+    stroke-dasharray: 44; 
+    stroke-dashoffset: 44; 
+    
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 0s; 
+}
+
+.indicator-dot.active .indicator-progress-ring circle {
+    animation: indicator-fill var(--rotation-duration) linear forwards;
+}

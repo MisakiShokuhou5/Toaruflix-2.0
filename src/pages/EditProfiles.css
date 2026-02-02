@@ -1,0 +1,253 @@
+/* ARQUIVO: src/pages/EditProfiles.css - ESTILO NETFLIX/MAX PÁGINA DE GERENCIAMENTO */
+
+/* --- VARIÁVEIS DE TEMA --- */
+:root {
+    --color-primary: #8a2be2;      /* Blueviolet (Destaque) */
+    --color-dark: #0f0f0f;         /* Preto profundo (Fundo) */
+    --color-modal-bg: #1e1e1e;     /* Fundo do Modal */
+    --color-text-muted: #808080;   /* Cinza inativo */
+    --color-text-active: #ffffff;  /* Branco puro */
+    --color-delete: #dc3545;       /* Vermelho de erro/delete */
+    --transition-speed: 0.2s;
+}
+
+/* --- CONTAINER PRINCIPAL --- */
+.profiles-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 5rem 2rem;
+    background-color: var(--color-dark);
+    color: var(--color-text-active);
+    font-family: 'Inter', sans-serif;
+}
+
+.profiles-title {
+    font-size: clamp(2.5rem, 4vw, 4.5rem);
+    margin-bottom: 2.5rem;
+    font-weight: 700;
+}
+
+/* --- LISTA DE PERFIS --- */
+.profile-list {
+    display: flex;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1200px;
+}
+
+.profile-item-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    width: clamp(100px, 12vw, 200px);
+}
+
+/* --- PERFIL INDIVIDUAL (Ações de Edição) --- */
+.profile-avatar {
+    width: 100%;
+    height: clamp(100px, 12vw, 200px);
+    border-radius: 8px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    border: 4px solid transparent;
+    transition: border-color var(--transition-speed), transform var(--transition-speed);
+    overflow: hidden;
+    background-color: #333;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-item-container:hover .profile-avatar {
+    border-color: var(--color-primary);
+}
+
+/* --- OVERLAY DE EDIÇÃO (CANETA) --- */
+.edit-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.7);
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1; /* Sempre visível no modo de edição */
+    font-size: clamp(2rem, 3vw, 3.5rem);
+    color: var(--color-primary);
+}
+
+/* --- NOME DO PERFIL --- */
+.profile-name {
+    color: var(--color-text-active);
+    font-size: clamp(1rem, 1.2vw, 1.3rem);
+    font-weight: 500;
+    transition: color var(--transition-speed);
+}
+
+/* --- BOTÃO ADICIONAR PERFIL --- */
+.add-profile-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    background-color: #333;
+    color: var(--color-text-muted);
+    transition: all var(--transition-speed) ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+.add-profile-placeholder svg {
+    font-size: clamp(2.5rem, 4vw, 4rem);
+}
+
+.profile-item-container:hover .add-profile-placeholder {
+    color: var(--color-primary);
+    background-color: rgba(50,50,50, 0.5);
+}
+
+/* --- BOTÃO CONCLUÍDO (Sair da edição) --- */
+.done-button {
+    background-color: transparent;
+    border: 2px solid var(--color-text-muted);
+    color: var(--color-text-muted);
+    padding: 0.9rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all var(--transition-speed);
+    border-radius: 4px;
+}
+.done-button:hover {
+    background-color: var(--color-primary);
+    color: var(--color-text-active);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+}
+
+
+/* --- ESTILOS DO MODAL (JANELA POP-UP DE EDIÇÃO) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background-color: var(--color-modal-bg);
+    padding: 3rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    animation: fadeIn 0.3s ease-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-title {
+    font-size: 2.2rem;
+    margin: 0 0 2rem 0;
+    font-weight: 700;
+}
+.modal-input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.2rem;
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: var(--color-text-active);
+    margin-bottom: 2rem;
+    transition: all var(--transition-speed);
+}
+.modal-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
+    outline: none;
+}
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+.avatar-option {
+    width: 100%;
+    height: 90px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 4px solid transparent;
+    transition: border-color var(--transition-speed), transform var(--transition-speed);
+    object-fit: cover;
+    background-color: #333;
+}
+.avatar-option.selected {
+    border-color: var(--color-primary);
+}
+.avatar-option:hover {
+    transform: scale(1.03);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3rem;
+    gap: 1rem;
+}
+
+/* --- BOTÕES DO MODAL --- */
+.modal-button {
+    flex-grow: 1;
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition-speed) ease;
+}
+
+.modal-button.save {
+    background-color: var(--color-primary);
+    color: var(--color-text-active);
+}
+.modal-button.save:hover:not(:disabled) { background-color: #7c25d3; }
+
+.modal-button.cancel {
+    background-color: var(--color-text-muted);
+    color: var(--color-text-active);
+}
+.modal-button.cancel:hover:not(:disabled) { background-color: #5a6268; }
+
+.modal-button.delete {
+    background-color: transparent;
+    color: var(--color-delete);
+    border: 1px solid var(--color-delete);
+}
+.modal-button.delete:hover:not(:disabled) { background-color: var(--color-delete); color: var(--color-text-active); }
+
+.modal-button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    opacity: 0.6;
+}

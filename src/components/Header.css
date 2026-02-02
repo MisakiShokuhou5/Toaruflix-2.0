@@ -1,0 +1,238 @@
+/* ARQUIVO: src/components/Header.css */
+
+/* --- Variáveis de Tema --- */
+:root {
+    --color-primary: #8a2be2;
+    --color-black-solid: #141414;
+    --color-dark-gray: #191919;
+    --color-medium-gray: #333;
+    --color-text-light: #e5e5e5;
+    --color-text-white: #fff;
+    --header-height: 68px;
+}
+
+/* --- Global Style (Manipulado via JS no Header.jsx) --- */
+/*
+body.menu-open {
+    overflow: hidden;
+}
+*/
+
+/* --- Header Principal --- */
+.header-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--header-height);
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4%;
+    background-color: transparent;
+    transition: background-color 0.4s ease-in-out;
+   
+}
+
+.header-nav.scrolled {
+    background-color: black;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* --- Seções do Header --- */
+.left-section {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+.right-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* --- Logo Mock Style --- */
+.logo-title {
+    font-size: 25px;
+    color: var(--color-text-white);
+    text-decoration: none;
+}
+.logo-title span {
+    color: var(--color-primary);
+}
+
+/* --- Navegação Principal (Desktop) --- */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+/* Esconde links principais em telas menores */
+@media (max-width: 900px) {
+    .nav-links {
+        display: none;
+    }
+}
+
+.styled-nav-link {
+    color: var(--color-text-light);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.styled-nav-link:hover {
+    color: var(--color-text-white);
+}
+
+.styled-nav-link.active {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+/* --- Ícones e Botões --- */
+.icon-button {
+    background: transparent;
+    border: none;
+    color: var(--color-text-white);
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.icon-button:hover {
+    color: var(--color-primary);
+}
+
+/* Menu Mobile Icon */
+.mobile-menu-icon {
+    background: none;
+    border: none;
+    color: var(--color-text-white);
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-right: 15px;
+}
+@media (min-width: 901px) {
+    .mobile-menu-icon {
+        display: none;
+    }
+}
+
+/* --- Perfil e Dropdown --- */
+.profile-container {
+    position: relative;
+}
+.profile-trigger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+}
+.profile-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+.caret-icon {
+    color: var(--color-text-white);
+    font-size: 0.8rem;
+    margin-left: 5px;
+    transition: transform 0.2s; /* Adicionado transição para a rotação */
+}
+@media (max-width: 900px) {
+    .caret-icon {
+        display: none;
+    }
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 20px);
+    right: 0;
+    background: var(--color-dark-gray);
+    border: 1px solid var(--color-medium-gray);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    width: 200px;
+    padding: 10px 0;
+    z-index: 1001;
+}
+.dropdown-arrow {
+    position: absolute;
+    top: -10px;
+    right: 15px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 10px solid var(--color-dark-gray);
+    z-index: 1002;
+}
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    color: var(--color-text-light);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    text-decoration: none;
+}
+.dropdown-item:hover {
+    background-color: var(--color-medium-gray);
+    color: var(--color-text-white);
+}
+
+.divider {
+    height: 1px;
+    background-color: var(--color-medium-gray);
+    margin: 5px 0;
+}
+
+/* --- Mobile Menu --- */
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 990;
+}
+.mobile-nav-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 70vw;
+    max-width: 300px;
+    height: 100vh;
+    background-color: var(--color-black-solid);
+    z-index: 991;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+    padding-top: 20px;
+    overflow-y: auto;
+}
+.mobile-link {
+    display: block;
+    padding: 12px 25px;
+    color: var(--color-text-white);
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: background-color 0.2s;
+}
+
+.mobile-link:hover, .mobile-link.active {
+    background-color: var(--color-medium-gray);
+    border-left: 3px solid var(--color-primary);
+}

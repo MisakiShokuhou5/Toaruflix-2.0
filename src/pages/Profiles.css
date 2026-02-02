@@ -1,0 +1,169 @@
+/* ARQUIVO: src/pages/Profiles.css - ESTILO NETFLIX/MAX PÁGINA DE PERFIS (REFINADO) */
+
+/* --- VARIÁVEIS DE TEMA --- */
+:root {
+    --color-primary: #8a2be2;      /* Blueviolet (Destaque) */
+    --color-dark: #141414;         /* Preto profundo (Fundo) */
+    --color-text-muted: #808080;   /* Cinza inativo */
+    --color-text-active: #ffffff;  /* Branco puro */
+    --transition-speed: 0.25s;
+    --avatar-size: clamp(120px, 14vw, 220px); /* Tamanho responsivo para avatar */
+}
+
+/* --- CONTAINER PRINCIPAL --- */
+.profiles-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--color-dark);
+    color: var(--color-text-active);
+    font-family: 'Inter', sans-serif;
+    padding: 2rem;
+    overflow-x: hidden; /* Evita barra de rolagem horizontal indesejada */
+    box-sizing: border-box; /* Garante que padding e borda não aumentem o tamanho total */
+}
+
+/* --- TÍTULO --- */
+.profiles-title {
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    font-weight: 500;
+    margin-bottom: 50px; /* Mais espaço para o título */
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* --- LISTA DE PERFIS --- */
+.profiles-list {
+    display: flex;
+    gap: clamp(1.5rem, 4vw, 3rem); /* Espaçamento entre os cards */
+    flex-wrap: wrap; /* Permite quebrar linha em telas menores */
+    justify-content: center;
+    max-width: 1200px;
+    margin-bottom: 50px;
+    padding: 0 1rem; /* Pequeno padding para evitar que os cards toquem as bordas em mobile */
+}
+
+/* --- CONTAINER DO ITEM INDIVIDUAL (CARD) --- */
+.profile-item-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    width: var(--avatar-size); /* Usa a variável de tamanho */
+    transition: transform var(--transition-speed) ease;
+    text-decoration: none; /* Garante que links não tenham underline */
+    color: inherit; /* Herda a cor do texto para o nome */
+}
+
+.profile-item-container:hover {
+    transform: scale(1.05);
+}
+
+/* --- AVATAR --- */
+.profile-avatar {
+    width: 100%;
+    /* Removido padding-top: 100%; para usar height e object-fit diretamente */
+    height: var(--avatar-size); /* Define a altura para ser um quadrado */
+    border-radius: 4px;
+    background-color: #333; /* Fundo para avatares sem imagem ou enquanto carregam */
+    display: flex; /* Para centralizar o ícone de adição */
+    justify-content: center;
+    align-items: center;
+    position: relative; /* Para borda */
+    overflow: hidden; /* Importante para cortar a imagem se for maior que o avatar */
+    border: 4px solid transparent; /* Borda transparente inicial */
+    transition: border-color var(--transition-speed);
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* ESSENCIAL: Ajusta a imagem para preencher o container */
+    display: block; /* Remove espaço extra abaixo da imagem */
+    transition: transform var(--transition-speed) ease;
+}
+
+.profile-item-container:hover .profile-avatar {
+    border-color: var(--color-primary); /* Borda Blueviolet no hover */
+}
+
+/* --- NOME DO PERFIL --- */
+.profile-name {
+    color: var(--color-text-muted);
+    font-size: clamp(1.1rem, 1.5vw, 1.5rem);
+    font-weight: 500;
+    transition: color var(--transition-speed);
+    text-align: center;
+    white-space: nowrap; /* Evita que o nome quebre a linha */
+    overflow: hidden; /* Esconde o texto que transborda */
+    text-overflow: ellipsis; /* Adiciona "..." se o nome for muito longo */
+    max-width: 100%; /* Limita o nome à largura do container do card */
+}
+
+.profile-item-container:hover .profile-name {
+    color: var(--color-text-active); /* Nome fica branco no hover */
+}
+
+/* --- BOTÃO GERENCIAR PERFIS --- */
+.manage-profiles-button {
+    background-color: transparent;
+    border: 1px solid var(--color-text-muted);
+    color: var(--color-text-muted);
+    padding: 0.7rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all var(--transition-speed);
+    border-radius: 2px;
+    margin-top: 20px; /* Garante espaço acima do botão */
+    white-space: nowrap; /* Evita que o texto do botão quebre */
+}
+
+.manage-profiles-button:hover {
+    color: var(--color-text-active);
+    border-color: var(--color-text-active);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); 
+}
+
+/* --- ÍCONE ADICIONAR PERFIL --- */
+.add-profile-placeholder {
+    width: 100%;
+    height: 100%; /* Ocupa todo o espaço do .profile-avatar */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #333; /* Fundo cinza para o placeholder */
+    border-radius: 4px;
+}
+
+.add-profile-placeholder svg {
+    font-size: clamp(2rem, 5vw, 4rem); /* Tamanho responsivo para o ícone */
+    color: var(--color-text-muted);
+    transition: color var(--transition-speed);
+}
+
+.profile-item-container:hover .add-profile-placeholder svg {
+    color: var(--color-primary);
+}
+
+/* --- Mídia Queries para Telas Menores --- */
+@media (max-width: 768px) {
+    .profiles-wrapper {
+        padding: 1rem;
+    }
+    .profiles-title {
+        margin-bottom: 30px;
+    }
+    .profiles-list {
+        gap: 1rem;
+    }
+    .manage-profiles-button {
+        padding: 0.5rem 1.5rem;
+        font-size: 1rem;
+    }
+}

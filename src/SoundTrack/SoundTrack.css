@@ -1,0 +1,225 @@
+body {
+    background: #0e1119;
+    color: #e4eaff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #7ab6ff;
+    letter-spacing: 1px;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px #4ca6ff;
+}
+
+.filtros {
+    background: #141a25;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #2b3b54;
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px #1a2536;
+}
+
+label {
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+select {
+    padding: 8px;
+    background: #0e1724;
+    color: white;
+    border: 1px solid #2d5d96;
+    border-radius: 6px;
+    outline: none;
+    margin-bottom: 20px;
+}
+
+select:hover {
+    border-color: #4ca6ff;
+}
+
+#lista-temporadas {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.temporada {
+    width: 120px;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid #2c3e55;
+    padding: 10px;
+    border-radius: 10px;
+    transition: 0.2s;
+    background: #0f1621;
+}
+
+.temporada img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+.temporada:hover {
+    transform: scale(1.06);
+    border-color: #4ca6ff;
+    box-shadow: 0 0 10px #4ca6ff;
+}
+
+.temporada.selecionada {
+    border-color: #7ab6ff;
+    box-shadow: 0 0 14px #7ab6ff;
+}
+
+.tipo-musica {
+    margin: 20px 0;
+}
+
+.tipo-musica button {
+    padding: 10px 18px;
+    margin-right: 10px;
+    background: #0e1724;
+    color: #dbe9ff;
+    border: 1px solid #2a4f7a;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.tipo-musica button:hover {
+    background: #1c2f4a;
+    border-color: #4ca6ff;
+    box-shadow: 0 0 10px #4ca6ff;
+}
+
+.tipo-musica button.selecionado {
+    background: #25456d;
+    border-color: #7ab6ff;
+    box-shadow: 0 0 12px #7ab6ff;
+    transform: scale(1.05);
+}
+
+#confirm {
+    padding: 12px 25px;
+    margin-top: 10px;
+    background: #0e1724;
+    border: 1px solid #2a4f7a;
+    border-radius: 6px;
+    color: #dbe9ff;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#confirm:hover {
+    background: #1c2f4a;
+    border-color: #4ca6ff;
+    box-shadow: 0 0 10px #4ca6ff;
+    transform: scale(1.04);
+}
+
+.modo-botoes {
+    margin-top: 25px;
+    text-align: center;
+}
+
+.modo-botoes button {
+    padding: 12px 18px;
+    margin: 0 10px;
+    background: #0e1724;
+    color: #dbe9ff;
+    border: 1px solid #2d5d96;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.modo-botoes button:hover {
+    background: #1c2f4a;
+    border-color: #4ca6ff;
+    box-shadow: 0 0 12px #4ca6ff;
+}
+
+.modo-botoes button.selecionado {
+    background: #25456d;
+    border-color: #7ab6ff;
+    box-shadow: 0 0 14px #7ab6ff;
+    transform: scale(1.06);
+}
+
+#resultado {
+    margin-top: 25px;
+    padding: 20px;
+    border-radius: 12px;
+    background: #111722;
+    border: 1px solid #2b3b54;
+    box-shadow: 0 0 10px #1a2536;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+#resultado audio,
+#resultado video {
+    width: 100%;
+    margin-top: 20px;
+    border-radius: 10px;
+    outline: none;
+}
+
+#lista-musicas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.musica-card {
+    width: 160px;
+    cursor: pointer;
+    border: 2px solid #2c3e55;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: 0.2s;
+    background: #0f1621;
+    text-align: center;
+}
+
+.musica-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+}
+
+.musica-info {
+    padding: 8px;
+}
+
+.musica-info .nome {
+    font-weight: bold;
+    font-size: 14px;
+    color: #7ab6ff;
+    margin-bottom: 4px;
+}
+
+.musica-info .artista {
+    font-size: 12px;
+    color: #dbe9ff;
+}
+
+.musica-card:hover {
+    transform: scale(1.05);
+    border-color: #4ca6ff;
+    box-shadow: 0 0 12px #4ca6ff;
+}
+
+.musica-card.selecionado {
+    border-color: #7ab6ff;
+    box-shadow: 0 0 16px #7ab6ff;
+    transform: scale(1.06);
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soundtrack</title>
+    <link rel="stylesheet" href="./SoundTrack.css">
+</head>
+
+<body>
+
+    <h1>SoundTrack</h1>
+
+    <div class="filtros">
+
+        <label>Series:</label>
+        <select id="serie">
+            <option value="">Select</option>
+            <option value="index">A Certain Magical Index</option>
+            <option value="railgun">A Certain Scientific Railgun</option>
+            <option value="accelerator">A Certain Scientific Accelerator</option>
+        </select>
+
+        <div id="temporadas-container">
+            <label>Season:</label>
+            <div id="lista-temporadas"></div>
+        </div>
+
+        <div class="tipo-musica">
+            <button id="btn-op">Opening</button>
+            <button id="btn-ed">Ending</button>
+        </div>
+
+        <button id="confirm">Confirm</button>
+    </div>
+
+    <div id="lista-musicas"></div>
+
+    <div id="resultado"></div>
+
+    <div class="modo-botoes">
+        <button id="btn-audio">Áudio</button>
+        <button id="btn-video">Vídeo</button>
+    </div>
+
+    <script src="./SoundTrack.js"></script>
+</body>
+
+</html>

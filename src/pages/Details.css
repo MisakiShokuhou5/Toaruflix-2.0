@@ -1,0 +1,388 @@
+/*
+|--------------------------------------------------------------------------
+| Detalhes da Série (Details.css) - Estilo Premium Max
+|--------------------------------------------------------------------------
+*/
+
+/* --- Cores e Variáveis --- */
+:root {
+    --max-dark: #09090b; /* Fundo quase preto */
+    --max-card-bg: #18181b;
+    --max-light-gray: #a1a1aa;
+    --max-text-white: #ffffff;
+    --max-primary: #8a2be2; /* Blueviolet do seu tema */
+    --max-primary-hover: #7c25d3;
+    --max-success: #22c55e; /* Verde para 'Na Lista' */
+    --max-overlay-gradient: linear-gradient(to top, #000000 10%, rgba(0,0,0,0.8) 25%, rgba(0,0,0,0) 100%);
+}
+
+body {
+    background-color: black;
+    color: var(--max-text-white);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.details-wrapper {
+    min-height: 100vh;
+    padding-bottom: 80px;
+    background-color: #000;
+}
+
+/* ----------------------------------------------------------------
+| 1. SEÇÃO HERO / BANNER
+| ---------------------------------------------------------------- */
+
+.hero-details {
+    position: relative;
+    width: 100%;
+    height: 85vh; /* Ocupa boa parte da tela */
+    min-height: 600px;
+    background-size: cover;
+    background-position: center top;
+    display: flex;
+    align-items: flex-end;
+}
+
+/* Gradiente Suave sobre a imagem */
+.hero-gradient-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at top right, rgba(0,0,0,0.1), #000000 90%);
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 50%, #000000 100%);
+    z-index: 1;
+}
+
+/* Gradiente extra lateral para leitura do texto */
+.hero-details::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 40%, transparent 100%);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 4%;
+    padding-bottom: 60px;
+    max-width: 800px;
+    width: 100%;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+    line-height: 1.1;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+/* Metadados (Ano, Nota, Duração) */
+.hero-metadata {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #e5e5e5;
+    margin-bottom: 25px;
+}
+
+.metadata-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rating-star {
+    color: #fbbf24; /* Amarelo dourado */
+}
+
+/* --- BOTÕES DE AÇÃO (Play e Lista) --- */
+.hero-actions {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 25px;
+}
+
+.hero-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 32px;
+    border-radius: 6px;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Botão Assistir (Branco/Sólido) */
+.play-btn-detail {
+    background-color: var(--max-text-white);
+    color: #000;
+}
+
+.play-btn-detail:hover {
+    background-color: #e5e5e5;
+    transform: scale(1.02);
+}
+
+/* Botão Minha Lista (Escuro/Glass) */
+.list-btn {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--max-text-white);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.list-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Estado Ativo do Botão Lista */
+.list-btn.active {
+    background-color: rgba(34, 197, 94, 0.2); /* Verde translúcido */
+    border-color: var(--max-success);
+    color: var(--max-success);
+}
+
+.list-btn.active:hover {
+    background-color: rgba(34, 197, 94, 0.3);
+}
+
+.hero-overview {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #d4d4d8;
+    max-width: 700px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+/* Caixa de Aviso de Parceria */
+.partner-notice-box {
+    margin-top: 20px;
+    padding: 12px 16px;
+    background: rgba(229, 9, 20, 0.15); /* Fundo avermelhado sutil */
+    border-left: 4px solid #e50914;
+    border-radius: 4px;
+    max-width: 600px;
+    font-size: 0.9rem;
+    color: #ffdadc;
+}
+
+/* ----------------------------------------------------------------
+| 2. SEÇÃO DE EPISÓDIOS
+| ---------------------------------------------------------------- */
+
+.episodes-section {
+    padding: 0 4%;
+    margin-top: 20px;
+}
+
+.episodes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+}
+
+.episodes-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+/* Select customizado */
+.custom-select-wrapper {
+    position: relative;
+}
+
+.season-selector {
+    background-color: #27272a;
+    color: white;
+    padding: 10px 20px;
+    border: 1px solid #3f3f46;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    outline: none;
+    min-width: 200px;
+}
+
+.season-selector:hover {
+    border-color: var(--max-primary);
+}
+
+/* LISTA DE EPISÓDIOS */
+.episodes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.episode-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: transparent;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #27272a;
+}
+
+.episode-card:hover {
+    background-color: #18181b;
+    border-color: transparent;
+}
+
+/* Episódio Bloqueado (Parceria) */
+.episode-card.partner-locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+}
+
+.episode-card.watchable {
+    cursor: pointer;
+}
+
+/* Número do Episódio */
+.episode-number {
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--max-light-gray);
+    width: 40px;
+    text-align: center;
+    padding-top: 15px;
+}
+
+/* Thumbnail */
+.episode-thumbnail {
+    position: relative;
+    width: 220px;
+    aspect-ratio: 16/9;
+    flex-shrink: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #111;
+}
+
+.episode-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+/* Efeito de Play na Thumbnail */
+.play-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.play-icon {
+    font-size: 3rem;
+    color: white;
+    transform: scale(0.8);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Hover na Thumbnail */
+.episode-card.watchable:hover .episode-thumbnail img {
+    transform: scale(1.05);
+}
+
+.episode-card.watchable:hover .play-overlay {
+    opacity: 1;
+}
+
+.episode-card.watchable:hover .play-icon {
+    transform: scale(1);
+}
+
+/* Informações */
+.episode-info {
+    flex: 1;
+    padding-top: 5px;
+}
+
+.episode-title-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.episode-title-meta h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+}
+
+.episode-title-meta .runtime {
+    font-size: 0.85rem;
+    color: var(--max-light-gray);
+    background: #27272a;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.episode-overview {
+    font-size: 0.95rem;
+    color: #a1a1aa;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 768px) {
+    .hero-details {
+        min-height: 500px;
+        height: auto;
+        padding-top: 100px;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-btn {
+        padding: 10px 20px;
+        font-size: 1rem;
+        flex: 1;
+    }
+
+    .episode-card {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px 0;
+    }
+
+    .episode-number {
+        display: none; /* Esconde número em mobile para economizar espaço */
+    }
+
+    .episode-thumbnail {
+        width: 100%;
+        aspect-ratio: 16/9;
+    }
+}
