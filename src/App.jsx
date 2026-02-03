@@ -1,4 +1,3 @@
-// ARQUIVO: src/App.jsx
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
@@ -10,22 +9,21 @@ import Profiles from './pages/Profiles';
 import EditProfiles from './pages/EditProfiles';
 import Browse from './pages/Browse';
 import Details from './pages/Details';
-import DetailsParceria from './pages/DetailsParceria'; // ✅ NOVA PÁGINA IMPORTADA
 import MyList from './pages/MyList'; 
 import MusicPage from './pages/MusicPage'; 
 import AdminCentral from './pages/AdminPage';
-import WatchPage from './pages/WatchPage';
+import WatchPage from './pages/WatchPage'; // Player padrão (Logado)
 import TierList from './pages/TierList';
 import LightNovel from './pages/LightNovel';
 import Manga from './pages/Manga';
 import Account from './pages/Account';
 import Support from './pages/Support'; 
 import Privacy from './pages/Privacy'; 
-import WatchParceria from './pages/WatchParceria'; // ✅ IMPORTAR
 
-// ✅ PÁGINA ESPECIAL DE PARCERIA (A Landing Page filtrada para Animes)
-// Certifique-se de que o arquivo LandingPage.jsx que editamos está nesta pasta
+/* --- PÁGINAS DA PARCERIA (FLUXO EXTERNO/FREEMIUM) --- */
 import LandingPageFinal from './pages/Parceria/LandingPage'; 
+import DetailsParceria from './pages/DetailsParceria';
+import WatchParceria from './pages/WatchParceria'; // ✅ O Player da parceria
 
 /* --- COMPONENTES --- */
 import Header from './components/Header';
@@ -116,13 +114,16 @@ function App() {
             <CookieConsentBanner /> 
             
             <Routes>
-                {/* --- ROTAS PÚBLICAS --- */}
+                {/* --- ROTAS PÚBLICAS / INSTITUCIONAIS --- */}
                 <Route path="/privacy" element={<Privacy />} /> 
                 
-                {/* Landing Page da Parceria (Animes Only) */}
+                {/* --- FLUXO PARCERIA (MAXPLAY FREE) --- */}
+                {/* Estas rotas ficam fora do ProtectedRoute para permitir acesso aos 3 eps grátis */}
                 <Route path="/MAXPLAY" element={<LandingPageFinal />} />
+                <Route path="/details-parceria/:slug" element={<DetailsParceria />} />
+                <Route path="/watch-parceria/:slug/:episodeId" element={<WatchParceria />} />
                 
-                {/* Se usuário já logado tentar acessar home/login, vai para profiles */}
+                {/* --- ROTAS DE AUTENTICAÇÃO --- */}
                 <Route path="/" element={!user ? <Landing /> : <Navigate to="/profiles" replace />} />
                 <Route path="/login" element={!user ? <Login /> : <Navigate to="/profiles" />} />
 
@@ -133,38 +134,34 @@ function App() {
                 {/* --- ROTAS DE CONTEÚDO (Logado + Perfil Selecionado + Header) --- */}
                 <Route path="/browse" element={<ProtectedRoute useLayout={true}><Browse /></ProtectedRoute>} />
                 
-                {/* Detalhes Padrão (Tudo Liberado) */}
+                {/* Detalhes Padrão (Sistema Logado) */}
                 <Route path="/details/:slug" element={<ProtectedRoute useLayout={true}><Details /></ProtectedRoute>} />
                 
-                {/* ✅ Detalhes Parceria (Bloqueado) - Acessível via /MAXPLAY -> Clica no Card -> Vem pra cá */}
-                <Route path="/details-parceria/:slug" element={<DetailsParceria />} /> 
-                {/* Nota: Removi ProtectedRoute do details-parceria se a ideia é ser acessível publicamente vindo da Landing Parceria. 
-                   Se precisar de login, envolva com <ProtectedRoute useLayout={true}> */}
-
-                {/* ROTA MINHA LISTA */}
+                {/* Minha Lista */}
                 <Route path="/mylist" element={<ProtectedRoute useLayout={true}><MyList /></ProtectedRoute>} />
 
-                {/* ROTA TIER LIST */}
+                {/* Tier List */}
                 <Route path="/tier-list" element={<ProtectedRoute useLayout={true}><TierList /></ProtectedRoute>} />
                 
-                {/* ROTA DE MÚSICA */}
+                {/* Música */}
                 <Route path="/music" element={<ProtectedRoute useLayout={false}><MusicPage /></ProtectedRoute>} />
 
+                {/* Outras Categorias */}
                 <Route path="/light-novels" element={<ProtectedRoute useLayout={true}><LightNovel /></ProtectedRoute>} />
                 <Route path="/manga" element={<ProtectedRoute useLayout={true}><Manga /></ProtectedRoute>} />
+                
+                {/* Conta e Suporte */}
                 <Route path="/account" element={<ProtectedRoute useLayout={true}><Account /></ProtectedRoute>} />
                 <Route path="/support" element={<ProtectedRoute useLayout={true}><Support /></ProtectedRoute>} />
-<Route path="/watch-parceria/:slug/:episodeId" element={<WatchParceria />} />
+
                 {/* --- ADMINISTRAÇÃO --- */}
                 <Route path="/admin" element={<AdminRoute useLayout={true}><AdminCentral /></AdminRoute>} />
 
-                {/* --- PLAYER (Tela cheia, sem Header) --- */}
+                {/* --- PLAYER PADRÃO (Sistema Logado - Tela Cheia) --- */}
                 <Route path="/watch/:slug/:episodeId" element={<ProtectedRoute useLayout={false}><WatchPage /></ProtectedRoute>} />
 
                 {/* --- 404 --- */}
-                <Route path="*" element={<NotFoundPage />} 
-                
-                />
+                <Route path="*" element={<NotFoundPage />} />
             </Routes>
         </BrowserRouter>
     );

@@ -1,0 +1,317 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap');
+
+/* --- 1. GLOBAL & RESET --- */
+.watch-page-container {
+  min-height: 100vh;
+  background-color: #000000; /* Preto Absoluto */
+  color: #ffffff;
+  font-family: 'Lato', sans-serif;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* --- 2. AMBIENT GLOW --- */
+.wp-ambient-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 85vh;
+  background-size: cover;
+  background-position: center top;
+  opacity: 0.2;
+  filter: blur(80px);
+  z-index: 0;
+  mask-image: linear-gradient(to bottom, black 10%, transparent 100%);
+  pointer-events: none;
+}
+
+/* --- 3. HEADER --- */
+.wp-header {
+  position: relative;
+  z-index: 10;
+  padding: 20px 4%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Espaço entre voltar e seletor */
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.wp-back-btn {
+  background: transparent;
+  border: none;
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.wp-back-btn:hover {
+  color: #f47521;
+  transform: translateX(-5px);
+}
+
+/* Seletor de Players (Específico do WatchPage) */
+.source-selector-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.source-selector {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background-color: #000;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* --- 4. PLAYER SECTION --- */
+.wp-player-section {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 4%;
+  box-sizing: border-box;
+}
+
+.wp-video-container {
+  position: relative;
+  width: 100%;
+  /* Removemos altura fixa para manter responsividade pelo padding-top */
+  padding-top: 56.25%; /* Aspect Ratio 16:9 */
+  background-color: #0d0d0d;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Ajuste para o seu componente VideoPlayer/EmbedPlayer preencher a div */
+.wp-video-container > div, 
+.wp-video-container iframe,
+.wp-video-container video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+}
+
+/* --- 5. INFO GRID --- */
+.wp-info-bar {
+  position: relative;
+  z-index: 10;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 25px 4% 60px;
+  box-sizing: border-box;
+}
+
+.wp-info-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+/* Coluna Esquerda */
+.wp-info-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.wp-anime-title {
+  color: #f47521;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  width: fit-content;
+}
+
+.wp-anime-title:hover { text-decoration: underline; }
+
+.wp-ep-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 12px;
+}
+
+.wp-ep-title-row h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.wp-bookmark-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 5px;
+  transition: all 0.2s;
+}
+
+.wp-bookmark-btn:hover { opacity: 1; color: #f47521; }
+
+.wp-metadata-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+
+.rating-l {
+  background-color: #009b3a;
+  color: #fff;
+  font-weight: 900;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.meta-divider { color: #444; font-size: 0.6rem; }
+.meta-text { color: #a0a0a0; font-weight: 400; }
+
+/* Coluna Direita (Next Ep) */
+.wp-next-column {
+  width: 340px;
+  flex-shrink: 0;
+}
+
+.wp-next-header {
+  color: #a0a0a0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 0 0 12px 0;
+  letter-spacing: 0.5px;
+}
+
+.wp-next-card {
+  background-color: #23252b;
+  display: flex;
+  flex-direction: row;
+  height: 90px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.wp-next-card:hover { background-color: #2f3138; }
+
+.wp-next-thumb {
+  width: 160px;
+  height: 100%;
+  position: relative;
+  background-color: #000;
+  flex-shrink: 0;
+}
+
+.wp-next-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+}
+
+.wp-duration-badge {
+  position: absolute;
+  bottom: 5px; right: 5px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 2px 5px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+.wp-play-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.4);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.wp-next-card:hover .wp-play-overlay { opacity: 1; }
+.wp-play-overlay svg { color: #fff; font-size: 1.6rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+
+.wp-next-info {
+  flex: 1;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.next-ep-number { color: #f47521; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+.next-ep-title {
+  color: #ddd; font-size: 0.85rem; font-weight: 400; line-height: 1.3;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+.wp-next-empty { color: #666; font-style: italic; font-size: 0.9rem; padding: 20px 0; }
+
+/* Loader */
+.wp-loader-overlay {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  color: #666;
+}
+.wp-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(244, 117, 33, 0.3);
+  border-top-color: #f47521;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Responsividade */
+@media (max-width: 968px) {
+  .wp-info-grid { flex-direction: column; gap: 30px; }
+  .wp-info-left { border-bottom: 1px solid #222; padding-bottom: 25px; width: 100%; }
+  .wp-next-column { width: 100%; }
+  .wp-player-section { padding: 0; }
+  .wp-video-container { border-radius: 0; }
+  .wp-next-card { background-color: transparent; border-top: 1px solid #222; border-radius: 0; padding-top: 15px; }
+}

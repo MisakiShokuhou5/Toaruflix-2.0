@@ -1,259 +1,219 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../firebase/config';
-import { getMediaById, TMDB_IMAGE_BASE_URL } from '../services/dataService';
-import { FaArrowLeft, FaStepBackward, FaStepForward, FaLock, FaCrown, FaExclamationTriangle, FaTv } from 'react-icons/fa';
+import { getAnimeFromMyApi, getTmdbShowDetails, getNextEpisodeDetails } from '../services/tmdb'; // Imports atualizados
+import { FaArrowLeft, FaPlay, FaBookmark, FaGem, FaExclamationTriangle } from 'react-icons/fa';
 import './WatchParceria.css';
 
 const WatchParceria = () => {
-    const { slug, episodeId } = useParams();
+    // "slug" aqui na verdade é o ID do firebase (ex: ipu8Vq2qgIe0Jbk77cTt)
+    const { slug, episodeId } = useParams(); 
     const navigate = useNavigate();
 
+    // Estados
     const [loading, setLoading] = useState(true);
     const [episodeData, setEpisodeData] = useState(null);
     const [embedUrl, setEmbedUrl] = useState(null);
-    const [nextEpId, setNextEpId] = useState(null);
-    const [prevEpId, setPrevEpId] = useState(null);
+    const [nextEpInfo, setNextEpInfo] = useState(null);
 
-    // --- BUSCA E VALIDAÇÃO ---
     useEffect(() => {
-        const fetchEpisodeDetails = async () => {
+        const fetchContent = async () => {
             setLoading(true);
             try {
-                let currentEpData = null;
-                let backdrop = null;
-                let season = 1;
-                let epNumber = 1;
-                let source = 'firebase';
+                // 1. IDENTIFICA O NÚMERO DO EPISÓDIO ATUAL
+                let currentEp = 1;
+                // Tenta pegar da URL se for número, senão assume 1
+                if (!isNaN(episodeId)) {
+                    currentEp = parseInt(episodeId);
+                }
 
-                // 1. TENTA NO FIREBASE
-                const epRef = doc(db, 'episodes', episodeId);
-                const epSnap = await getDoc(epRef);
+                // 🔒 REGRA DE BLOQUEIO (> EP 3)
+                if (currentEp > 3) {
+                    alert("Episódio exclusivo para assinantes Premium.");
+                    navigate(`/details-parceria/${slug}`);
+                    return;
+                }
 
-                if (epSnap.exists()) {
-                    currentEpData = { id: epSnap.id, ...epSnap.data() };
-                    // Tenta pegar o backdrop do anime no firebase
-                    const animeRef = doc(db, 'animes', slug);
-                    const animeSnap = await getDoc(animeRef);
-                    if (animeSnap.exists()) backdrop = animeSnap.data().backdropUrl;
+                // 2. BUSCA NA SUA API PRIMEIRO (Para pegar o tmdbId correto)
+                const myApiData = await getAnimeFromMyApi(slug); // slug = ipu8Vq2qgIe0Jbk77cTt
+                
+                let tmdbId = null;
+                let showTitle = "Carregando...";
+                let backdrop = "https://image.tmdb.org/t/p/original/bQLrHIRq9161x37Zc2E0N75L62.jpg"; // Fallback genérico bonito
+
+                if (myApiData) {
+                    tmdbId = myApiData.tmdbId;
+                    showTitle = myApiData.title;
+                    // Se sua API tiver poster/backdrop, use aqui se quiser
                 } else {
-                    // 2. FALLBACK API (Se não achar no Firebase)
-                    source = 'api';
-                    let mediaData = await getMediaById('series', slug);
-                    if (!mediaData) mediaData = await getMediaById('anime', slug);
+                    console.error("Anime não encontrado na base de dados.");
+                    // Se não achar na sua API, não temos como achar no TMDB
+                }
 
-                    if (mediaData) {
-                        backdrop = mediaData.backdrop_path 
-                            ? `${TMDB_IMAGE_BASE_URL}original${mediaData.backdrop_path}` 
-                            : null;
-                        
-                        if (mediaData.episodes) {
-                            // Converte IDs para String para garantir comparação correta
-                            const foundEp = mediaData.episodes.find(ep => String(ep.id) === String(episodeId));
-                            if (foundEp) {
-                                currentEpData = foundEp;
-                            }
+                // 3. SE TIVER TMDB ID, BUSCA DETALHES VISUAIS (Backdrop e Títulos)
+                let currentTitle = `Episódio ${currentEp}`;
+                let season = 1; // Assumindo temporada 1 por padrão baseada na sua API
+
+                if (tmdbId) {
+                    // Pega detalhes da Série (para o fundo/backdrop)
+                    const showDetails = await getTmdbShowDetails(tmdbId);
+                    if (showDetails) {
+                        if (showDetails.backdrop_path) {
+                            backdrop = `https://image.tmdb.org/t/p/original${showDetails.backdrop_path}`;
                         }
+                    }
+
+                    // Pega detalhes do Episódio Atual (Título e Imagem)
+                    const epDetails = await getNextEpisodeDetails(tmdbId, season, currentEp);
+                    if (epDetails) {
+                        currentTitle = epDetails.titulo || `Episódio ${currentEp}`;
                     }
                 }
 
-                // 3. PROCESSA OS DADOS
-                if (currentEpData) {
-                    // --- CORREÇÃO DO NaN (Sanitização Agressiva) ---
+                // 4. SETA DADOS NA TELA
+                setEpisodeData({
+                    tituloEpisodio: currentTitle,
+                    tituloSerie: showTitle,
+                    temporada: season,
+                    numeroEpisodio: currentEp,
+                    backdrop: backdrop
+                });
+
+                // 5. GERA URL DO PLAYER
+                // Usando o ID do firebase na URL do player como você fazia antes
+                const generatedUrl = `https://maxplay.vercel.app/embed/anime/${slug}?season=1&ep=${currentEp}&autoplay=1`;
+                setEmbedUrl(generatedUrl);
+
+
+                // --- 6. LÓGICA DO PRÓXIMO EPISÓDIO ---
+                const nextEpNum = currentEp + 1;
+                const isLocked = nextEpNum > 3;
+                let nextThumb = backdrop; // Começa com o backdrop como garantia
+                let nextTitle = `Episódio ${nextEpNum}`;
+
+                // Verifica se existe link para o próximo episódio na sua API (opcional, mas bom pra saber se acabou)
+                const hasNextLink = myApiData?.links?.["1"]?.[String(nextEpNum)];
+
+                // Se houver próximo episódio (baseado na sua lista ou lógica TMDB)
+                if (hasNextLink || tmdbId) {
                     
-                    // Tenta pegar a temporada de todas as formas possíveis
-                    let rawSeason = currentEpData.temporada || currentEpData.season_number || 1;
-                    // Tenta pegar o episódio de todas as formas possíveis
-                    let rawEp = currentEpData.numeroEpisodio || currentEpData.episode_number || currentEpData.ep_number || 1;
-
-                    // Converte para número
-                    season = parseInt(rawSeason);
-                    epNumber = parseInt(rawEp);
-
-                    // BLINDAGEM: Se a conversão der errado (NaN), força ser 1
-                    if (isNaN(season) || season < 1) season = 1;
-                    if (isNaN(epNumber) || epNumber < 1) epNumber = 1;
-
-                    // 🔒 TRAVA DE SEGURANÇA (Regra de Negócio)
-                    if (season !== 1 || epNumber > 3) {
-                        alert("Este episódio é exclusivo para assinantes.");
-                        navigate(`/details-parceria/${slug}`);
-                        return;
+                    // Tenta buscar imagem real no TMDB
+                    if (tmdbId) {
+                        const nextTmdbData = await getNextEpisodeDetails(tmdbId, season, nextEpNum);
+                        if (nextTmdbData) {
+                            if (nextTmdbData.titulo) nextTitle = nextTmdbData.titulo;
+                            if (nextTmdbData.thumb) nextThumb = nextTmdbData.thumb;
+                        }
                     }
 
-                    // Define dados para a tela
-                    setEpisodeData({
-                        ...currentEpData,
-                        tituloEpisodio: currentEpData.tituloEpisodio || currentEpData.name || `Episódio ${epNumber}`,
-                        numeroEpisodio: epNumber,
-                        temporada: season,
-                        backdrop: backdrop 
+                    setNextEpInfo({
+                        id: String(nextEpNum),
+                        num: nextEpNum,
+                        title: nextTitle,
+                        thumb: nextThumb,
+                        locked: isLocked
                     });
-
-                    // Monta a URL corrigida
-                    const generatedUrl = `https://maxplay.vercel.app/embed/anime/${slug}?season=${season}&ep=${epNumber}&autoplay=1`;
-                    console.log("Player URL Gerada:", generatedUrl); // Debug
-                    setEmbedUrl(generatedUrl);
-
-                    // Busca vizinhos (Anterior/Próximo)
-                    await findNeighbors(slug, season, epNumber, source, episodeId);
                 } else {
-                    console.error("Episódio não encontrado na lista.");
-                    setEmbedUrl(null);
+                    setNextEpInfo(null); // Fim da lista
                 }
 
             } catch (error) {
-                console.error("Erro fatal:", error);
+                console.error("Erro geral:", error);
             }
             setLoading(false);
         };
 
-        if (episodeId && slug) fetchEpisodeDetails();
-    }, [episodeId, slug, navigate]);
-
-    // --- LÓGICA DE VIZINHOS (NEXT/PREV) ---
-    const findNeighbors = async (animeSlug, currentSeason, currentEp, source, currentId) => {
-        try {
-            let allEps = [];
-            if (source === 'firebase') {
-                const q = query(collection(db, 'episodes'), where('animeSlug', '==', animeSlug));
-                const snap = await getDocs(q);
-                allEps = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            } else {
-                let mediaData = await getMediaById('anime', animeSlug);
-                if (mediaData?.episodes) {
-                    allEps = mediaData.episodes.map(e => ({
-                        id: e.id,
-                        temporada: e.season_number,
-                        numeroEpisodio: e.episode_number
-                    }));
-                }
-            }
-            
-            // Ordenação Segura
-            const cleanEps = allEps.map(ep => ({
-                id: ep.id,
-                temp: Number(ep.temporada || ep.season_number || 1),
-                num: Number(ep.numeroEpisodio || ep.numeroEpisodio || 1)
-            })).sort((a, b) => (a.temp - b.temp) || (a.num - b.num));
-
-            // Achar índice atual comparando String
-            const idx = cleanEps.findIndex(e => String(e.id) === String(currentId));
-            
-            // Set Anterior
-            setPrevEpId(idx > 0 ? cleanEps[idx - 1].id : null);
-
-            // Set Próximo (Com Lógica de Cadeado)
-            if (idx < cleanEps.length - 1) {
-                const next = cleanEps[idx + 1];
-                // Só libera se for Temp 1 e Ep <= 3
-                if (next.temp === 1 && next.num <= 3) {
-                    setNextEpId(next.id);
-                } else {
-                    setNextEpId('LOCKED'); 
-                }
-            } else {
-                setNextEpId(null);
-            }
-        } catch (e) { console.error(e); }
-    };
+        if (slug) fetchContent();
+    }, [slug, episodeId, navigate]);
 
     return (
         <div className="watch-parceria-container">
-            {/* AMBIENT GLOW */}
+            {/* GLOW DE FUNDO */}
             {episodeData?.backdrop && (
-                <div 
-                    className="wp-ambient-glow" 
-                    style={{ backgroundImage: `url(${episodeData.backdrop})` }}
-                ></div>
+                <div className="wp-ambient-glow" ></div>
             )}
 
             {/* HEADER */}
             <div className="wp-header">
                 <button className="wp-back-btn" onClick={() => navigate(`/MAXPLAY`)}>
-                    <FaArrowLeft /> Voltar
+                    <FaArrowLeft /> VOLTAR
                 </button>
-                {/* <div className="wp-badge-group">
-                    <span className="badge-hd">1080p</span>
-                    <span className="badge-free">GRÁTIS</span>
-                </div> */}
             </div>
 
             {/* PLAYER SECTION */}
             <section className="wp-player-section">
                 <div className="wp-video-container">
-                    {loading && (
-                        <div className="wp-loader-overlay">
-                            <div className="wp-spinner"></div>
-                            <p style={{marginTop: '15px', color: '#ccc', fontWeight: 500}}>Carregando Anime...</p>
-                        </div>
-                    )}
-
+                    {loading && <div className="wp-loader-overlay"><div className="wp-spinner"></div></div>}
+                    
                     {!loading && embedUrl ? (
                         <iframe 
                             src={embedUrl}
-                            title="Anime Player"
+                            title="Player"
                             className="wp-iframe"
-                            frameBorder="0"
                             allowFullScreen
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
                         ></iframe>
                     ) : !loading && (
-                        <div className="wp-loader-overlay">
-                            <FaExclamationTriangle size={40} color="#e74c3c" />
-                            <p style={{marginTop: '10px', color: '#fff'}}>Episódio indisponível no momento.</p>
-                            <button className="wp-nav-btn" onClick={() => navigate(`/MAXPLAY`)} style={{marginTop:'10px'}}>
-                                Voltar para Menu
-                            </button>
-                        </div>
+                        <div className="wp-loader-overlay"><FaExclamationTriangle size={40} color="#e74c3c" /></div>
                     )}
                 </div>
             </section>
 
             {/* INFO BAR */}
             <section className="wp-info-bar">
-                <div className="wp-title-row">
-                    <div className="wp-ep-info">
-                        <h2>{episodeData ? episodeData.tituloEpisodio : '...'}</h2>
-                        <span className="wp-season-tag">
-                            <FaTv /> Temporada {episodeData?.temporada} • Episódio {episodeData?.numeroEpisodio}
-                        </span>
+                <div className="wp-info-grid">
+                    {/* ESQUERDA: INFO ATUAL */}
+                    <div className="wp-info-left">
+                        <h4 className="wp-anime-title" onClick={() => navigate(`/details-parceria/${slug}`)}>
+                            {episodeData?.tituloSerie}
+                        </h4>
+
+                        <div className="wp-ep-title-row">
+                            <h1>{episodeData?.tituloEpisodio}</h1>
+                            <button className="wp-bookmark-btn"><FaBookmark /></button>
+                        </div>
+
+                        <div className="wp-metadata-row">
+                            <span className="rating-l">L</span>
+                            <span className="meta-divider">▪</span>
+                            <span className="meta-text">Leg | Dub</span>
+                            <span className="meta-divider">▪</span>
+                            <span className="meta-text">T{episodeData?.temporada} E{episodeData?.numeroEpisodio}</span>
+                        </div>
                     </div>
 
-                    <div className="wp-nav-buttons">
-                        <button 
-                            className="wp-nav-btn" 
-                            disabled={!prevEpId} 
-                            onClick={() => prevEpId && navigate(`/watch-parceria/${slug}/${prevEpId}`)}
-                        >
-                            <FaStepBackward /> Anterior
-                        </button>
+                    {/* DIREITA: PRÓXIMO EPISÓDIO */}
+                    <div className="wp-next-column">
+                        {nextEpInfo ? (
+                            <>
+                                <h5 className="wp-next-header">A SEGUIR</h5>
+                                <div 
+                                    className={`wp-next-card ${nextEpInfo.locked ? 'locked' : ''}`}
+                                    onClick={() => !nextEpInfo.locked && navigate(`/watch-parceria/${slug}/${nextEpInfo.num}`)}
+                                >
+                                    <div className="wp-next-thumb">
+                                        <img src={nextEpInfo.thumb} alt="Próximo" onError={(e) => e.target.src = episodeData.backdrop} />
+                                        <div className="wp-duration-badge">24m</div>
+                                        {!nextEpInfo.locked && <div className="wp-play-overlay"><FaPlay /></div>}
+                                    </div>
+                                    
+                                    <div className="wp-next-info">
+                                        <span className="next-ep-number">
+                                            E{nextEpInfo.num} - {nextEpInfo.locked ? 'Premium' : 'Dublado'}
+                                        </span>
+                                        <span className="next-ep-title">
+                                            {nextEpInfo.locked ? 'Assine para continuar assistindo' : nextEpInfo.title}
+                                        </span>
+                                    </div>
 
-                        {nextEpId === 'LOCKED' ? (
-                            <button className="wp-nav-btn locked-btn" onClick={() => navigate('/login')}>
-                                Próximo (Premium) <FaLock />
-                            </button>
+                                    {nextEpInfo.locked && <div className="wp-lock-icon"><FaGem /></div>}
+                                </div>
+                            </>
                         ) : (
-                            <button 
-                                className="wp-nav-btn" 
-                                disabled={!nextEpId} 
-                                onClick={() => nextEpId && navigate(`/watch-parceria/${slug}/${nextEpId}`)}
-                            >
-                                Próximo <FaStepForward />
-                            </button>
+                            <div className="wp-next-empty">
+                                <h5 className="wp-next-header">FIM DA LISTA</h5>
+                            </div>
                         )}
                     </div>
-                </div>
-
-                <div className="wp-upsell-banner">
-                    <div className="wp-upsell-content">
-                        <h4>Experiência MaxPlay</h4>
-                        <p>Assista em HD, sem anúncios e libere todos os episódios.</p>
-                    </div>
-                    <button className="wp-upgrade-btn" onClick={() => navigate('https://maxplay.vercel.app')}>
-                        <FaCrown /> LIBERAR TUDO
-                    </button>
                 </div>
             </section>
         </div>
