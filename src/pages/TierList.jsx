@@ -7,6 +7,8 @@ import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import Header from '../components/Header';
 import Spinner from '../components/shared/Spinner';
 import { FaCog, FaTrash, FaArrowUp, FaArrowDown, FaUndo, FaPlus, FaImage, FaList, FaThList, FaSearch, FaFilter, FaExclamationTriangle, FaCheck } from 'react-icons/fa';
+import ARC_DATA from '../json/Characters.json';
+import ARC_ORDER from '../json/Arcs.json';
 
 const TIERS_CONFIG = {
     tier: [
@@ -27,6 +29,7 @@ const TIERS_CONFIG = {
     ]
 };
 
+<<<<<<< HEAD
 const ARC_ORDER = [
     "Index Arc", "Deep Blood Arc", "Sisters Arc (Index)", "Angel Falldown Arc", "Three Stories Arc",
     "Kazakiri Hyouka Arc", "Orsola Aquinas Rescue Arc", "Tree Diagram Remnant Arc", "Daihasei Festival Arc",
@@ -232,6 +235,8 @@ const ARC_DATA = {
     "Aleister Crowley": ["Deep Blood Arc", "Kazakiri Hyouka Arc", "Orsola Acquinas Rescue Arc", "Tree Diagram Remnant Arc", "Daihasei Festival Arc (Index)", "Academy City Invasion Arc", "Document of Constantine Arc", "Battle Royale Arc", "Acqua of the Back Arc", "DRAGON Arc", "World War III Arc", "Homecoming Arc", "Baggage City Arc", "Ichihanaran Festival Arc", "Magic God Othinus Arc", "World Rejecter Arc", "Salome Arc", "Kamisato Rescue Arc", "Aleister Crowley Arc", "Processor Suit Arc", "Coronzon Arc", "Kamijou Arc", "Operation Handcuffs Arc", "Ressurection Arc"]
 };
 
+=======
+>>>>>>> 4723106 (.)
 const CHARACTER_ORDER_MAP = Object.keys(ARC_DATA);
 
 const COLORS = {
