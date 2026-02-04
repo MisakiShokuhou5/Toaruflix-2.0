@@ -3,95 +3,81 @@ import subprocess
 import sys
 
 def run_git(command):
-    """Executa o comando e captura o resultado para análise."""
-    result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    return result
+    """Executa comando Git e retorna o resultado."""
+    return subprocess.run(command, shell=True, capture_output=True, text=True)
 
-def resolver_problema(resultado, comando_tentado):
-    """Analisa o erro do Git e pergunta o que fazer."""
-    erro = resultado.stderr.lower()
+def protocolo_de_envio(target_fmt, commit_msg):
+    """Fluxo definitivo para garantir que o código chegue ao GitHub."""
     
-    print("\n--- ⚠️ O PROCESSO PAROU: PROBLEMA DETECTADO ---")
+    print("\n📦 [1/3] Preparando arquivos...")
+    run_git(f"git add {target_fmt}")
+    run_git(f'git commit -m "{commit_msg}"')
+
+    print("🔄 [2/3] Sincronizando com o servidor (Pull)...")
+    pull = run_git("git pull origin main --rebase")
     
-    # CASO 1: Push Rejeitado (GitHub está na frente)
-    if "rejected" in erro or "fetch first" in erro:
-        print("Motivo: O GitHub tem arquivos que você não tem no PC.")
-        print("Ação: Preciso sincronizar (Pull) antes de enviar.")
-        opt = input("\nSincronizar e tentar enviar agora? (1) Sim (2) Não: ")
-        if opt == "1":
-            print("🔄 Sincronizando...")
-            run_git("git pull origin main --rebase")
-            print("⬆️ Tentando enviar novamente...")
-            final = run_git("git push origin main")
-            if final.returncode == 0: print("✨ Sucesso!")
-            return True
+    if pull.returncode != 0:
+        print("\n⚠️ Conflito detectado! O Git não conseguiu unir as versões automaticamente.")
+        print("Ação: Abra o VS Code, resolva os arquivos em vermelho e tente novamente.")
+        return False
 
-    # CASO 2: Alterações soltas impedem o Pull
-    elif "unstaged changes" in erro or "locally modified" in erro:
-        print("Motivo: Você tem arquivos modificados que ainda não foram 'salvos' (comitados).")
-        print("O Git não deixa sincronizar com a casa bagunçada.")
-        print("\nO que deseja fazer?")
-        print("1. Salvar tudo agora (git add + commit) e continuar")
-        print("2. Esconder as mudanças temporariamente (Stash)")
-        opt = input("Escolha: ")
-        if opt == "1":
-            msg = input("Mensagem para salvar: ") or "."
-            run_git("git add .")
-            run_git(f'git commit -m "{msg}"')
-            return True # Retorna True para você tentar o comando original de novo
-
-    # CASO 3: Conflito de verdade (Dois arquivos editados no mesmo lugar)
-    elif "conflict" in erro:
-        print("Motivo: CONFLITO REAL! Você e o GitHub mexeram na mesma linha.")
-        print("Ação: Você precisará abrir o VS Code e resolver manualmente.")
-        input("Pressione Enter para fechar e resolver os arquivos em vermelho...")
-        sys.exit(0)
-
+    print("⬆️ [3/3] Enviando para o GitHub (Push)...")
+    push = run_git("git push origin main")
+    
+    if push.returncode == 0:
+        print("\n✨ " + "="*30)
+        print("   MISSÃO CUMPRIDA: SITE ATUALIZADO!")
+        print("   " + "="*30)
+        return True
     else:
-        print(f"Erro desconhecido:\n{resultado.stderr}")
-        input("\nPressione Enter para sair...")
-    
-    return False
+        print(f"\n❌ Erro no envio final:\n{push.stderr}")
+        return False
 
-def deploy():
-    print("\n" + "="*45)
-    print("🌳 TREE DIAGRAM - SISTEMA INTELIGENTE v4.0")
-    print("="*45)
-    
-    print("\n1. Enviar Tudo\n2. Ficheiro Específico\n3. Pasta Específica\n4. Sincronizar Tudo")
-    opcao = input("\nEscolha: ").strip()
-    
-    # ... (Lógica de navegação de pastas que já tínhamos) ...
-    # Para encurtar, vamos focar na lógica de erro:
-    
-    target = "." # Simplificando para o exemplo, mas mantenha sua navegação
-    if opcao == "2": target = "." # Aqui entraria sua função de navegar
+def escolher_alvo(base_path, apenas_pastas=False):
+    caminho = base_path
+    meu_nome = os.path.basename(__file__)
+    while True:
+        print(f"\n📍 Local atual: {caminho}")
+        items = [f for f in os.listdir(caminho) if not f.startswith('.') 
+                 and f not in [meu_nome, 'enviar.bat', 'node_modules', 'dist']]
+        if apenas_pastas:
+            items = [f for f in items if os.path.isdir(os.path.join(caminho, f))]
+        
+        print("0. [ SELECIONAR ESTE LOCAL ]")
+        for i, item in enumerate(items):
+            tipo = "[DIR]" if os.path.isdir(os.path.join(caminho, item)) else "[ARQ]"
+            print(f"{i + 1}. {tipo} {item}")
 
-    # FLUXO DE EXECUÇÃO COM MONITORAMENTO
-    print(f"\n🛰️ Iniciando protocolo de envio...")
+        escolha = input("\nEscolha (ou 'q' para cancelar): ").strip()
+        if escolha.lower() == 'q': return None
+        if escolha == '0': return caminho
+        try:
+            idx = int(escolha) - 1
+            novo_path = os.path.join(caminho, items[idx])
+            if os.path.isdir(novo_path): caminho = novo_path
+            else: return novo_path
+        except: print("❌ Opção inválida.")
+
+def main():
+    print("\n" + "⚡"*20)
+    print("  TREE DIAGRAM")
+    print("  " + "⚡"*20)
     
-    # 1. Tenta Add
-    run_git(f"git add {target}")
-    
-    # 2. Tenta Commit
-    res_commit = run_git(f'git commit -m "."')
-    # Se o commit der erro de 'nothing to commit', a gente ignora e segue
-    
-    # 3. Tenta Push
-    print("⬆️ Enviando...")
-    res_push = run_git("git push origin main")
-    
-    if res_push.returncode != 0:
-        # SE DEU ERRO, CHAMA A IA RESOLVEDORA
-        if resolver_problema(res_push, "push"):
-            print("✅ Problema resolvido pelo sistema.")
-        else:
-            print("❌ Não foi possível resolver automaticamente.")
-    else:
-        print("\n Missão Cumprida!")
+    print("\n1. Enviar Tudo (Geral)\n2. Escolher Arquivo/Pasta\n3. Sincronizar (Apenas Pull)")
+    op = input("\nEscolha: ").strip()
+
+    if op == "1":
+        protocolo_de_envio(".", ".")
+    elif op == "2":
+        target = escolher_alvo(".")
+        if target:
+            msg = input(f"\nMensagem para {os.path.basename(target)} [.]: ") or "."
+            protocolo_de_envio(f'"{target}"', msg)
+    elif op == "3":
+        print("🔄 Sincronizando...")
+        run_git("git pull origin main --rebase")
+        print("✅ Sincronizado.")
 
 if __name__ == "__main__":
-    try:
-        deploy()
-    except KeyboardInterrupt:
-        sys.exit(0)
+    try: main()
+    except KeyboardInterrupt: sys.exit(0)
