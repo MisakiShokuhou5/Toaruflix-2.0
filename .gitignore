@@ -29,12 +29,19 @@ Credentials.json
 .env.local
 serviceAccountKey.json
 
-# Python and Local Scripts
-MapeamentoLN.py
-filter.py
-importar_ln_para_o_site.json
-
 # Firebase temporary files
 .firebase/
 firestore.indexes.json
 firestore.rules
+
+# Python and Local Scripts (PRIVADO - Não vão para o GitHub)
+TreeDiagram.py
+Characters.txt
+MapeamentoLN.py
+filter.py
+importar_ln_para_o_site.json
+
+# Firebase & Secrets
+Credentials.json
+.env
+serviceAccountKey.json
