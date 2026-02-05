@@ -13,21 +13,21 @@ import ARC_ORDER from '../json/Arcs.json';
 const TIERS_CONFIG = {
     tier: [
         { id: 1, title: 'S', color: '#e50914', characters: [] },
-        { id: 2, title: 'A', color: '#ffb366', characters: [] },
-        { id: 3, title: 'A', color: '#ff8000', characters: [] },
-        { id: 4, title: 'B', color: '#ffdb66', characters: [] },
-        { id: 5, title: 'C', color: '#66ff99', characters: [] },
-        { id: 6, title: 'D', color: '#0a8332ff', characters: [] },
-        { id: 7, title: '?', color: '#b6bbb8ff', characters: [] }
+        { id: 2, title: 'A', color: '#e98a2b', characters: [] },
+        { id: 3, title: 'B', color: '#ffb366', characters: [] },
+        { id: 4, title: 'C', color: '#ffdb66', characters: [] },
+        { id: 5, title: 'D', color: '#66ff99', characters: [] },
+        { id: 6, title: 'E', color: '#0a8332', characters: [] },
+        { id: 7, title: '?', color: '#b6bbb8', characters: [] }
     ],
     mote: [
         { id: 1, title: 'Grau Especial', color: '#e50914', characters: [] },
-        { id: 2, title: 'Grau 1', color: '#ffb366', characters: [] },
-        { id: 3, title: 'Grau 2', color: '#ff8000', characters: [] },
+        { id: 2, title: 'Grau 1', color: '#e98a2b', characters: [] },
+        { id: 3, title: 'Grau 2', color: '#ffb366', characters: [] },
         { id: 4, title: 'Grau 3', color: '#ffdb66', characters: [] },
         { id: 5, title: 'Grau 4', color: '#66ff99', characters: [] },
-        { id: 6, title: 'Grau 5', color: '#0a8332ff', characters: [] },
-        { id: 7, title: '?', color: '#b6bbb8ff', characters: [] }
+        { id: 6, title: 'Grau 5', color: '#0a8332', characters: [] },
+        { id: 7, title: '?', color: '#b6bbb8', characters: [] }
     ]
 };
 
