@@ -143,3 +143,31 @@ background: linear-gradient(0deg, rgba(0, 0, 0, 0.98) 54%, rgba(0, 0, 0, 0.02) 1
     border-radius: 4px;
     transition: width var(--transition-speed);
 }
+@media (max-width: 600px) {
+    .anime-card-container.poster {
+        width: 120px;
+        height: 180px;
+    }
+    .anime-card-container.standard {
+        width: 240px;
+        height: 135px;
+    }
+    .cards-container{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .anime-row-title{
+        text-align: center;
+    }
+    .anime-card-container.standard{
+        width: 95%;
+        height: 200px;
+    }
+    .cards-container{
+       padding-left: 0px;  
+    }
+    .anime-row-title{
+        margin-left: 0px;
+    }
+}

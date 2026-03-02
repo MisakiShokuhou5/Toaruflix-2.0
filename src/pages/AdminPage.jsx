@@ -1,168 +1,159 @@
-// ARQUIVO: src/pages/AdminCentral.jsx 
-import React, { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-// Importa o db assumindo que o caminho é '../firebase/config' a partir da raiz /pages
-import { db } from '../firebase/config'; 
-// ÍCONES: Adicionado FaBook e FaScroll para Leitura, FaHeadset para Suporte
-import { FaTv, FaListOl, FaStar, FaUserFriends, FaBook, FaScroll, FaHeadset } from 'react-icons/fa'; 
-
-// Importa os subcomponentes da pasta AdminPage/
-import ManageSeries from './AdminPage/ManageSeries';
-import ManageEpisodes from './AdminPage/ManageEpisodes';
-import ManageHeroConfig from './AdminPage/ManageHeroConfig'; 
-import AdminCharacters from './AdminPage/AdminCharacters'; 
-import AdminLightNovel from './AdminPage/AdminLightNovel'; 
-import AdminManga from './AdminPage/AdminManga';       
-import AdminSupport from './AdminPage/AdminSupport';     // 🛑 NOVO: Importação do AdminSupport
-
-// Importa o CSS da pasta AdminPage/
-import './AdminPage.css'; 
-
-
-// ----------------------------------------------------------------
-// HOOK: Busca a lista de animes e seus episódios do Firestore
-// ----------------------------------------------------------------
-const useAnimeList = (refreshTrigger) => { 
-    const [animeList, setAnimeList] = useState([]);
-    const [episodesData, setEpisodesData] = useState({});
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchContent = async () => {
-            setLoading(true);
-            try {
-                // 1. Busca Animes (Metadados da Série)
-                const animesQ = collection(db, 'animes');
-                const animesSnapshot = await getDocs(animesQ);
-                const list = animesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                setAnimeList(list);
-
-                // 2. Busca Episódios (Detalhes de Cada Episódio)
-                const episodesQ = collection(db, 'episodes');
-                const episodesSnapshot = await getDocs(episodesQ);
-                const episodesMap = {};
-
-                episodesSnapshot.docs.forEach(doc => {
-                    const ep = doc.data();
-                    const slug = ep.animeSlug;
-                    
-                    if (!episodesMap[slug]) {
-                        episodesMap[slug] = [];
-                    }
-                    episodesMap[slug].push(ep);
-                });
-                setEpisodesData(episodesMap);
-
-            } catch (error) {
-                console.error("Erro ao buscar conteúdo no Admin Central:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchContent();
-    }, [refreshTrigger]); 
-
-    return { animeList, episodesData, loading };
-};
-
-
-// ----------------------------------------------------------------
-// COMPONENTE CENTRAL (AdminCentral.jsx)
-// ----------------------------------------------------------------
+// ARQUIVO: src/pages/AdminCentral.jsx
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaSatelliteDish, FaSignal, FaArrowLeft } from 'react-icons/fa';
 
 const AdminCentral = () => {
-    const [activeTab, setActiveTab] = useState('series');
-    const [message, setMessage] = useState('');
-    const [isSuccess, setIsSuccess] = useState(false);
-    const [refreshTrigger, setRefreshTrigger] = useState(0); // Gatilho para forçar refresh
-    const { animeList, episodesData, loading } = useAnimeList(refreshTrigger);
+    const navigate = useNavigate();
+    const [isHovered, setIsHovered] = useState(false);
 
-    const handleMessage = (msg, success) => {
-        setMessage(msg);
-        setIsSuccess(success);
-        setTimeout(() => setMessage(''), 5000); 
-    };
+    // Efeito para travar o scroll da página principal e garantir tela cheia real
+    useEffect(() => {
+        document.body.style.margin = '0';
+        document.body.style.padding = '0';
+        document.body.style.overflow = 'hidden'; 
+        
+        return () => {
+            document.body.style.overflow = 'auto'; // Restaura ao sair da página
+        };
+    }, []);
 
-    if (loading) {
-        return (
-             <div className="admin-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#141414', color: 'white' }}>
-                <p>Carregando dados do Painel Administrativo...</p>
-            </div>
-        );
-    }
-    
-    return (
-        <div className="admin-container">
-            <h1>Painel Administrativo ToaruFlix</h1>
-            
-            {/* Mensagem de Status */}
-            {message && (
-                <p className={`status-message ${isSuccess ? 'success' : 'error'}`}>
-                    {message}
-                </p>
-            )}
+    return (
+        <div style={{ 
+            width: '100vw',
+            height: '100vh', 
+            background: '#000000', 
+            display: 'flex',
+            flexDirection: 'column',
+            fontFamily: '"Space Grotesk", "JetBrains Mono", monospace, sans-serif',
+            boxSizing: 'border-box',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            zIndex: 9999 // Fica por cima de tudo
+        }}>
+            
+            {/* CABEÇALHO STARLINK STYLE */}
+            <header style={{ 
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                height: '55px', // Altura fixa para alinhar os itens perfeitamente
+                padding: '0 24px',
+                background: 'rgba(5, 5, 5, 0.85)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                borderBottom: '1px solid rgba(138, 43, 226, 0.2)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.6)',
+                zIndex: 10
+            }}>
+                
+                {/* LADO ESQUERDO: Botão Voltar + Logo */}
+                <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                    
+                    {/* BOTÃO VOLTAR */}
+                    <button 
+                        onClick={() => navigate('/browse')} // Te manda para a página inicial/browse
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={() => setIsHovered(false)}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            background: 'transparent',
+                            border: 'none',
+                            color: isHovered ? '#ffffff' : '#a9a9d4',
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                            fontSize: '0.75rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '2px',
+                            fontWeight: 'bold',
+                            height: '100%',
+                            padding: '0 20px 0 0',
+                            marginRight: '20px',
+                            borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+                            transition: 'all 0.3s ease',
+                            textShadow: isHovered ? '0 0 10px rgba(255,255,255,0.4)' : 'none'
+                        }}
+                    >
+                        <FaArrowLeft style={{ 
+                            color: isHovered ? '#8a2be2' : 'inherit', 
+                            fontSize: '0.9rem',
+                            transition: 'color 0.3s ease' 
+                        }} />
+                        <span style={{ marginTop: '2px' }}>Retornar</span>
+                    </button>
 
-            {/* BARRA DE NAVEGAÇÃO ENTRE ABAS */}
-            <div className="tab-bar">
-                <button className={`tab-button ${activeTab === 'series' ? 'active' : ''}`} onClick={() => setActiveTab('series')}>
-                    <FaTv /> Gerenciar Séries
-                </button>
-                <button className={`tab-button ${activeTab === 'episodes' ? 'active' : ''}`} onClick={() => setActiveTab('episodes')}>
-                    <FaListOl /> Gerenciar Episódios
-                </button>
-                <button className={`tab-button ${activeTab === 'characters' ? 'active' : ''}`} onClick={() => setActiveTab('characters')}>
-                    <FaUserFriends /> Gerenciar Personagens 
-                </button>
-                {/* Botão Light Novel */}
-                <button className={`tab-button ${activeTab === 'lightnovels' ? 'active' : ''}`} onClick={() => setActiveTab('lightnovels')}>
-                    <FaBook /> Light Novels
-                </button>
-                {/* Botão Mangá */}
-                <button className={`tab-button ${activeTab === 'mangas' ? 'active' : ''}`} onClick={() => setActiveTab('mangas')}>
-                    <FaScroll /> Mangás
-                </button>
-                {/* 🛑 NOVO BOTÃO: Suporte */}
-                <button className={`tab-button ${activeTab === 'support' ? 'active' : ''}`} onClick={() => setActiveTab('support')}>
-                    <FaHeadset /> Tickets Suporte 
-                </button>
-                <button className={`tab-button ${activeTab === 'hero' ? 'active' : ''}`} onClick={() => setActiveTab('hero')}>
-                    <FaStar /> Configurações do Hero
-                </button>
-            </div>
+                    {/* LOGO NEXORA */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <div style={{ 
+                            width: '3px', 
+                            height: '18px', 
+                            background: '#8a2be2', 
+                            boxShadow: '0 0 12px #8a2be2',
+                            borderRadius: '2px'
+                        }} />
+                        <h1 style={{ 
+                            margin: 0, 
+                            fontSize: '0.95rem', 
+                            fontWeight: '700', 
+                            letterSpacing: '4px',
+                            textTransform: 'uppercase', 
+                            color: '#ffffff'
+                        }}>
+                            NEXORA <span style={{ color: 'rgba(255, 255, 255, 0.3)', fontWeight: '400' }}></span>
+                        </h1>
+                    </div>
+                </div>
 
-            {/* CONTEÚDO DA ABA SELECIONADA - Usando os componentes modulares importados */}
-            {activeTab === 'series' && (
-                <ManageSeries onMessage={handleMessage} animeList={animeList} />
-            )}
+                {/* LADO DIREITO: Telemetria / Status */}
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '20px',
+                    fontSize: '0.7rem',
+                    letterSpacing: '2px',
+                    color: 'rgba(255,255,255,0.5)',
+                    textTransform: 'uppercase',
+                    fontWeight: 'bold'
+                }}>
+                    {/* <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <FaSatelliteDish style={{ color: '#8a2be2', fontSize: '0.85rem' }} />
+                        <span style={{ marginTop: '2px' }}>Uplink Server</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <FaSignal style={{ color: '#00ffcc', fontSize: '0.85rem' }} />
+                        <span style={{ color: '#00ffcc', marginTop: '2px', textShadow: '0 0 8px rgba(0,255,204,0.4)' }}>Online</span>
+                    </div> */}
+                </div>
+            </header>
 
-            {activeTab === 'episodes' && (
-                <ManageEpisodes onMessage={handleMessage} animeList={animeList} episodesData={episodesData} />
-            )}
-            
-            {activeTab === 'characters' && (
-                <AdminCharacters />
-            )}
+            {/* CONTAINER DO IFRAME (Ocupa 100% do espaço restante) */}
+            <div style={{ 
+                flexGrow: 1,
+                width: '100%', 
+                position: 'relative',
+                background: '#020202'
+            }}>
+                <iframe 
+                    src="https://back-end-nexora.vercel.app/api/v1/toaruflix-2.0" 
+                    title="Nexora Admin Console"
+                    style={{ 
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%', 
+                        height: '100%', 
+                        border: 'none',
+                        outline: 'none'
+                    }}
+                    allowFullScreen
+                />
+            </div>
 
-            {/* Renderiza AdminLightNovel */}
-            {activeTab === 'lightnovels' && (
-                <AdminLightNovel />
-            )}
-
-            {/* Renderiza AdminManga */}
-            {activeTab === 'mangas' && (
-                <AdminManga />
-            )}
-
-            {/* 🛑 NOVO: Renderiza AdminSupport */}
-            {activeTab === 'support' && (
-                <AdminSupport />
-            )}
-
-            {activeTab === 'hero' && (
-                <ManageHeroConfig onMessage={handleMessage} animeList={animeList} setRefreshTrigger={setRefreshTrigger} />
-            )}
-        </div>
-    );
+        </div>
+    );
 };
 
 export default AdminCentral;

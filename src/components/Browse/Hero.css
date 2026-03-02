@@ -2,254 +2,281 @@
 
 /* --- VARIÁVEIS DE TEMA --- */
 :root {
-    --color-primary: #8a2be2; /* Blueviolet */
-    --color-red: #E50914; 
+    --color-primary: #8a2be2;
     --color-black: #141414;
-    --rotation-duration: 60s; /* 1 MINUTO */
-}
-
-/* ------------------- EFEITOS E ANIMAÇÕES ------------------- */
-
-/* Animação para o contorno do SVG (simula preenchimento) */
-@keyframes indicator-fill {
-    to {
-        stroke-dashoffset: 0;
-    }
+    --color-btn-bg: rgba(0, 0, 0, 0.7); /* Fundo preto elegante */
+    --color-btn-hover: #333333;
+    --text-color: #ffffff;
 }
 
 /* ------------------- ESTRUTURA PRINCIPAL ------------------- */
-
 .hero-container {
     position: relative;
-    height: 90vh;
+    height: 85vh; /* Proporção clássica Netflix */
     min-height: 500px;
     background-color: var(--color-black);
-    color: white;
-    
-    /* Layout: Alinha o bloco de conteúdo para o centro/topo */
+    color: var(--text-color);
     display: flex;
     align-items: center; 
-    padding: 0;
     overflow: hidden;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.hero-container.loading-state {
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-color);
 }
 
 /* --- VÍDEO E IMAGEM DE FUNDO --- */
-.hero-background-image {
+.hero-background-image, .teaser-video {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    object-fit: cover;
     background-size: cover;
     background-position: center;
     transition: opacity 1s ease-in-out;
 }
 
-.teaser-video {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 1; 
-    transition: opacity 1s ease-in-out;
-}
-.teaser-video.hidden {
-    opacity: 0;
-}
-.teaser-video:not(.hidden) {
-    opacity: 1;
-}
+.teaser-video.hidden { opacity: 0; }
+.teaser-video:not(.hidden) { opacity: 1; }
 
+/* Gradiente Netflix Clássico (Esquerda e Base escuras) */
 .gradient-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    /* Garante contraste para o Header (topo) e para as Fileiras (fundo) */
-    background: linear-gradient(
-        to bottom, 
-        rgba(20,20,20,0.8) 0%, 
-        rgba(20,20,20,0) 50%, 
-        rgba(20,20,20,0.7) 75%, 
-        rgb(0, 0, 0) 95%
-    );
+   background: #000000;
+background: linear-gradient(38deg, rgba(0, 0, 0, 1) 19%, rgba(0, 0, 0, 0.79) 95%);
     z-index: 2;
 }
 
-/* ------------------- CONTEÚDO (TEXTO E BOTÕES) ------------------- */
-
+/* ------------------- CONTEÚDO À ESQUERDA ------------------- */
 .hero-content {
     z-index: 3;
     padding: 0 4%;
     width: 100%;
-    max-width: 700px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    
-    /* Alinha o conteúdo mais para cima (compensando o alinhamento central do container) */
-    margin-top: -50px; 
-}
-
-.hero-logo-image {
-    width: 300px;
-    height: auto;
-    object-fit: contain;
-    margin-bottom: 20px;
-    display: none;
+    max-width: 650px;
+    margin-top: 50px;
 }
 
 .hero-title {
-    font-size: 50px;
-    font-weight: 800;
-    margin-bottom: 15px;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 900;
+    margin-bottom: 1.2rem;
     line-height: 1.1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     text-transform: capitalize;
 }
 
 .hero-synopsis {
-    font-size: clamp(1rem, 1.5vw, 1.3rem);
+    font-size: clamp(1rem, 1.3vw, 1.2rem);
     font-weight: 400;
-    line-height: 1.4;
-    margin-bottom: 30px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.5;
+    margin-bottom: 2rem;
+    color: #e5e5e5;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
+/* --- BOTÕES PREMIUM (Pretos com Letras Brancas) --- */
 .button-group {
     display: flex;
     align-items: center; 
     gap: 1rem;
 }
-
+@media (max-width: 500px) {
+    .button-group {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+}
 .hero-button {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 24px;
-    font-size: 1.1rem;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 30px;
+    font-size: 1.2rem;
     font-weight: 600;
     cursor: pointer;
-    border: none;
     border-radius: 4px;
-    transition: background-color 0.2s, transform 0.1s;
-    color: white; 
+    transition: all 0.2s ease;
+    color: var(--text-color);
 }
 
+.btn-icon {
+    font-size: 1.3rem;
+}
+
+/* Botão Assistir (Preto fosco, borda delicada) */
 .play-button {
-    background-color: var(--color-red);
+    background-color: var(--color-btn-bg);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
 }
 .play-button:hover {
-    background-color: #f40a16;
-    transform: scale(1.02);
+    background-color: var(--color-btn-hover);
+    border-color: #ffffff;
+    transform: scale(1.05);
 }
 
+/* Botão Mais Infos (Ainda mais sutil) */
 .info-button {
-    background-color: rgba(109, 109, 110, 0.7); 
+    background-color: rgba(30, 30, 30, 0.8);
+    border: 2px solid transparent;
 }
 .info-button:hover {
-    background-color: rgba(109, 109, 110, 0.9);
-    transform: scale(1.02);
+    background-color: #404040;
+    transform: scale(1.05);
 }
 
-/* ------------------- CONTROLE DE VOLUME ------------------- */
-
-.volume-button {
-    background: rgba(40, 40, 40, 0.8);
-    border: 2px solid white;
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s;
-    margin-left: 20px;
-}
-.volume-button:hover {
-    background: rgba(60, 60, 60, 0.9);
-}
-
-
-/* ------------------- INDICADORES DE ROTAÇÃO ------------------- */
-
-.indicator-container {
+/* ------------------- CONTROLES À DIREITA ------------------- */
+.hero-controls-right {
     position: absolute;
-    bottom: 30px; 
-    right: 4%; 
+    bottom: 20%;
+    right: 0;
     z-index: 3;
     display: flex;
-    gap: 10px;
-    opacity: 1; 
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 20px;
 }
 
-.indicator-dot {
-    position: relative;
-    width: 36px; /* Tamanho do SVG e container */
-    height: 16px;
+.volume-button {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-right: none;
+    color: white;
+    padding: 10px 15px 10px 20px;
+    border-radius: 50px 0 0 50px;
     cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.volume-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #fff;
 }
 
-/* Base de Fundo do Indicador (O círculo cinza estático) */
-.indicator-base {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.4);
-    transition: all 0.3s;
-    z-index: 10;
-}
-.indicator-dot.active .indicator-base {
-    background-color: var(--color-primary);
-    transform: translate(-50%, -50%) scale(1.2);
+/* Barras Indicadoras (Substituindo os círculos, visual mais moderno) */
+.indicator-container {
+    display: flex;
+    gap: 8px;
+    padding-right: 4%;
 }
 
-/* Estilo do SVG Progress Ring */
-.indicator-progress-ring {
+.indicator-bar {
+    width: 30px;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    transition: width 0.3s ease;
+}
+
+.indicator-bar.active {
+    width: 40px; /* Aumenta a barra ativa levemente */
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.indicator-progress {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
     height: 100%;
-    transform: scale(1);
-    transition: transform 0.3s;
+    width: 0%;
+    background-color: var(--color-primary); /* Roxo da sua paleta no preenchimento */
+    border-radius: 2px;
 }
 
-.indicator-dot.active .indicator-progress-ring {
-    transform: scale(1.6); /* Aumenta o tamanho para o efeito de progresso ser visível */
+@keyframes indicator-fill {
+    0% { width: 0%; }
+    100% { width: 100%; }
 }
 
-.indicator-progress-ring circle {
-    fill: transparent;
-    stroke: var(--color-primary);
-    stroke-width: 2.5px;
-    
-    /* Configuração para Progress Ring */
-    stroke-dasharray: 44; 
-    stroke-dashoffset: 44; 
-    
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
-    transition: stroke-dashoffset 0s; 
-}
+/* =========================================================
+   RESPONSIVIDADE (MOBILE OPTIMIZED)
+========================================================= */
+@media (max-width: 768px) {
+    .hero-container {
+        height: 78vh;
+        align-items: flex-end; /* Conteúdo desce para a base */
+    }
 
-.indicator-dot.active .indicator-progress-ring circle {
-    animation: indicator-fill var(--rotation-duration) linear forwards;
-}
-@media (max-width: 667px){
-    .button-group{
-        flex-direction: column;
+    .gradient-overlay {
+        background: #000000;
+background: linear-gradient(358deg, rgba(0, 0, 0, 1) 19%, rgba(0, 0, 0, 0.79) 52%);
+    }
+
+    .hero-content {
+        margin-top: 0;
+        margin-bottom: 50px; /* Espaço para não colar no menu inferiror se houver */
+        text-align: center;
+        padding: 0 5%;
+        max-width: 100%;
+    }
+
+    /* .hero-title {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    } */
+
+    .hero-synopsis {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        -webkit-line-clamp: 3;
+    }
+
+    .button-group {
+        justify-content: center;
+        gap: 10px;
+        display: none;
+    }
+
+    .hero-button {
+        padding: 10px 15px;
+        font-size: 1rem;
+        width: 100%; /* Faz os botões dividirem o espaço */
+    }
+
+    /* Oculta os controles laterais no mobile para ficar mais limpo */
+    .hero-controls-right {
+        top: 10px;
+        right: 50%;
+        transform: translateX(50%);
+        align-items: center;
+        width: 100%;
+    }
+
+    .volume-button {
+        border-radius: 50px;
+    }
+
+    .indicator-container {
+        padding-right: 0;
+        justify-content: center;
+    }
+    .indicator-bar {
+        width: 38px;
+        height: 28px;
+        border-radius: 50px;
+    }
+    .hero-content .hero-title{
+        font-size: 28px;
     }
 }

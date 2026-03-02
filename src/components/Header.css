@@ -1,22 +1,16 @@
 /* ARQUIVO: src/components/Header.css */
 
-/* --- Variáveis de Tema --- */
+/* --- Variáveis de Tema (Starlink Vibe) --- */
 :root {
     --color-primary: #8a2be2;
-    --color-black-solid: #141414;
-    --color-dark-gray: #191919;
-    --color-medium-gray: #333;
-    --color-text-light: #e5e5e5;
-    --color-text-white: #fff;
-    --header-height: 68px;
+    --color-primary-glow: rgba(138, 43, 226, 0.4);
+    --bg-transparent: rgba(5, 5, 5, 0);
+    --bg-glass: rgba(5, 5, 5, 0.65);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --color-text-light: #a0a0b5;
+    --color-text-white: #ffffff;
+    --header-height: 72px;
 }
-
-/* --- Global Style (Manipulado via JS no Header.jsx) --- */
-/*
-body.menu-open {
-    overflow: hidden;
-}
-*/
 
 /* --- Header Principal --- */
 .header-nav {
@@ -29,101 +23,113 @@ body.menu-open {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 4%;
-    background-color: transparent;
-    transition: background-color 0.4s ease-in-out;
-   
+    padding: 0 5%;
+    background-color: var(--bg-transparent);
+    transition: all 0.4s ease-in-out;
+    border-bottom: 1px solid transparent;
+    z-index: 99;
 }
 
 .header-nav.scrolled {
-    background-color: black;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    background-color: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-glass);
 }
 
-/* --- Seções do Header --- */
-.left-section {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-}
-.right-section {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-/* --- Logo Mock Style --- */
-.logo-title {
-    font-size: 25px;
+/* --- Logo (Starlink Style) --- */
+.logo-container {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 3px;
     color: var(--color-text-white);
-    text-decoration: none;
-}
-.logo-title span {
-    color: var(--color-primary);
+    display: flex;
+    align-items: center;
 }
 
-/* --- Navegação Principal (Desktop) --- */
+.logo-container span {
+    color: var(--color-primary);
+    text-shadow: 0 0 15px var(--color-primary-glow);
+}
+
+/* --- Layout Sections --- */
+.left-section, .right-section {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+}
+
+/* --- Navegação Principal Desktop --- */
 .nav-links {
     list-style: none;
     display: flex;
-    gap: 20px;
+    gap: 30px;
     margin: 0;
     padding: 0;
 }
 
-/* Esconde links principais em telas menores */
 @media (max-width: 900px) {
-    .nav-links {
-        display: none;
-    }
+    .nav-links { display: none; }
+    .left-section { gap: 15px; }
 }
 
 .styled-nav-link {
     color: var(--color-text-light);
     text-decoration: none;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: color 0.2s;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: color 0.3s ease;
+    position: relative;
+    padding-bottom: 5px;
 }
 
 .styled-nav-link:hover {
     color: var(--color-text-white);
 }
 
+/* Linha de LED em baixo do link ativo (estilo Starlink) */
+.styled-nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background-color: var(--color-primary);
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px var(--color-primary-glow);
+}
+
+.styled-nav-link:hover::after,
+.styled-nav-link.active::after {
+    width: 100%;
+}
+
 .styled-nav-link.active {
-    color: var(--color-primary);
-    font-weight: 700;
-}
-
-/* --- Ícones e Botões --- */
-.icon-button {
-    background: transparent;
-    border: none;
     color: var(--color-text-white);
-    font-size: 1.3rem;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-.icon-button:hover {
-    color: var(--color-primary);
 }
 
-/* Menu Mobile Icon */
+/* --- Ícones --- */
 .mobile-menu-icon {
     background: none;
     border: none;
     color: var(--color-text-white);
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     cursor: pointer;
-    margin-right: 15px;
+    transition: color 0.3s;
+}
+.mobile-menu-icon:hover {
+    color: var(--color-primary);
 }
 @media (min-width: 901px) {
-    .mobile-menu-icon {
-        display: none;
-    }
+    .mobile-menu-icon { display: none; }
 }
 
-/* --- Perfil e Dropdown --- */
+/* --- Perfil Desktop --- */
 .profile-container {
     position: relative;
 }
@@ -133,106 +139,194 @@ body.menu-open {
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 0;
+    gap: 10px;
 }
 .profile-avatar {
-    width: 35px;
-    height: 35px;
-    border-radius: 4px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%; /* Estilo mais premium */
     object-fit: cover;
-}
-.caret-icon {
-    color: var(--color-text-white);
-    font-size: 0.8rem;
-    margin-left: 5px;
-    transition: transform 0.2s; /* Adicionado transição para a rotação */
+    border: 1px solid var(--border-glass);
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 @media (max-width: 900px) {
-    .caret-icon {
-        display: none;
-    }
+    .profile-trigger { display: none; }
+}
+.profile-trigger:hover .profile-avatar {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 15px var(--color-primary-glow);
+}
+.caret-icon {
+    color: var(--color-text-light);
+    font-size: 0.75rem;
+}
+@media (max-width: 900px) {
+    .caret-icon { display: none; }
 }
 
-/* Dropdown Menu */
+/* --- Dropdown Glassmorphism --- */
 .dropdown-menu {
     position: absolute;
-    top: calc(100% + 20px);
+    top: calc(100% + 25px);
     right: 0;
-    background: var(--color-dark-gray);
-    border: 1px solid var(--color-medium-gray);
-    border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    width: 200px;
+    background: rgba(15, 15, 20, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    width: 220px;
     padding: 10px 0;
     z-index: 1001;
-}
-.dropdown-arrow {
-    position: absolute;
-    top: -10px;
-    right: 15px;
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 10px solid var(--color-dark-gray);
-    z-index: 1002;
 }
 .dropdown-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 15px;
-    font-size: 0.95rem;
+    gap: 12px;
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
     color: var(--color-text-light);
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    transition: all 0.2s;
     text-decoration: none;
 }
 .dropdown-item:hover {
-    background-color: var(--color-medium-gray);
+    background-color: rgba(255, 255, 255, 0.05);
     color: var(--color-text-white);
+    padding-left: 25px; /* Efeito de slide no hover */
 }
-
+.dropdown-item.text-red:hover {
+    color: #ff4d4d;
+}
+.profile-avatar-small {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
 .divider {
     height: 1px;
-    background-color: var(--color-medium-gray);
-    margin: 5px 0;
+    background-color: var(--border-glass);
+    margin: 8px 0;
 }
 
-/* --- Mobile Menu --- */
+/* --- Menu Mobile Estilo Dashboard --- */
 .backdrop {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
     z-index: 990;
 }
 .mobile-nav-container {
     position: fixed;
     top: 0;
     left: 0;
-    width: 70vw;
-    max-width: 300px;
+    width: 80vw;
+    max-width: 320px;
     height: 100vh;
-    background-color: var(--color-black-solid);
-    z-index: 991;
-    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-    padding-top: 20px;
-    overflow-y: auto;
+    background-color: rgba(10, 10, 12, 0.95);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border-glass);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+}
+.mobile-close-btn {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    background: none;
+    border: none;
+    color: var(--color-text-light);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.mobile-profile-section {
+    padding: 40px 25px 25px;
+    border-bottom: 1px solid var(--border-glass);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.profile-avatar-large {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--color-primary);
+}
+.mobile-profile-info {
+    display: flex;
+    flex-direction: column;
+}
+.mobile-profile-name {
+    color: var(--color-text-white);
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+.mobile-profile-status {
+    color: var(--color-primary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+.mobile-links-section {
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
 }
 .mobile-link {
-    display: block;
-    padding: 12px 25px;
-    color: var(--color-text-white);
+    padding: 15px 25px;
+    color: var(--color-text-light);
     text-decoration: none;
-    font-size: 1.1rem;
-    transition: background-color 0.2s;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+    border-left: 3px solid transparent;
 }
-
 .mobile-link:hover, .mobile-link.active {
-    background-color: var(--color-medium-gray);
-    border-left: 3px solid var(--color-primary);
+    color: var(--color-text-white);
+    background-color: rgba(255, 255, 255, 0.03);
+    border-left-color: var(--color-primary);
+}
+.mobile-switch-section {
+    margin-top: auto;
+    padding: 20px 25px;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--border-glass);
+}
+.mobile-section-title {
+    color: var(--color-text-light);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+.mobile-switch-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--color-text-white);
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+.mobile-switch-item img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+.mobile-switch-item:hover img {
+    opacity: 1;
 }

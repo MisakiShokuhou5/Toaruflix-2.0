@@ -1,83 +1,17 @@
 // ARQUIVO: src/components/Header.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
-import { FaChevronDown, FaUserCog, FaSignOutAlt, FaBars, FaSearch, FaBell } from 'react-icons/fa';
-import { AnimatePresence } from 'framer-motion';
-// NOTE: Adicionei styled-components e motion para que o JSX funcione, assumindo que você os coloca em Header.styles.js
-import styled, { createGlobalStyle } from 'styled-components';
-import { motion } from 'framer-motion';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { FaChevronDown, FaUserCog, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
+import { AnimatePresence, motion } from 'framer-motion';
+import './Header.css';
 
-// --- STYLED COMPONENTS (ASSUMIDOS DE Header.styles.js) ---
-const COLOR_PRIMARY = '#8a2be2';
-const NETFLIX_BLACK_SOLID = '#141414';
-const HEADER_HEIGHT = '68px';
-
-export const GlobalStyle = createGlobalStyle`
-    body { overflow: ${props => (props.$isMenuOpen ? 'hidden' : 'auto')}; }
-`;
-export const HeaderNav = styled.header`
-    position: fixed; top: 0; left: 0; width: 100%; height: ${HEADER_HEIGHT}; z-index: 50;
-    display: flex; justify-content: space-between; align-items: center; padding: 0 4%;
-    background-color: transparent; transition: background-color 0.4s ease-in-out;
-    &.scrolled { background-color: ${NETFLIX_BLACK_SOLID}; 
-  background: #000000;
-}
-`;
-export const LeftSection = styled.div` display: flex; align-items: center; gap: 30px; `;
-export const RightSection = styled.div` display: flex; align-items: center; gap: 15px; `;
-export const NavLinks = styled.ul`
-    list-style: none; display: flex; gap: 20px; margin: 0; padding: 0;
-    @media (max-width: 900px) { display: none; }
-`;
-export const StyledNavLink = styled(NavLink)`
-    color: #e5e5e5; text-decoration: none; font-size: 1rem; font-weight: 500; transition: color 0.2s;
-    &:hover { color: #fff; }
-    &.active { color: ${COLOR_PRIMARY}; font-weight: 700; }
-`;
-export const IconButton = styled.button`
-    background: transparent; border: none; color: #fff; font-size: 1.3rem; cursor: pointer; transition: color 0.2s;
-    &:hover { color: ${COLOR_PRIMARY}; }
-`;
-export const ProfileContainer = styled.div` position: relative; `;
-export const ProfileTrigger = styled.button` background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 0; `;
-export const ProfileAvatar = styled.img` width: 35px; height: 35px; border-radius: 4px; object-fit: cover; `;
-export const CaretIcon = styled(motion.div)` color: #fff; font-size: 0.8rem; margin-left: 5px; @media (max-width: 900px) { display: none; } `;
-export const DropdownMenu = styled(motion.div)`
-    position: absolute; top: calc(100% + 20px); right: 0; background: #191919; border: 1px solid #333;
-    border-radius: 4px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); width: 200px; padding: 10px 0; z-index: 60;
-`;
-export const DropdownArrow = styled.div`
-    position: absolute; top: -10px; right: 15px; width: 0; height: 0; border-left: 8px solid transparent;
-    border-right: 8px solid transparent; border-bottom: 10px solid #191919; z-index: 61;
-`;
-export const DropdownItem = styled.div`
-    display: flex; align-items: center; gap: 10px; padding: 10px 15px; font-size: 0.95rem; color: #e5e5e5;
-    cursor: pointer; transition: background-color 0.2s, color 0.2s; text-decoration: none;
-    &:hover { background-color: #333; color: #fff; }
-`;
-export const ProfileSwitcherItem = styled(DropdownItem)``;
-export const Divider = styled.div` height: 1px; background-color: #333; margin: 5px 0; `;
-export const MobileMenuIcon = styled.button`
-    background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; margin-right: 15px;
-    @media (min-width: 901px) { display: none; }
-`;
-export const Backdrop = styled(motion.div)`
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.7); z-index: 55;
-`;
-export const MobileNavContainer = styled(motion.nav)`
-    position: fixed; top: 0; left: 0; width: 70vw; max-width: 300px; height: 100vh; background-color: #1a1a1a;
-    z-index: 56; box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5); padding-top: 20px; overflow-y: auto;
-`;
-export const MobileLink = styled(NavLink)`
-    display: block; padding: 12px 25px; color: #fff; text-decoration: none; font-size: 1.1rem; transition: background-color 0.2s;
-    &:hover, &.active { background-color: #333; border-left: 3px solid ${COLOR_PRIMARY}; }
-`;
-// --- FIM STYLED COMPONENTS ---
-
-// Componente Logo Mock
-const Logo = ({ style }) => <h1 style={{ ...style, fontSize: '25px', color: '#fff' }}>Toaru<span style={{ color: '#8a2be2' }}>Flix</span></h1>;
+// Componente Logo Estilizado
+const Logo = () => (
+    <div className="logo-container">
+        TOARUFLIX
+    </div>
+);
 
 // --- DADOS ---
 const ADMIN_EMAILS = ['joao@gmail.com'];
@@ -88,7 +22,6 @@ const BASE_NAV_LINKS = [
     { to: "/tier-list", label: "Tier List" },
 ];
 
-// --- COMPONENTE ---
 const Header = () => {
     const { user, profiles, selectedProfile, signOut, setSelectedProfile } = useAuth();
     const navigate = useNavigate();
@@ -98,16 +31,21 @@ const Header = () => {
 
     const dropdownRef = useRef(null);
 
-    // Lógica ADMIN: Verifica se o usuário logado é 'joao@gmail.com'
+    // Lógica ADMIN
     const isAdmin = user && ADMIN_EMAILS.includes(user.email);
     const navLinks = isAdmin ? [...BASE_NAV_LINKS, { to: "/admin", label: "Painel Admin" }] : BASE_NAV_LINKS;
 
-    // Scroll Effect (Muda de Transparente para Preto Sólido)
+    // Scroll Effect (Glassmorphism)
     useEffect(() => {
-        const handleScroll = () => setIsScrolled(window.scrollY > 0);
+        const handleScroll = () => setIsScrolled(window.scrollY > 10);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Travar scroll do body no mobile
+    useEffect(() => {
+        document.body.style.overflow = isMobileMenuOpen ? 'hidden' : 'auto';
+    }, [isMobileMenuOpen]);
 
     // Click Outside Dropdown
     useEffect(() => {
@@ -123,6 +61,7 @@ const Header = () => {
     const handleProfileSwitch = (profile) => {
         setSelectedProfile(profile);
         setDropdownOpen(false);
+        setMobileMenuOpen(false);
         navigate('/browse');
     };
 
@@ -132,144 +71,141 @@ const Header = () => {
 
     return (
         <>
-            <GlobalStyle $isMenuOpen={isMobileMenuOpen} />
-
-            <HeaderNav className={isScrolled ? 'scrolled' : ''}>
-                {/* LADO ESQUERDO: Logo + Links */}
-                <LeftSection>
-                    {/* <MobileMenuIcon onClick={() => setMobileMenuOpen(true)}>
+            <header className={`header-nav ${isScrolled ? 'scrolled' : ''}`}>
+                
+                <div className="left-section">
+                    <button className="mobile-menu-icon" onClick={() => setMobileMenuOpen(true)}>
                         <FaBars />
-                    </MobileMenuIcon> */}
+                    </button>
 
-                    <Link to="/browse">
-                        <Logo style={{ height: '25px' }} />
+                    <Link to="/browse" style={{ textDecoration: 'none' }}>
+                        <Logo />
                     </Link>
 
-                    <NavLinks>
+                    <ul className="nav-links">
                         {navLinks.map((link) => (
                             <li key={link.to}>
-                                <StyledNavLink to={link.to} end={link.to === '/browse'}>
+                                <NavLink to={link.to} end={link.to === '/browse'} className="styled-nav-link">
                                     {link.label}
-                                </StyledNavLink>
+                                </NavLink>
                             </li>
                         ))}
-                    </NavLinks>
-                </LeftSection>
+                    </ul>
+                </div>
 
-                {/* LADO DIREITO: Busca, Sino, Perfil */}
-                <RightSection>
-                    {/*                     <IconButton aria-label="Buscar">
-                        <FaSearch />
-                    </IconButton>
-                    
-                    <IconButton aria-label="Notificações">
-                        <FaBell />
-                    </IconButton> */}
-
-                    <ProfileContainer ref={dropdownRef}>
-                        <ProfileTrigger onClick={() => setDropdownOpen(!isDropdownOpen)}>
-                            <ProfileAvatar src={selectedProfile.imageUrl} alt={selectedProfile.name} />
-                            <CaretIcon animate={{ rotate: isDropdownOpen ? 180 : 0 }}>
+                <div className="right-section">
+                    <div className="profile-container" ref={dropdownRef}>
+                        <button className="profile-trigger" onClick={() => setDropdownOpen(!isDropdownOpen)}>
+                            <img className="profile-avatar" src={selectedProfile.imageUrl} alt={selectedProfile.name} />
+                            <motion.div className="caret-icon" animate={{ rotate: isDropdownOpen ? 180 : 0 }}>
                                 <FaChevronDown />
-                            </CaretIcon>
-                        </ProfileTrigger>
+                            </motion.div>
+                        </button>
 
                         <AnimatePresence>
                             {isDropdownOpen && (
-                                <DropdownMenu
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
+                                <motion.div
+                                    className="dropdown-menu"
+                                    initial={{ opacity: 0, y: -10, filter: 'blur(10px)' }}
+                                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                                    exit={{ opacity: 0, y: -10, filter: 'blur(10px)' }}
                                     transition={{ duration: 0.2 }}
                                 >
-                                    <DropdownArrow />
+                                    <div className="dropdown-arrow" />
 
-                                    {/* Troca de Perfil Rápida */}
                                     {otherProfiles.map(profile => (
-                                        <ProfileSwitcherItem key={profile.id} onClick={() => handleProfileSwitch(profile)}>
-                                            <ProfileAvatar src={profile.imageUrl} alt={profile.name} style={{ width: '28px', height: '28px' }} />
+                                        <div key={profile.id} className="dropdown-item" onClick={() => handleProfileSwitch(profile)}>
+                                            <img className="profile-avatar-small" src={profile.imageUrl} alt={profile.name} />
                                             <span>{profile.name}</span>
-                                        </ProfileSwitcherItem>
+                                        </div>
                                     ))}
 
-                                    {otherProfiles.length > 0 && <Divider />}
+                                    {otherProfiles.length > 0 && <div className="divider" />}
 
-                                    {/* Links de Conta */}
-                                    <DropdownItem as={Link} to="/edit-profiles" onClick={() => setDropdownOpen(false)}>
+                                    <Link to="/edit-profiles" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
                                         <FaUserCog /> <span>Gerenciar Perfis</span>
-                                    </DropdownItem>
-
-                                    <DropdownItem as={Link} to="/account" onClick={() => setDropdownOpen(false)}>
-                                        <span>Conta</span>
-                                    </DropdownItem>
-
+                                    </Link>
+                                    
                                     {isAdmin && (
-                                        <DropdownItem as={Link} to="/admin" onClick={() => setDropdownOpen(false)}>
-                                            <span>Painel Admin</span>
-                                        </DropdownItem>
+                                        <Link to="/admin" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                                            <span style={{color: 'var(--color-primary)'}}>Painel Admin</span>
+                                        </Link>
                                     )}
 
-                                    <Divider />
+                                    <div className="divider" />
 
-                                    <DropdownItem onClick={() => { signOut(); setDropdownOpen(false); }}>
-                                        <FaSignOutAlt /> <span>Sair do ToaruFlix</span>
-                                    </DropdownItem>
-                                </DropdownMenu>
+                                    <div className="dropdown-item text-red" onClick={() => { signOut(); setDropdownOpen(false); }}>
+                                        <FaSignOutAlt /> <span>Sair do Sistema</span>
+                                    </div>
+                                </motion.div>
                             )}
                         </AnimatePresence>
-                    </ProfileContainer>
-                </RightSection>
-            </HeaderNav>
+                    </div>
+                </div>
+            </header>
 
-            {/* MOBILE MENU DRAWER */}
+            {/* MOBILE MENU DRAWER (STARLINK VIBE) */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <>
-                        <Backdrop
+                        <motion.div
+                            className="backdrop"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setMobileMenuOpen(false)}
                         />
-                        <MobileNavContainer
+                        <motion.nav
+                            className="mobile-nav-container"
                             initial={{ x: '-100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
-                            transition={{ type: 'tween', duration: 0.3 }}
+                            transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}
                         >
-                            <div style={{ padding: '0 25px 20px', borderBottom: '1px solid #000000ff' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                                    <ProfileAvatar src={selectedProfile.imageUrl} style={{ width: '40px', height: '40px' }} />
-                                    <span style={{ color: '#fff', fontWeight: 'bold' }}>{selectedProfile.name}</span>
+                            <button className="mobile-close-btn" onClick={() => setMobileMenuOpen(false)}>
+                                <FaTimes />
+                            </button>
+
+                            <div className="mobile-profile-section">
+                                <img className="profile-avatar-large" src={selectedProfile.imageUrl} alt="Perfil" />
+                                <div className="mobile-profile-info">
+                                    <span className="mobile-profile-name">{selectedProfile.name}</span>
+                                    <small className="mobile-profile-status">Conectado</small>
                                 </div>
-                                <small style={{ color: '#999' }}>Trocar de perfil</small>
                             </div>
 
-                            <div style={{ marginTop: '20px' }}>
+                            <div className="mobile-links-section">
                                 {navLinks.map((link) => (
-                                    <MobileLink
+                                    <NavLink
                                         key={link.to}
                                         to={link.to}
-                                        onClick={() => setMobileMenuOpen(false)}
                                         end={link.to === '/browse'}
+                                        className="mobile-link"
+                                        onClick={() => setMobileMenuOpen(false)}
                                     >
                                         {link.label}
-                                    </MobileLink>
+                                    </NavLink>
                                 ))}
                             </div>
-                        </MobileNavContainer>
+
+                            {/* Troca de perfil no mobile */}
+                            {otherProfiles.length > 0 && (
+                                <div className="mobile-switch-section">
+                                    <p className="mobile-section-title">Trocar Conta</p>
+                                    {otherProfiles.map(profile => (
+                                        <div key={profile.id} className="mobile-switch-item" onClick={() => handleProfileSwitch(profile)}>
+                                            <img src={profile.imageUrl} alt={profile.name} />
+                                            <span>{profile.name}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </motion.nav>
                     </>
                 )}
             </AnimatePresence>
         </>
     );
-};
-
-// NOTE: Este export é necessário para que a rota AdminPage funcione no App.jsx.
-export const HeaderStyles = {
-    GlobalStyle, HeaderNav, LeftSection, RightSection, NavLinks, StyledNavLink, IconButton,
-    ProfileContainer, ProfileTrigger, ProfileAvatar, CaretIcon, DropdownMenu, DropdownArrow,
-    DropdownItem, ProfileSwitcherItem, Divider, MobileMenuIcon, MobileNavContainer, MobileLink, Backdrop
 };
 
 export default Header;
