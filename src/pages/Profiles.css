@@ -1,169 +1,202 @@
-/* ARQUIVO: src/pages/Profiles.css - ESTILO NETFLIX/MAX PÁGINA DE PERFIS (REFINADO) */
+/* ARQUIVO: src/pages/Profiles.css - ISOLADO E BLINDADO */
 
-/* --- VARIÁVEIS DE TEMA --- */
-:root {
-    --color-primary: #8a2be2;      /* Blueviolet (Destaque) */
-    --color-dark: #141414;         /* Preto profundo (Fundo) */
-    --color-text-muted: #808080;   /* Cinza inativo */
-    --color-text-active: #ffffff;  /* Branco puro */
-    --transition-speed: 0.25s;
-    --avatar-size: clamp(120px, 14vw, 220px); /* Tamanho responsivo para avatar */
-}
+@import url('https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@300;400;500;700&display=swap');
 
-/* --- CONTAINER PRINCIPAL --- */
-.profiles-wrapper {
+.sl-auth-wrapper {
+    /* Variáveis locais (só funcionam dentro do sl-auth-wrapper) */
+    --sl-auth-bg: #000000;
+    --sl-auth-text: #ffffff;
+    --sl-auth-muted: #7a7a7a;
+    --sl-auth-border: #1a1a1a;
+    --sl-auth-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     min-height: 100vh;
-    background-color: var(--color-dark);
-    color: var(--color-text-active);
-    font-family: 'Inter', sans-serif;
-    padding: 2rem;
-    overflow-x: hidden; /* Evita barra de rolagem horizontal indesejada */
-    box-sizing: border-box; /* Garante que padding e borda não aumentem o tamanho total */
-}
-
-/* --- TÍTULO --- */
-.profiles-title {
-    font-size: clamp(2.5rem, 4vw, 4rem);
-    font-weight: 500;
-    margin-bottom: 50px; /* Mais espaço para o título */
+    background-color: var(--sl-auth-bg);
+    font-family: var(--sl-auth-font);
+    color: var(--sl-auth-text);
     text-align: center;
-    line-height: 1.2;
+    padding: 20px;
+    
+    /* Padrão de grade sutil para dar ar de terminal/sistema */
+    background-image: 
+        linear-gradient(rgba(26, 26, 26, 0.5) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26, 26, 26, 0.5) 1px, transparent 1px);
+    background-size: 40px 40px;
 }
 
-/* --- LISTA DE PERFIS --- */
-.profiles-list {
+.sl-auth-title {
+    font-size: 2.5rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 8px;
+    margin-bottom: 60px;
+    color: var(--sl-auth-text);
+    border-bottom: 1px solid var(--sl-auth-border);
+    padding-bottom: 20px;
+}
+
+.sl-auth-list {
     display: flex;
-    gap: clamp(1.5rem, 4vw, 3rem); /* Espaçamento entre os cards */
-    flex-wrap: wrap; /* Permite quebrar linha em telas menores */
     justify-content: center;
-    max-width: 1200px;
-    margin-bottom: 50px;
-    padding: 0 1rem; /* Pequeno padding para evitar que os cards toquem as bordas em mobile */
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 40px;
+    max-width: 1000px;
 }
 
-/* --- CONTAINER DO ITEM INDIVIDUAL (CARD) --- */
-.profile-item-container {
+/* CONTAINER DE CADA PERFIL */
+.sl-auth-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.8rem;
     cursor: pointer;
-    width: var(--avatar-size); /* Usa a variável de tamanho */
-    transition: transform var(--transition-speed) ease;
-    text-decoration: none; /* Garante que links não tenham underline */
-    color: inherit; /* Herda a cor do texto para o nome */
+    transition: transform 0.3s ease;
+    width: 160px;
 }
 
-.profile-item-container:hover {
+/* CAIXA DA IMAGEM */
+.sl-auth-avatar {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 20px;
+    position: relative;
+    border: 1px solid var(--sl-auth-border);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+}
+
+.sl-auth-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(80%) contrast(120%);
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+/* NOME DO PERFIL */
+.sl-auth-name {
+    color: var(--sl-auth-muted);
+    font-size: 0.85rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+/* --- EFEITO HOVER (AO PASSAR O MOUSE) --- */
+.sl-auth-item:hover .sl-auth-avatar {
+    border-color: var(--sl-auth-text);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+.sl-auth-item:hover .sl-auth-avatar img {
+    filter: grayscale(0%) contrast(100%);
     transform: scale(1.05);
 }
 
-/* --- AVATAR --- */
-.profile-avatar {
-    width: 100%;
-    /* Removido padding-top: 100%; para usar height e object-fit diretamente */
-    height: var(--avatar-size); /* Define a altura para ser um quadrado */
-    border-radius: 4px;
-    background-color: #333; /* Fundo para avatares sem imagem ou enquanto carregam */
-    display: flex; /* Para centralizar o ícone de adição */
-    justify-content: center;
-    align-items: center;
-    position: relative; /* Para borda */
-    overflow: hidden; /* Importante para cortar a imagem se for maior que o avatar */
-    border: 4px solid transparent; /* Borda transparente inicial */
-    transition: border-color var(--transition-speed);
+.sl-auth-item:hover .sl-auth-name {
+    color: var(--sl-auth-text);
 }
 
-.profile-avatar img {
+/* --- PLACEHOLDER DE ADICIONAR PERFIL --- */
+.sl-auth-placeholder {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* ESSENCIAL: Ajusta a imagem para preencher o container */
-    display: block; /* Remove espaço extra abaixo da imagem */
-    transition: transform var(--transition-speed) ease;
-}
-
-.profile-item-container:hover .profile-avatar {
-    border-color: var(--color-primary); /* Borda Blueviolet no hover */
-}
-
-/* --- NOME DO PERFIL --- */
-.profile-name {
-    color: var(--color-text-muted);
-    font-size: clamp(1.1rem, 1.5vw, 1.5rem);
-    font-weight: 500;
-    transition: color var(--transition-speed);
-    text-align: center;
-    white-space: nowrap; /* Evita que o nome quebre a linha */
-    overflow: hidden; /* Esconde o texto que transborda */
-    text-overflow: ellipsis; /* Adiciona "..." se o nome for muito longo */
-    max-width: 100%; /* Limita o nome à largura do container do card */
-}
-
-.profile-item-container:hover .profile-name {
-    color: var(--color-text-active); /* Nome fica branco no hover */
-}
-
-/* --- BOTÃO GERENCIAR PERFIS --- */
-.manage-profiles-button {
-    background-color: transparent;
-    border: 1px solid var(--color-text-muted);
-    color: var(--color-text-muted);
-    padding: 0.7rem 2rem;
-    font-size: 1.1rem;
-    font-weight: 500;
-    cursor: pointer;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    transition: all var(--transition-speed);
-    border-radius: 2px;
-    margin-top: 20px; /* Garante espaço acima do botão */
-    white-space: nowrap; /* Evita que o texto do botão quebre */
-}
-
-.manage-profiles-button:hover {
-    color: var(--color-text-active);
-    border-color: var(--color-text-active);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); 
-}
-
-/* --- ÍCONE ADICIONAR PERFIL --- */
-.add-profile-placeholder {
-    width: 100%;
-    height: 100%; /* Ocupa todo o espaço do .profile-avatar */
     display: flex;
-    justify-content: center;
     align-items: center;
-    background-color: #333; /* Fundo cinza para o placeholder */
-    border-radius: 4px;
+    justify-content: center;
+    background-color: transparent;
+    font-size: 2.5rem;
+    color: var(--sl-auth-muted);
+    border: 1px dashed var(--sl-auth-muted);
+    transition: all 0.3s ease;
 }
 
-.add-profile-placeholder svg {
-    font-size: clamp(2rem, 5vw, 4rem); /* Tamanho responsivo para o ícone */
-    color: var(--color-text-muted);
-    transition: color var(--transition-speed);
+.sl-auth-item.sl-auth-add:hover .sl-auth-placeholder {
+    color: var(--sl-auth-text);
+    border: 1px solid var(--sl-auth-text);
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
-.profile-item-container:hover .add-profile-placeholder svg {
-    color: var(--color-primary);
+/* --- BOTÃO GERENCIAR --- */
+.sl-auth-manage-btn {
+    margin-top: 80px;
+    background-color: transparent;
+    border: 1px solid var(--sl-auth-muted);
+    color: var(--sl-auth-text);
+    padding: 15px 40px;
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: var(--sl-auth-font);
 }
 
-/* --- Mídia Queries para Telas Menores --- */
+.sl-auth-manage-btn:hover {
+    background-color: var(--sl-auth-text);
+    color: var(--sl-auth-bg);
+    border-color: var(--sl-auth-text);
+}
+
+/* ----------------------------------------------------------------
+| RESPONSIVIDADE (MOBILE)
+| ---------------------------------------------------------------- */
 @media (max-width: 768px) {
-    .profiles-wrapper {
-        padding: 1rem;
+    .sl-auth-wrapper {
+        padding: 40px 15px;
+        justify-content: flex-start; 
     }
-    .profiles-title {
-        margin-bottom: 30px;
+
+    .sl-auth-title {
+        font-size: 1.5rem;
+        letter-spacing: 4px;
+        margin-bottom: 40px;
     }
-    .profiles-list {
-        gap: 1rem;
+
+    .sl-auth-list {
+        gap: 20px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); 
+        width: 100%;
+        max-width: 350px;
     }
-    .manage-profiles-button {
-        padding: 0.5rem 1.5rem;
-        font-size: 1rem;
+
+    .sl-auth-item {
+        width: 100%;
+    }
+
+    .sl-auth-avatar {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 15px;
+    }
+
+    .sl-auth-name {
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+    }
+
+    .sl-auth-manage-btn {
+        margin-top: 50px;
+        width: 100%;
+        max-width: 300px;
+        padding: 15px 20px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .sl-auth-avatar {
+        width: 80px;
+        height: 80px;
     }
 }

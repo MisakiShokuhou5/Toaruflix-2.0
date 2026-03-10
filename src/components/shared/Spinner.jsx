@@ -1,76 +1,113 @@
-// src/components/shared/Spinner.jsx
+// ARQUIVO: src/components/shared/Spinner.jsx
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
-// --- VARIÁVEIS DE TEMA ---
-const COLOR_PRIMARY = '#8a2be2'; // Roxo Toaru
-const COLOR_SECONDARY = '#ffffff'; // Branco
-const NETFLIX_BLACK = '#0f0f0f'; // Fundo Escuro Max/Toaru
+// --- VARIÁVEIS DE TEMA (Starlink/Telemetria) ---
+const THEME = {
+    bgDark: '#000000',
+    textPrimary: '#ffffff',
+    textMuted: '#7a7a7a',
+    accent: '#00ffaa', // Verde terminal/status
+    border: '#1a1a1a',
+    fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif"
+};
 
-// --- 1. ANIMAÇÃO DE ROTAÇÃO E BRILHO (Keyframes) ---
+// --- ANIMAÇÕES (Keyframes) ---
 const spin = keyframes`
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 `;
 
-// Pulsação para o Efeito de Magia
-const pulse = keyframes`
-  0% { box-shadow: 0 0 5px ${COLOR_PRIMARY}, 0 0 10px ${COLOR_PRIMARY}; }
-  50% { box-shadow: 0 0 15px ${COLOR_PRIMARY}, 0 0 30px rgba(138, 43, 226, 0.7); }
-  100% { box-shadow: 0 0 5px ${COLOR_PRIMARY}, 0 0 10px ${COLOR_PRIMARY}; }
+const blink = keyframes`
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 `;
 
-// --- 2. CONTAINER DE TELA CHEIA ---
+// --- CONTAINER DE TELA CHEIA ---
 const SpinnerContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  width: 100vw;
-  background-color: ${NETFLIX_BLACK};
-  position: fixed; 
-  top: 0;
-  left: 0;
-  z-index: 9999; 
-  color: ${COLOR_SECONDARY};
-  font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: ${THEME.bgDark};
+    position: fixed; 
+    top: 0; left: 0;
+    z-index: 9999; 
+    font-family: ${THEME.fontFamily};
+
+    /* Fundo em malha sutil (estilo radar/tela de engenharia) */
+    background-image: 
+        linear-gradient(rgba(26, 26, 26, 0.4) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(26, 26, 26, 0.4) 1px, transparent 1px);
+    background-size: 40px 40px;
 `;
 
-// --- 3. O PORTAL MÁGICO GIRATÓRIO ---
-const MagicPortal = styled.div`
-  /* Estilo base */
-  border: 4px solid rgba(255, 255, 255, 0.1); 
-  border-top: 4px solid ${COLOR_PRIMARY}; 
-  border-bottom: 4px solid ${COLOR_PRIMARY}; /* Adiciona brilho de portal */
-  border-radius: 50%;
-  width: 70px; /* Maior para mais impacto */
-  height: 70px;
-  
-  /* Animações */
-  animation: 
-    ${spin} 1.5s linear infinite, /* Rotação mais lenta */
-    ${pulse} 2s infinite alternate; /* Efeito de pulsação mágico */
-  
-  /* Efeito visual extra */
-  margin-bottom: 25px;
+// --- O LOADER (Estilo HUD/Radar Técnico) ---
+const TelemetryRing = styled.div`
+    position: relative;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Anel Externo Giratório */
+    &::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 1px solid ${THEME.border};
+        border-top: 2px solid ${THEME.textPrimary};
+        border-right: 2px solid transparent;
+        animation: ${spin} 1s linear infinite;
+    }
+
+    /* Ponto Central de Status (Núcleo piscante) */
+    &::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background-color: ${THEME.accent};
+        border-radius: 50%;
+        box-shadow: 0 0 10px ${THEME.accent};
+        animation: ${blink} 1.5s ease-in-out infinite;
+    }
 `;
 
-// --- 4. TEXTO ABAIXO ---
+// --- TEXTO TÉCNICO ABAIXO ---
 const LoadingText = styled.p`
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: ${COLOR_SECONDARY};
-    text-shadow: 0 0 5px ${COLOR_PRIMARY}; /* Brilho sutil no texto */
-    letter-spacing: 1px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: ${THEME.textMuted};
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    /* Bloco piscante (Cursor de terminal) no final do texto */
+    &::after {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 14px;
+        background-color: ${THEME.textPrimary};
+        animation: ${blink} 1s step-end infinite;
+    }
 `;
 
 // --- COMPONENTE PRINCIPAL ---
 const Spinner = () => (
-  <SpinnerContainer>
-    <MagicPortal />
-    <LoadingText>Carregando</LoadingText>
-  </SpinnerContainer>
+    <SpinnerContainer>
+        <TelemetryRing />
+        <LoadingText>Sincronizando Dados</LoadingText>
+    </SpinnerContainer>
 );
 
 export default Spinner;

@@ -1,214 +1,256 @@
-/* ARQUIVO: src/pages/EditProfiles.css - ESTILO NETFLIX/MAX PÁGINA DE GERENCIAMENTO */
+/* ARQUIVO: src/pages/EditProfiles.css - ESTILO STARLINK EXCLUSIVO */
 
-/* --- VARIÁVEIS DE TEMA --- */
 :root {
-    --color-primary: #8a2be2;      /* Blueviolet (Destaque) */
-    --color-dark: #0f0f0f;         /* Preto profundo (Fundo) */
-    --color-modal-bg: #1e1e1e;     /* Fundo do Modal */
-    --color-text-muted: #808080;   /* Cinza inativo */
-    --color-text-active: #ffffff;  /* Branco puro */
-    --color-delete: #dc3545;       /* Vermelho de erro/delete */
-    --transition-speed: 0.2s;
+    --sl-bg-dark: #000000;
+    --sl-border-subtle: #1a1a1a;
+    --sl-text-primary: #ffffff;
+    --sl-text-muted: #8a8a8a;
+    --sl-danger: #ff3333;
+    --sl-transition: 0.3s ease;
 }
 
 /* --- CONTAINER PRINCIPAL --- */
-.profiles-container {
+.starlink-profile-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     padding: 5rem 2rem;
-    background-color: var(--color-dark);
-    color: var(--color-text-active);
-    font-family: 'Inter', sans-serif;
+    background-color: var(--sl-bg-dark);
+    color: var(--sl-text-primary);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    letter-spacing: 2px;
 }
 
-.profiles-title {
-    font-size: clamp(2.5rem, 4vw, 4.5rem);
-    margin-bottom: 2.5rem;
-    font-weight: 700;
+.starlink-profile-title {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    margin-bottom: 4rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 6px;
+    border-bottom: 1px solid var(--sl-border-subtle);
+    padding-bottom: 1rem;
 }
 
 /* --- LISTA DE PERFIS --- */
-.profile-list {
+.starlink-profile-list {
     display: flex;
-    gap: clamp(1.5rem, 3vw, 3rem);
+    gap: clamp(2rem, 4vw, 4rem);
     flex-wrap: wrap;
     justify-content: center;
     max-width: 1200px;
 }
 
-.profile-item-container {
+.starlink-profile-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.8rem;
+    gap: 1.2rem;
     cursor: pointer;
-    width: clamp(100px, 12vw, 200px);
+    width: clamp(100px, 12vw, 160px);
+    transition: transform var(--sl-transition);
 }
 
-/* --- PERFIL INDIVIDUAL (Ações de Edição) --- */
-.profile-avatar {
+.starlink-profile-item:hover {
+    transform: translateY(-5px);
+}
+
+/* --- PERFIL INDIVIDUAL --- */
+.starlink-profile-avatar {
     width: 100%;
-    height: clamp(100px, 12vw, 200px);
-    border-radius: 8px;
-    background-size: cover;
-    background-position: center;
+    aspect-ratio: 1 / 1; /* Mantém sempre quadrado estilo painel */
+    background-color: #050505;
     position: relative;
-    border: 4px solid transparent;
-    transition: border-color var(--transition-speed), transform var(--transition-speed);
+    border: 1px solid var(--sl-border-subtle);
+    transition: border-color var(--sl-transition);
     overflow: hidden;
-    background-color: #333;
+    /* Zero border-radius para estética de hardware/Starlink */
+    border-radius: 0; 
 }
 
-.profile-avatar img {
+.starlink-profile-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    filter: grayscale(20%); /* Tira um pouco da saturação para ficar mais sério */
+    transition: filter var(--sl-transition);
 }
 
-.profile-item-container:hover .profile-avatar {
-    border-color: var(--color-primary);
+.starlink-profile-item:hover .starlink-profile-avatar {
+    border-color: var(--sl-text-primary);
+}
+.starlink-profile-item:hover .starlink-profile-avatar img {
+    filter: grayscale(0%);
 }
 
 /* --- OVERLAY DE EDIÇÃO (CANETA) --- */
-.edit-overlay {
+.starlink-profile-edit-overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0,0,0,0.7);
-    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.85);
     display: flex;
     justify-content: center;
     align-items: center;
-    opacity: 1; /* Sempre visível no modo de edição */
-    font-size: clamp(2rem, 3vw, 3.5rem);
-    color: var(--color-primary);
+    opacity: 1; 
+    font-size: 1.5rem;
+    color: var(--sl-text-primary);
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 /* --- NOME DO PERFIL --- */
-.profile-name {
-    color: var(--color-text-active);
-    font-size: clamp(1rem, 1.2vw, 1.3rem);
+.starlink-profile-name {
+    color: var(--sl-text-muted);
+    font-size: 0.8rem;
     font-weight: 500;
-    transition: color var(--transition-speed);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    transition: color var(--sl-transition);
+    text-align: center;
+}
+
+.starlink-profile-item:hover .starlink-profile-name {
+    color: var(--sl-text-primary);
 }
 
 /* --- BOTÃO ADICIONAR PERFIL --- */
-.add-profile-placeholder {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
-    background-color: #333;
-    color: var(--color-text-muted);
-    transition: all var(--transition-speed) ease;
+.starlink-profile-add-placeholder {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
-}
-.add-profile-placeholder svg {
-    font-size: clamp(2.5rem, 4vw, 4rem);
+    border: 1px dashed var(--sl-text-muted);
+    color: var(--sl-text-muted);
+    background-color: transparent;
+    transition: all var(--sl-transition);
 }
 
-.profile-item-container:hover .add-profile-placeholder {
-    color: var(--color-primary);
-    background-color: rgba(50,50,50, 0.5);
+.starlink-profile-add-placeholder svg {
+    font-size: 2rem;
+    font-weight: 100;
+}
+
+.starlink-profile-add-item:hover .starlink-profile-add-placeholder {
+    border-color: var(--sl-text-primary);
+    color: var(--sl-bg-dark);
+    background-color: var(--sl-text-primary);
 }
 
 /* --- BOTÃO CONCLUÍDO (Sair da edição) --- */
-.done-button {
+.starlink-profile-done-button {
     background-color: transparent;
-    border: 2px solid var(--color-text-muted);
-    color: var(--color-text-muted);
-    padding: 0.9rem 2.5rem;
-    font-size: 1.1rem;
-    font-weight: 600;
+    border: 1px solid var(--sl-text-primary);
+    color: var(--sl-text-primary);
+    padding: 1rem 3rem;
+    font-size: 0.85rem;
+    font-weight: 500;
     cursor: pointer;
     margin-top: 5rem;
-    letter-spacing: 2px;
+    letter-spacing: 4px;
     text-transform: uppercase;
-    transition: all var(--transition-speed);
-    border-radius: 4px;
-}
-.done-button:hover {
-    background-color: var(--color-primary);
-    color: var(--color-text-active);
-    border-color: var(--color-primary);
-    box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+    transition: all var(--sl-transition);
+    border-radius: 0;
 }
 
+.starlink-profile-done-button:hover {
+    background-color: var(--sl-text-primary);
+    color: var(--sl-bg-dark);
+}
 
 /* --- ESTILOS DO MODAL (JANELA POP-UP DE EDIÇÃO) --- */
-.modal-overlay {
+.starlink-profile-modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0,0,0,0.9);
+    background-color: rgba(0, 0, 0, 0.95);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
 }
-.modal-content {
-    background-color: var(--color-modal-bg);
+
+.starlink-profile-modal-content {
+    background-color: var(--sl-bg-dark);
     padding: 3rem;
-    border-radius: 12px;
     width: 90%;
     max-width: 600px;
-    border: 1px solid rgba(138, 43, 226, 0.3);
-    animation: fadeIn 0.3s ease-out;
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    border: 1px solid var(--sl-border-subtle);
+    animation: slFadeIn 0.3s ease-out;
 }
 
-.modal-title {
-    font-size: 2.2rem;
-    margin: 0 0 2rem 0;
-    font-weight: 700;
+@keyframes slFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
-.modal-input {
+
+.starlink-profile-modal-title {
+    font-size: 1.2rem;
+    margin: 0 0 2rem 0;
+    font-weight: 400;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--sl-border-subtle);
+    padding-bottom: 1rem;
+    color: var(--sl-text-primary);
+}
+
+.starlink-profile-modal-input {
     width: 100%;
     padding: 1rem;
-    font-size: 1.2rem;
-    background-color: #333;
-    border: 1px solid #555;
-    border-radius: 4px;
-    color: var(--color-text-active);
+    font-size: 1rem;
+    background-color: transparent;
+    border: 1px solid var(--sl-border-subtle);
+    color: var(--sl-text-primary);
     margin-bottom: 2rem;
-    transition: all var(--transition-speed);
-}
-.modal-input:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
-    outline: none;
-}
-.avatar-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
-.avatar-option {
-    width: 100%;
-    height: 90px;
-    border-radius: 4px;
-    cursor: pointer;
-    border: 4px solid transparent;
-    transition: border-color var(--transition-speed), transform var(--transition-speed);
-    object-fit: cover;
-    background-color: #333;
-}
-.avatar-option.selected {
-    border-color: var(--color-primary);
-}
-.avatar-option:hover {
-    transform: scale(1.03);
+    transition: all var(--sl-transition);
+    border-radius: 0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
-.modal-actions {
+.starlink-profile-modal-input:focus {
+    border-color: var(--sl-text-primary);
+    outline: none;
+}
+
+.starlink-profile-modal-label {
+    color: var(--sl-text-muted);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.starlink-profile-avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.starlink-profile-avatar-option {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    cursor: pointer;
+    border: 1px solid var(--sl-border-subtle);
+    transition: border-color var(--sl-transition);
+    object-fit: cover;
+    background-color: #050505;
+    border-radius: 0;
+    opacity: 0.5;
+}
+
+.starlink-profile-avatar-option.selected {
+    border-color: var(--sl-text-primary);
+    opacity: 1;
+}
+
+.starlink-profile-avatar-option:hover {
+    border-color: var(--sl-text-muted);
+    opacity: 0.8;
+}
+
+.starlink-profile-modal-actions {
     display: flex;
     justify-content: space-between;
     margin-top: 3rem;
@@ -216,38 +258,49 @@
 }
 
 /* --- BOTÕES DO MODAL --- */
-.modal-button {
+.starlink-profile-btn {
     flex-grow: 1;
     padding: 1rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 0;
     cursor: pointer;
-    border: none;
-    transition: all var(--transition-speed) ease;
+    transition: all var(--sl-transition);
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
-.modal-button.save {
-    background-color: var(--color-primary);
-    color: var(--color-text-active);
+.starlink-profile-btn-save {
+    background-color: var(--sl-text-primary);
+    color: var(--sl-bg-dark);
+    border: 1px solid var(--sl-text-primary);
 }
-.modal-button.save:hover:not(:disabled) { background-color: #7c25d3; }
-
-.modal-button.cancel {
-    background-color: var(--color-text-muted);
-    color: var(--color-text-active);
-}
-.modal-button.cancel:hover:not(:disabled) { background-color: #5a6268; }
-
-.modal-button.delete {
+.starlink-profile-btn-save:hover:not(:disabled) {
     background-color: transparent;
-    color: var(--color-delete);
-    border: 1px solid var(--color-delete);
+    color: var(--sl-text-primary);
 }
-.modal-button.delete:hover:not(:disabled) { background-color: var(--color-delete); color: var(--color-text-active); }
 
-.modal-button:disabled {
-    background-color: #555;
+.starlink-profile-btn-cancel {
+    background-color: transparent;
+    color: var(--sl-text-muted);
+    border: 1px solid var(--sl-border-subtle);
+}
+.starlink-profile-btn-cancel:hover:not(:disabled) {
+    border-color: var(--sl-text-primary);
+    color: var(--sl-text-primary);
+}
+
+.starlink-profile-btn-delete {
+    background-color: transparent;
+    color: var(--sl-danger);
+    border: 1px solid var(--sl-danger);
+}
+.starlink-profile-btn-delete:hover:not(:disabled) {
+    background-color: var(--sl-danger);
+    color: var(--sl-text-primary);
+}
+
+.starlink-profile-btn:disabled {
+    opacity: 0.3;
     cursor: not-allowed;
-    opacity: 0.6;
 }

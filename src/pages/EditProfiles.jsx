@@ -10,9 +10,8 @@ import { FaPen, FaPlus } from 'react-icons/fa';
 // Importa os estilos CSS
 import './EditProfiles.css'; 
 
-// --- Avatares pré-definidos (Escolha imagens quadradas e de alta qualidade) ---
+// --- Avatares pré-definidos ---
 const avatarOptions = [
-    // NOVOS ENDEREÇOS DO SEU REPOSITÓRIO
     'https://github.com/MisakiShokuhou5/A-certain-Digital-Database/blob/main/src/profile/Accelerator.png?raw=true',
     'https://github.com/MisakiShokuhou5/A-certain-Digital-Database/blob/main/src/profile/kakine.png?raw=true',
     'https://github.com/MisakiShokuhou5/A-certain-Digital-Database/blob/main/src/profile/mikoto.png?raw=true',
@@ -22,11 +21,7 @@ const avatarOptions = [
     'https://github.com/MisakiShokuhou5/A-certain-Digital-Database/blob/main/src/profile/index.png?raw=true',
 ];
 const MAX_PROFILES = 5;
-
-// CORREÇÃO DO ERRO: DEFINIÇÃO DA CONSTANTE DE COR
-const COLOR_TEXT_LIGHT = '#ffffff'; 
 const DEFAULT_AVATAR = avatarOptions[0];
-
 
 // --- Subcomponente Modal ---
 const ProfileFormModal = ({ isOpen, onClose, profile, onSave, onDelete }) => {
@@ -40,9 +35,8 @@ const ProfileFormModal = ({ isOpen, onClose, profile, onSave, onDelete }) => {
         if (profile) {
             setName(profile.name || '');
             setImageUrl(profile.imageUrl || DEFAULT_AVATAR);
-        } else { // Modo de criação
+        } else { 
             setName('');
-            // Define um avatar aleatório para o novo perfil
             setImageUrl(avatarOptions[Math.floor(Math.random() * avatarOptions.length)]); 
         }
     }, [profile, isOpen]);
@@ -51,7 +45,6 @@ const ProfileFormModal = ({ isOpen, onClose, profile, onSave, onDelete }) => {
 
     const handleSave = async () => {
         setIsSaving(true);
-        // Garante que o perfil tenha um ID ou um objeto vazio para a criação
         await onSave({ ...profile, name, imageUrl }); 
         setIsSaving(false);
         onClose();
@@ -67,41 +60,48 @@ const ProfileFormModal = ({ isOpen, onClose, profile, onSave, onDelete }) => {
     }
 
     return (
-        <div className="modal-overlay">
-            <div className="modal-content">
-                <h2 className="modal-title">{isEditMode ? 'Editar Perfil' : 'Adicionar Perfil'}</h2>
+        <div className="starlink-profile-modal-overlay">
+            <div className="starlink-profile-modal-content">
+                <h2 className="starlink-profile-modal-title">
+                    {isEditMode ? 'CONFIGURAR PERFIL' : 'INICIALIZAR PERFIL'}
+                </h2>
+                
                 <input 
-                    className="modal-input"
+                    className="starlink-profile-modal-input"
                     type="text" 
-                    placeholder="Nome do Perfil" 
+                    placeholder="IDENTIFICAÇÃO DO USUÁRIO" 
                     value={name}
                     onChange={(e) => setName(e.target.value)} 
                     disabled={isSaving}
                 />
-                {/* A constante COLOR_TEXT_LIGHT é usada aqui: */}
-                <label style={{ color: COLOR_TEXT_LIGHT, fontSize: '1.1rem', marginBottom: '1rem', display: 'block' }}>
-                    Escolha um avatar:
+                
+                <label className="starlink-profile-modal-label">
+                    SELECIONE UM AVATAR DE SISTEMA:
                 </label>
-                <div className="avatar-grid">
+                
+                <div className="starlink-profile-avatar-grid">
                     {avatarOptions.map(avatarUrl => (
                         <img 
                             key={avatarUrl}
                             src={avatarUrl}
                             alt="Avatar option"
-                            className={`avatar-option ${imageUrl === avatarUrl ? 'selected' : ''}`}
+                            className={`starlink-profile-avatar-option ${imageUrl === avatarUrl ? 'selected' : ''}`}
                             onClick={() => setImageUrl(avatarUrl)}
                             loading="lazy"
                         />
                     ))}
                 </div>
-                <div className="modal-actions">
-                    <button className="modal-button save" onClick={handleSave} disabled={!name || isSaving}>
-                        {isSaving ? 'Salvando...' : 'Salvar'}
+                
+                <div className="starlink-profile-modal-actions">
+                    <button className="starlink-profile-btn starlink-profile-btn-save" onClick={handleSave} disabled={!name || isSaving}>
+                        {isSaving ? 'PROCESSANDO...' : 'SALVAR DADOS'}
                     </button>
-                    <button className="modal-button cancel" onClick={onClose} disabled={isSaving}>Cancelar</button>
+                    <button className="starlink-profile-btn starlink-profile-btn-cancel" onClick={onClose} disabled={isSaving}>
+                        CANCELAR
+                    </button>
                     {isEditMode && (
-                        <button className="modal-button delete" onClick={handleDelete} disabled={isSaving}>
-                            Deletar
+                        <button className="starlink-profile-btn starlink-profile-btn-delete" onClick={handleDelete} disabled={isSaving}>
+                            PURGAR
                         </button>
                     )}
                 </div>
@@ -115,9 +115,7 @@ const EditProfiles = () => {
     const { user, loading, profiles, selectedProfile, setSelectedProfile } = useAuth();
     const navigate = useNavigate();
     
-    // Estado para controlar o modal
     const [isModalOpen, setIsModalOpen] = useState(false);
-    // Armazena o perfil que está sendo editado (null para Adicionar)
     const [selectedProfileToEdit, setSelectedProfileToEdit] = useState(null); 
 
     if (loading) return <Spinner />;
@@ -126,8 +124,6 @@ const EditProfiles = () => {
         return null;
     }
 
-    // --- Handlers de Ação ---
-
     const handleProfileClick = (profile) => {
         setSelectedProfileToEdit(profile);
         setIsModalOpen(true);
@@ -135,27 +131,23 @@ const EditProfiles = () => {
 
     const handleAddProfileClick = () => {
         if (profiles.length >= MAX_PROFILES) {
-            alert(`Limite máximo de ${MAX_PROFILES} perfis alcançado.`);
+            alert(`LIMITE DE SEGURANÇA: MÁXIMO DE ${MAX_PROFILES} PERFIS ALCANÇADO.`);
             return;
         }
-        setSelectedProfileToEdit(null); // Criação
+        setSelectedProfileToEdit(null); 
         setIsModalOpen(true);
     };
 
     const handleSaveProfile = async (profileData) => {
         if (!user) return;
-        
         try {
             if (profileData.id) {
-                // EDIÇÃO (UPDATE)
                 const profileDoc = doc(db, `users/${user.uid}/profiles`, profileData.id);
                 await updateDoc(profileDoc, { 
                     name: profileData.name, 
                     imageUrl: profileData.imageUrl 
                 });
-                
             } else {
-                // CRIAÇÃO (ADD)
                 const profilesCollection = collection(db, `users/${user.uid}/profiles`);
                 await addDoc(profilesCollection, { 
                     name: profileData.name, 
@@ -163,105 +155,87 @@ const EditProfiles = () => {
                     createdAt: serverTimestamp()
                 });
             }
-            
         } catch (error) {
             console.error("Erro ao salvar perfil:", error);
-            alert("Falha ao salvar o perfil.");
+            alert("FALHA DE COMUNICAÇÃO: NÃO FOI POSSÍVEL SALVAR O PERFIL.");
         }
     };
 
     const handleDeleteProfile = async (profileId) => {
         if (!user) return;
-        
         if (profiles.length <= 1) {
-            alert("Você deve manter pelo menos um perfil.");
+            alert("PROTOCOLO DE SEGURANÇA: VOCÊ DEVE MANTER PELO MENOS UM PERFIL ATIVO.");
             return;
         }
 
         try {
-            // Se o perfil deletado for o perfil ativo, desativa a seleção
             if (selectedProfileToEdit?.id === selectedProfile?.id) {
                 setSelectedProfile(null);
             }
-            
             const profileDoc = doc(db, `users/${user.uid}/profiles`, profileId);
             await deleteDoc(profileDoc);
-            
         } catch (error) {
             console.error("Erro ao deletar perfil:", error);
-            alert("Falha ao deletar o perfil.");
+            alert("FALHA DE COMUNICAÇÃO: NÃO FOI POSSÍVEL DELETAR O PERFIL.");
         }
     };
     
     const handleDone = () => {
-        // Redireciona para o Browse se já tiver um perfil selecionado
         if (selectedProfile) {
             navigate('/browse');
-        } 
-        // Se nenhum perfil estiver selecionado após a edição, vai para a seleção
-        else if (profiles.length > 0) {
+        } else if (profiles.length > 0) {
             navigate('/profiles'); 
-        } 
-        // Caso raro: se não houver perfis (deletou o último), também volta para o profiles (que forçará o logout se não for permitido)
-        else {
+        } else {
             navigate('/profiles'); 
         }
     };
 
-
     return (
-        <div className="profiles-container">
-            <h1 className="profiles-title">Gerenciar Perfis</h1>
-            <div className="profile-list">
-                
-                {/* Renderiza Perfis Existentes */}
+        <div className="starlink-profile-container">
+            <h1 className="starlink-profile-title">GERENCIAR PERFIS</h1>
+            
+            <div className="starlink-profile-list">
                 {profiles.map(profile => (
                     <div 
                         key={profile.id} 
-                        className="profile-item-container" 
+                        className="starlink-profile-item" 
                         onClick={() => handleProfileClick(profile)}
                         role="button"
                         tabIndex="0"
-                        aria-label={`Editar perfil ${profile.name}`}
                     >
-                        <div className="profile-avatar">
+                        <div className="starlink-profile-avatar">
                             <img 
                                 src={profile.imageUrl || DEFAULT_AVATAR} 
                                 alt={`Perfil de ${profile.name}`} 
                                 loading="lazy"
                             />
-                            <div className="edit-overlay">
+                            <div className="starlink-profile-edit-overlay">
                                 <FaPen />
                             </div>
                         </div>
-                        <p className="profile-name">{profile.name}</p>
+                        <p className="starlink-profile-name">{profile.name}</p>
                     </div>
                 ))}
                 
-                {/* Botão Adicionar Perfil */}
                 {profiles.length < MAX_PROFILES && (
                     <div 
-                        className="profile-item-container" 
+                        className="starlink-profile-item starlink-profile-add-item" 
                         onClick={handleAddProfileClick}
                         role="button"
                         tabIndex="0"
-                        aria-label="Adicionar novo perfil"
                     >
-                        <div className="profile-avatar">
-                            <div className="add-profile-placeholder">
-                                <FaPlus />
-                            </div>
+                        <div className="starlink-profile-avatar starlink-profile-add-placeholder">
+                            <FaPlus />
                         </div>
-                        <p className="profile-name">Adicionar Perfil</p>
+                        <p className="starlink-profile-name">ADICIONAR</p>
                     </div>
                 )}
             </div>
 
-            <button className="done-button" onClick={handleDone}>
-                Concluído
+            <button className="starlink-profile-done-button" onClick={handleDone}>
+                FINALIZAR CONFIGURAÇÃO
             </button>
             
-            {/* Modal de Edição/Criação */}
             <ProfileFormModal 
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

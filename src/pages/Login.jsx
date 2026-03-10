@@ -1,18 +1,18 @@
 // ARQUIVO: src/pages/Login.jsx
-// DESCRIÇÃO: Página unificada de Login e Registro com fundo dinâmico híbrido (JSON Local + Firestore).
+// DESCRIÇÃO: Página unificada de Login e Registro com fundo dinâmico híbrido (JSON Local + Firestore) - TEMA STARLINK.
 // -------------------------------------------------------------------------------
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useNavigate } from 'react-router-dom'; 
 
 // --- IMPORTS REAIS DO FIREBASE ---
-import { auth, db } from '../firebase/config'; // Adicionado 'db'
+import { auth, db } from '../firebase/config'; 
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     updateProfile
 } from 'firebase/auth';
-import { collection, getDocs } from 'firebase/firestore'; // Imports do Firestore
+import { collection, getDocs } from 'firebase/firestore'; 
 
 // JSON de Backup (Garante que o fundo nunca fique vazio enquanto o banco carrega)
 const ANIME_JSON_BACKUP = [
@@ -28,19 +28,20 @@ const ANIME_JSON_BACKUP = [
     "https://i.ytimg.com/vi/wvZaljkzKQc/maxresdefault.jpg"
 ];
 
-// --- Variáveis de Tema ---
-const COLOR_PRIMARY = '#8a2be2'; 
-const COLOR_DARK = '#121212';
-const COLOR_FORM_BG = 'rgba(0, 0, 0, 0.85)'; // Levemente mais escuro para leitura
-const COLOR_TEXT_LIGHT = '#e5e5e5';
-const COLOR_TEXT_MUTED = '#a0a0a0';
-const COLOR_ERROR = '#e53935';
+// --- Variáveis de Tema (Starlink/Telemetria) ---
+// Usando const garante que não vaze para o CSS global
+const THEME = {
+    bgDark: '#000000',
+    formBg: 'rgba(5, 5, 5, 0.85)',
+    border: '#1a1a1a',
+    borderFocus: '#ffffff',
+    textPrimary: '#ffffff',
+    textMuted: '#7a7a7a',
+    danger: '#ff3333',
+    fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif"
+};
 
-// --- EFEITOS DE FUNDO ---
-const pulseScale = keyframes`
-    0% { transform: scale(1); }
-    100% { transform: scale(1.05); }
-`;
+// --- EFEITOS DE ANIMAÇÃO ---
 const fadeIn = keyframes`
     from { opacity: 0; }
     to { opacity: 1; }
@@ -54,24 +55,24 @@ const PageWrapper = styled.div`
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: ${COLOR_DARK}; 
-    font-family: 'Inter', system-ui, sans-serif;
-    color: ${COLOR_TEXT_LIGHT};
+    background-color: ${THEME.bgDark}; 
+    font-family: ${THEME.fontFamily};
+    color: ${THEME.textPrimary};
     overflow: hidden;
 `;
 
 const BackgroundGrid = styled.div`
     position: absolute;
-    top: -10%; /* Extrapola um pouco para evitar bordas brancas no scale */
-    left: -10%;
-    width: 120%;
-    height: 120%;
+    top: -5%;
+    left: -5%;
+    width: 110%;
+    height: 110%;
     display: grid;
     grid-template-columns: repeat(6, 1fr); 
     grid-template-rows: repeat(4, 1fr); 
-    gap: 8px;
-    opacity: 0.4; /* Opacidade ajustada */
-    filter: brightness(0.6) blur(1px); /* Blur leve para focar no form */
+    gap: 4px; /* Linhas finas de separação no fundo */
+    background-color: #000;
+    opacity: 0.5;
     animation: ${fadeIn} 1.5s ease-in-out;
 
     @media (max-width: 768px) {
@@ -86,31 +87,30 @@ const BackgroundCard = styled.div`
     background-position: center;
     width: 100%;
     height: 100%;
-    transition: transform 0.5s ease;
-    border-radius: 4px;
+    /* Desaturação brutalista */
+    filter: grayscale(100%) brightness(0.3) contrast(1.2);
+    transition: filter 0.8s ease;
 
     &:hover {
-        z-index: 2;
-        transform: scale(1.1);
-        box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
-        filter: brightness(1.2);
+        filter: grayscale(0%) brightness(0.6) contrast(1);
     }
 `;
 
 const DarkOverlay = styled.div`
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.9) 100%);
+    top: 0; left: 0; width: 100%; height: 100%;
+ 
+    
+    /* Grade estilo terminal/radar */
+   
+    background-size: 100% 100%, 40px 40px, 40px 40px;
     z-index: 1;
 `;
 
 const FormContainerWrapper = styled.div`
     z-index: 10;
     width: 100%;
-    max-width: 480px; 
+    max-width: 460px; 
     padding: 20px;
 `;
 
@@ -119,71 +119,97 @@ const HeaderLogo = styled.div`
     top: 30px;
     left: 40px;
     z-index: 20;
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -1px;
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: ${THEME.textPrimary};
+    letter-spacing: 6px;
+    text-transform: uppercase;
 
     span {
-        color: ${COLOR_PRIMARY}; 
-        text-shadow: 0 0 15px rgba(138, 43, 226, 0.6);
+        font-weight: 700;
     }
 
     @media (max-width: 768px) {
-        left: 20px;
+        left: 0;
+        width: 100%;
+        text-align: center;
         top: 20px;
-        font-size: 1.8rem;
+        font-size: 1.2rem;
     }
 `;
 
 const FormContainer = styled.div`
     width: 100%;
     padding: 50px 40px; 
-    background-color: ${COLOR_FORM_BG}; 
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-    color: ${COLOR_TEXT_LIGHT};
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(5px);
+    background-color: ${THEME.formBg}; 
+    border-radius: 0; /* Cantos vivos Starlink */
+    color: ${THEME.textPrimary};
+    border: 1px solid ${THEME.border};
+    backdrop-filter: blur(8px);
+
+    @media (max-width: 768px) {
+        padding: 40px 25px;
+    }
 `;
 
 const FormTitle = styled.h2`
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 30px;
-    color: #fff;
-    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 300;
+    margin-bottom: 35px;
+    color: ${THEME.textPrimary};
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    border-bottom: 1px solid ${THEME.border};
+    padding-bottom: 15px;
+
+    @media (max-width: 768px) {
+        font-size: 1rem;
+        text-align: center;
+    }
 `;
 
 const Form = styled.form`
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 20px;
 `;
 
 const InputGroup = styled.div`
     display: flex;
     flex-direction: column;
+    gap: 5px;
+
+    label {
+        font-size: 0.65rem;
+        color: ${THEME.textMuted};
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
 `;
 
 const Input = styled.input`
-    background: rgba(255, 255, 255, 0.08); 
-    border: 1px solid transparent;
-    border-radius: 6px;
-    padding: 16px 15px; 
-    color: #fff;
-    font-size: 1rem;
+    background: transparent; 
+    border: 1px solid ${THEME.border};
+    border-radius: 0;
+    padding: 14px 15px; 
+    color: ${THEME.textPrimary};
+    font-size: 0.9rem;
+    font-family: ${THEME.fontFamily};
     outline: none;
     transition: all 0.2s;
+    letter-spacing: 1px;
 
     &::placeholder {
-        color: #aaa;
+        color: #444;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
     }
 
     &:focus {
-        background-color: rgba(255, 255, 255, 0.15);
-        border-color: ${COLOR_PRIMARY}; 
-        box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2); 
+        border-color: ${THEME.borderFocus}; 
+        background-color: rgba(255,255,255,0.05);
     }
     &:disabled {
         opacity: 0.5;
@@ -192,62 +218,67 @@ const Input = styled.input`
 `;
 
 const SubmitButton = styled.button`
-    background: ${COLOR_PRIMARY}; 
-    border: none;
-    border-radius: 6px;
+    background: ${THEME.textPrimary}; 
+    color: ${THEME.bgDark};
+    border: 1px solid ${THEME.textPrimary};
+    border-radius: 0;
     padding: 16px;
-    color: #fff;
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 3px;
     cursor: pointer;
-    margin-top: 20px;
+    margin-top: 15px;
     transition: all 0.2s;
-    box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
 
     &:hover:not(:disabled) {
-        background-color: #9d4edd;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(138, 43, 226, 0.5);
+        background-color: transparent;
+        color: ${THEME.textPrimary};
     }
     &:disabled {
-        background-color: #555;
+        background-color: transparent;
+        color: ${THEME.textMuted};
+        border-color: ${THEME.border};
         cursor: not-allowed;
-        box-shadow: none;
     }
 `;
 
 const ToggleText = styled.p`
-    color: ${COLOR_TEXT_MUTED};
+    color: ${THEME.textMuted};
     margin-top: 30px;
     text-align: center;
-    font-size: 0.95rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 
     span {
-        color: #fff; 
+        color: ${THEME.textPrimary}; 
         cursor: pointer;
-        font-weight: 600;
-        margin-left: 5px;
+        font-weight: 500;
+        display: block;
+        margin-top: 10px;
         transition: color 0.2s;
+        border: 1px dashed ${THEME.textMuted};
+        padding: 10px;
         
         &:hover {
-            color: ${COLOR_PRIMARY};
-            text-decoration: underline;
+            border-color: ${THEME.textPrimary};
+            background-color: rgba(255,255,255,0.05);
         }
     }
 `;
 
 const ErrorMessage = styled.div`
-    background-color: rgba(229, 57, 53, 0.2);
-    border: 1px solid ${COLOR_ERROR};
-    color: #ff8a80;
+    background-color: transparent;
+    border: 1px solid ${THEME.danger};
+    color: ${THEME.danger};
     padding: 12px;
-    border-radius: 6px;
-    font-size: 0.9rem;
+    border-radius: 0;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     text-align: center;
     margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 `;
 
 // Função auxiliar para embaralhar o array de imagens (Shuffle)
@@ -281,27 +312,19 @@ const Login = () => {
     useEffect(() => {
         const fetchBackgrounds = async () => {
             try {
-                // 1. Busca documentos da coleção 'animes'
                 const querySnapshot = await getDocs(collection(db, "animes"));
-                
-                // 2. Extrai apenas os campos 'backdropUrl' que não sejam vazios
                 const dbImages = querySnapshot.docs
                     .map(doc => doc.data().backdropUrl)
-                    .filter(url => url && url.startsWith('http')); // Validação básica
+                    .filter(url => url && url.startsWith('http'));
 
-                // 3. Mistura imagens de backup + imagens do banco
                 const combinedImages = [...ANIME_JSON_BACKUP, ...dbImages];
-                
-                // 4. Embaralha para ficar dinâmico
                 const shuffled = shuffleArray(combinedImages);
                 
-                // 5. Atualiza o estado apenas se houver imagens (evita tela preta)
                 if (shuffled.length > 0) {
                     setBackgroundImages(shuffled);
                 }
             } catch (err) {
                 console.error("Erro ao carregar fundos do banco:", err);
-                // Em caso de erro, mantém o ANIME_JSON_BACKUP padrão
             }
         };
 
@@ -316,31 +339,29 @@ const Login = () => {
         try {
             if (isRegister) {
                 if (!username.trim()) {
-                    setError('Por favor, insira um nome de usuário.');
+                    setError('Identificação obrigatória.');
                     setIsLoading(false);
                     return;
                 }
                 
-                // Registro
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 await updateProfile(userCredential.user, { displayName: username.trim() });
                 navigate('/profiles'); 
 
             } else {
-                // Login
                 await signInWithEmailAndPassword(auth, email, password);
                 // AuthContext fará o redirecionamento
             }
         } catch (err) {
-            let errorMessage = 'Falha na autenticação. Verifique suas credenciais.';
+            let errorMessage = 'FALHA NA CONEXÃO. VERIFIQUE CREDENCIAIS.';
             if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-                errorMessage = 'Email ou senha incorretos.';
+                errorMessage = 'PROTOCOLO OU CHAVE INVÁLIDOS.';
             } else if (err.code === 'auth/wrong-password') {
-                errorMessage = 'Senha incorreta.';
+                errorMessage = 'CHAVE DE ACESSO INCORRETA.';
             } else if (err.code === 'auth/email-already-in-use') {
-                errorMessage = 'Este e-mail já está em uso.';
+                errorMessage = 'ENDEREÇO DE REDE EM USO.';
             } else if (err.code === 'auth/weak-password') {
-                errorMessage = 'A senha deve ter pelo menos 6 caracteres.';
+                errorMessage = 'A CHAVE DEVE TER NO MÍNIMO 6 CARACTERES.';
             }
 
             console.error("Firebase Error:", err);
@@ -352,9 +373,8 @@ const Login = () => {
 
     return (
         <PageWrapper>
-            {/* 1. GRADE DE FUNDO DINÂMICA (DB + JSON) */}
+            {/* 1. GRADE DE FUNDO DINÂMICA */}
             <BackgroundGrid>
-                {/* Renderiza 24 cards, repetindo imagens ciclicamente se necessário */}
                 {Array(24).fill().map((_, index) => (
                     <BackgroundCard 
                         key={index}
@@ -363,25 +383,26 @@ const Login = () => {
                 ))}
             </BackgroundGrid>
 
-            {/* 2. OVERLAY PARA ESCURECER O FUNDO */}
+            {/* 2. OVERLAY TIPO RADAR PARA ESCURECER O FUNDO */}
             <DarkOverlay />
             
             {/* 3. LOGO E FORMULÁRIO */}
-            <HeaderLogo>Toaru<span>Flix</span></HeaderLogo>
+            <HeaderLogo>TOARU<span>FLIX</span></HeaderLogo>
             
             <FormContainerWrapper>
                 <FormContainer>
-                    <FormTitle>{isRegister ? 'Criar Conta' : 'Acessar'}</FormTitle>
+                    <FormTitle>{isRegister ? 'Registra-se' : 'Login'}</FormTitle>
                     
                     {error && <ErrorMessage>{error}</ErrorMessage>}
                     
                     <Form onSubmit={handleSubmit}>
                         {isRegister && (
                             <InputGroup>
+                                <label>Identificação de Usuário</label>
                                 <Input
                                     id="username"
                                     type="text"
-                                    placeholder="Nome de Usuário"
+                                    placeholder="NOME DE OPERADOR"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     disabled={isLoading}
@@ -390,10 +411,11 @@ const Login = () => {
                             </InputGroup>
                         )}
                         <InputGroup>
+                            <label>Endereço de E-mail</label>
                             <Input
                                 id="email"
                                 type="email"
-                                placeholder="Email"
+                                placeholder="E-MAIL"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
@@ -402,10 +424,11 @@ const Login = () => {
                             />
                         </InputGroup>
                         <InputGroup>
+                            <label>Sua senha</label>
                             <Input
                                 id="password"
                                 type="password"
-                                placeholder="Senha"
+                                placeholder="SENHA"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
@@ -415,12 +438,12 @@ const Login = () => {
                             />
                         </InputGroup>
                         <SubmitButton type="submit" disabled={isLoading || !email || !password || (isRegister && !username)}>
-                            {isLoading ? 'Carregando...' : (isRegister ? 'Registrar' : 'Entrar')}
+                            {isLoading ? 'PROCESSANDO DADOS...' : (isRegister ? 'INICIALIZAR ACESSO' : 'CONECTAR')}
                         </SubmitButton>
                     </Form>
                     
                     <ToggleText>
-                        {isRegister ? 'Já tem uma conta?' : 'Primeira vez aqui?'}
+                        {isRegister ? 'POSSUI CREDENCIAIS?' : 'SEM ACESSO AO SISTEMA?'}
                         <span onClick={() => {
                             setIsRegister(!isRegister);
                             setError('');
@@ -428,7 +451,7 @@ const Login = () => {
                             setPassword('');
                             setUsername('');
                         }}>
-                            {isRegister ? 'Fazer login agora' : 'Assine agora'}
+                            {isRegister ? 'INICIAR SESSÃO' : 'SOLICITAR CREDENCIAIS'}
                         </span>
                     </ToggleText>
                 </FormContainer>

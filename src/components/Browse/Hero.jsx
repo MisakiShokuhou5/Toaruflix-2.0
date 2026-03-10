@@ -1,7 +1,7 @@
 // ARQUIVO: src/components/Browse/Hero.jsx
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'; 
 import { useNavigate } from 'react-router-dom';
-import { FaPlay, FaInfoCircle, FaVolumeMute, FaVolumeUp } from 'react-icons/fa'; 
+import { FaPlay, FaVolumeMute, FaVolumeUp, FaDatabase } from 'react-icons/fa'; 
 import { motion } from 'framer-motion'; 
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore'; 
 import { db } from '../../firebase/config'; 
@@ -143,7 +143,11 @@ const Hero = () => {
     };
     
     if (loading || validAnimes.length === 0 || !highlightAnime) {
-        return <div className="hero-container loading-state">Carregando Destaques...</div>;
+        return (
+            <div className="hero-container loading-state">
+                <div className="status-blink">[SISTEMA] INTERCEPTANDO SINAL DE VÍDEO...</div>
+            </div>
+        );
     }
 
     const animeId = highlightAnime.id; 
@@ -193,24 +197,25 @@ const Hero = () => {
                 transition={{ duration: 1 }}
             />
 
-            {/* VIGNETTE GRADIENTE (Estilo Netflix Clássico) */}
+            {/* VIGNETTE GRADIENTE / RADAR MESH */}
             <div className="gradient-overlay" />
             
             <div className="hero-content">
+                <div className="system-tag">DESTAQUE LOCAL</div>
                 <h1 className="hero-title">
-                    {highlightAnime.titulo || 'Destaque ToaruFlix'}
+                    {highlightAnime.titulo || 'ARQUIVO CLASSIFICADO'}
                 </h1>
                 
                 <p className="hero-synopsis">
-                    {highlightAnime.sinopse || "Explore o vasto catálogo e mergulhe em novas aventuras."}
+                    {highlightAnime.sinopse || "DADOS DO RELATÓRIO INDISPONÍVEIS. ACESSE O DIRETÓRIO PARA MAIS DETALHES."}
                 </p>
                 
                 <div className="button-group">
                     <button className="hero-button play-button" onClick={handleWatch}>
-                        <FaPlay className="btn-icon" /> Assistir
+                        <FaPlay className="btn-icon" /> Assitir
                     </button>
                     <button className="hero-button info-button" onClick={handleInfo}>
-                        <FaInfoCircle className="btn-icon" /> Mais informações
+                        Sobre
                     </button>
                 </div>
             </div>

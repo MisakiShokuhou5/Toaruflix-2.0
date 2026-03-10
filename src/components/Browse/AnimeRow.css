@@ -1,56 +1,79 @@
-/* ARQUIVO: src/components/Browse/AnimeRow.css */
+/* ARQUIVO: src/components/Browse/AnimeRow.css - COMPLETO (STARLINK + RESPONSIVO) */
 
 :root {
     --row-padding: 4%;
-    --card-gap: 8px;
-    --transition-speed: 0.3s;
-    --color-primary: #8a2be2; /* Cor roxa/violeta, vou manter este */
-    --color-primary-max: #8540ff; /* Cor MaxPlay, se quiser mudar */
+    --card-gap: 12px;
+    --transition-speed: 0.3s ease;
+    --color-primary-max: #8540ff;
+
+    /* Variáveis específicas do tema Starlink para Setas */
+    --sl-arrow-color: #fcfcfc;
+    --sl-arrow-bg-fade: rgba(0, 0, 0, 0.7);
+    --sl-hover-glow: rgba(255, 255, 255, 0.25);
+}
+
+/* --- CONTAINER GERAL DA LINHA --- */
+.row-container {
+    padding-top: 20px;
+    margin-bottom: 30px;
+    position: relative;
+    width: 100%;
+    overflow: visible; /* Importante para as setas não serem cortadas */
+}
+
+/* --- WRAPPER RELATIVO PARA AS SETAS --- */
+.row-relative-wrapper {
+    position: relative;
+    width: 100%;
 }
 
 /* --- TÍTULO DA LINHA --- */
 .anime-row-title {
-    font-size: clamp(1.2rem, 2vw, 1.8rem);
+    font-size: clamp(1.1rem, 2.5vw, 1.8rem);
     margin-left: var(--row-padding);
-    margin-bottom: 15px;
-    color: white;
+    margin-bottom: 12px;
+    color: #ffffff;
     font-weight: 700;
-}
-
-/* --- CONTAINER DA LINHA --- */
-.row-container {
-    padding-top: 20px;
-    margin-bottom: 20px;
-    position: relative;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
 }
 
 /* --- ROLAGEM HORIZONTAL --- */
 .cards-container {
     display: flex;
-    overflow-x: scroll;
-    padding-bottom: 15px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 20px;
+    padding-top: 10px;
     gap: var(--card-gap);
-    padding-left: 20px;
-    flex-wrap: wrap; /* Garante rolagem horizontal */
-    padding-right: var(--row-padding); 
-    
+    padding-left: var(--row-padding);
+    padding-right: var(--row-padding);
+    flex-wrap: nowrap; 
+    -webkit-overflow-scrolling: touch; 
     scroll-behavior: smooth;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
+    z-index: 10;
 }
+
 .cards-container::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none; 
 }
 
-
-/* --- CARD INDIVIDUAL (THUMBNAIL) --- */
+/* ----------------------------------------------------------------
+| CARD INDIVIDUAL - FORMATO COMPUTADOR (BACKDROP 16:9)
+| ---------------------------------------------------------------- */
 .anime-card-container {
     position: relative;
     cursor: pointer;
-    overflow: hidden; /* Importante para manter o raio da borda */
-    border-radius: 4px; /* Raio da borda no card */
-    flex-shrink: 0; /* Impede o encolhimento */
-    transition: transform var(--transition-speed);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Sombra sutil */
+    overflow: hidden;
+    border-radius: 8px;
+    flex-shrink: 0;
+    background-color: #141414;
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+    
+    /* Configuração para PC (Horizontal) */
+    width: clamp(220px, 25vw, 350px);
+    aspect-ratio: 16 / 9;
 }
 
 .anime-card-image {
@@ -58,116 +81,168 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.3s;
 }
-
-/* --- 1. TAMANHO POSTER (Vertical/2:3) --- */
-.anime-card-container.poster {
-    /* Largura: 150px a 200px. Altura 1.5x a largura. */
-    width: clamp(150px, 12vw, 200px); 
-    height: clamp(225px, 18vw, 300px);
-}
-
-/* --- 2. TAMANHO PADRÃO (Horizontal/16:9) --- */
-.anime-card-container.standard {
-    /* Largura: 280px a 350px. Altura (Largura / 1.78). */
-    width: clamp(280px, 20vw, 350px); 
-    height: clamp(157.5px, 11.25vw, 196.875px);
-}
-
 
 /* ----------------------------------------------------------------
-| NOVO: GRADIENTE E TÍTULO INFERIOR
+| DEGRADÊ E TEXTOS
 | ---------------------------------------------------------------- */
-
 .card-content-overlay {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 10px 8px;
-background: #000000;
-background: linear-gradient(0deg, rgba(0, 0, 0, 0.98) 54%, rgba(0, 0, 0, 0.02) 100%);
-    
-    /* Garante que o gradiente fique acima da barra de progresso */
+    bottom: 0; left: 0; right: 0;
+    padding: 20px 10px 10px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 40%, transparent 100%);
     z-index: 10; 
 }
 
 .card-title-text {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
     color: white;
     font-weight: 600;
-    /* Limita o texto a 2 linhas com elipses */
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 
-
-/* ----------------------------------------------------------------
-| EFEITO HOVER (Melhoria)
-| ---------------------------------------------------------------- */
-
-.anime-card-container:hover {
-   
-    z-index: 20; 
-    /* Adicionamos uma sombra roxa no hover */
-    box-shadow: 0 0 15px rgba(100, 100, 100, 0.7); 
-}
-
-/* Remove a borda no hover (já que temos a sombra) */
-.anime-card-container:hover .anime-card-image {
-    border: none;
-    transition: none;
-}
-
-
-/* --- PROGRESSO DE VISUALIZAÇÃO --- */
 .progress-bar {
     position: absolute;
-    bottom: 0;
-    left: 0;
+    bottom: 0; left: 0;
     width: 100%;
-    height: 5px;
-    background-color: rgba(255, 255, 255, 0.4);
-    /* Garante que fique acima do gradiente */
-    z-index: 21; 
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.3);
+    z-index: 20; 
 }
 
 .progress-fill {
     height: 100%;
-    background-color: var(--color-primary-max); /* Usa o roxo MaxPlay */
-    border-radius: 4px;
+    background-color: var(--color-primary-max); 
+    border-radius: 0 4px 4px 0;
     transition: width var(--transition-speed);
 }
-@media (max-width: 600px) {
-    .anime-card-container.poster {
-        width: 120px;
-        height: 180px;
+
+/* ----------------------------------------------------------------
+| ESTILO DE SETAS STARLINK (GEOMÉTRICO E MÍNIMO)
+| ---------------------------------------------------------------- */
+.sl-nav-arrow {
+    position: absolute;
+    top: 0;
+    bottom: 0; /* Cobre a altura total visível da linha de cards */
+    z-index: 50; /* Acima dos cards */
+    background: transparent;
+    color: var(--sl-arrow-color);
+    border: none;
+    padding: 0 10px;
+    width: 60px; /* Área clicável maior */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.2, 1, 0.2, 1);
+    
+    /* Estado inicial: escondido */
+    opacity: 0; 
+    pointer-events: none;
+}
+
+/* O degradê sutil nas laterais para que a seta não "fique boiando" */
+.sl-nav-arrow.left { 
+    left: 0; 
+    background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);
+}
+.sl-nav-arrow.right { 
+    right: 0; 
+    background: linear-gradient(to left, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);
+}
+
+/* Controlando visibilidade via React */
+.sl-nav-arrow.visible {
+    opacity: 0.8;
+    pointer-events: auto;
+}
+
+.sl-nav-arrow.disabled {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* --- ÍCONE CHEVRON GEOMÉTRICO (LINHAS FINAS) --- */
+.sl-chevron {
+    display: block;
+    width: 20px;
+    height: 20px;
+    /* Linha super fina de 1px igual aos painéis da Starlink */
+    border-style: solid;
+    border-color: currentColor; 
+    border-width: 0 1px 1px 0; /* Forma um 'L' deitado */
+    border-radius: 0; /* Cantos vivos, geométricos */
+}
+
+.sl-nav-arrow.left .sl-chevron {
+    transform: rotate(135deg); /* Gira para apontar para esquerda */
+    margin-left: 5px;
+}
+
+.sl-nav-arrow.right .sl-chevron {
+    transform: rotate(-45deg); /* Gira para apontar para direita */
+    margin-right: 5px;
+}
+
+
+/* ----------------------------------------------------------------
+| EFEITO HOVER APENAS NO PC
+| ---------------------------------------------------------------- */
+@media (hover: hover) and (pointer: fine) {
+    .anime-card-container:hover {
+        transform: scale(1.05);
+        z-index: 15; 
+        box-shadow: 0 8px 25px rgba(133, 64, 255, 0.5);
     }
-    .anime-card-container.standard {
-        width: 240px;
-        height: 135px;
+
+    /* Hover das setas Starlink */
+    .sl-nav-arrow:hover.visible {
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.95);
+        color: #ffffff;
+        box-shadow: inset 0 0 10px var(--sl-hover-glow); 
     }
-    .cards-container{
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    
+    .sl-nav-arrow.visible .sl-chevron {
+        transition: transform 0.3s;
     }
-    .anime-row-title{
-        text-align: center;
+    
+    .sl-nav-arrow.left:hover.visible .sl-chevron { transform: rotate(135deg) scale(1.1) translateX(-2px); }
+    .sl-nav-arrow.right:hover.visible .sl-chevron { transform: rotate(-45deg) scale(1.1) translateX(2px); }
+}
+
+/* ----------------------------------------------------------------
+| CELULAR: MUDA O CARD PARA FORMATO POSTER E OCULTA SETAS
+| ---------------------------------------------------------------- */
+@media (max-width: 768px) {
+    :root {
+        --row-padding: 15px;
+        --card-gap: 8px;
     }
-    .anime-card-container.standard{
-        width: 95%;
-        height: 200px;
+    
+    .anime-card-container {
+        /* Configuração para Celular (Vertical) */
+        width: clamp(120px, 32vw, 160px);
+        aspect-ratio: 2 / 3;
     }
-    .cards-container{
-       padding-left: 0px;  
+
+    .anime-row-title {
+        text-align: left;
+        margin-bottom: 8px;
     }
-    .anime-row-title{
-        margin-left: 0px;
+    
+    .card-content-overlay {
+        padding: 15px 8px 8px;
+    }
+
+    /* Esconde as setas de clique no celular pois o usuário rola com o dedo */
+    .sl-nav-arrow {
+        display: none !important;
     }
 }

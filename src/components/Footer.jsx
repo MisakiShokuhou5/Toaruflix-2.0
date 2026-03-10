@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
-import logoAccelerator from '../assets/accelerator.png'
 
-// --- CONFIGURAÇÃO DE CORES ---
+// --- CONFIGURAÇÃO DE CORES (ESTILO STARLINK) ---
 const COLORS = {
-    primary: '#8A2BE2', // Blue Violet para destaque
-    darkBg: '#000000', // Preto Puro
-    textLight: '#ffffff', // Branco
-    textMuted: '#a0a0a0', // Cinza para links
+    primary: '#ffffff',    // Branco puro para destaque e botões
+    darkBg: '#000000',     // Preto absoluto
+    textLight: '#ffffff',  // Branco
+    textMuted: '#8a8a8a',  // Cinza médio para textos secundários e links
+    borderLine: '#1a1a1a', // Linhas de divisão muito sutis
 };
 
 // ----------------------------------------------------------------
@@ -15,73 +15,81 @@ const COLORS = {
 // ----------------------------------------------------------------
 
 const FooterContainer = styled.footer`
-    background-color: ${COLORS.darkBg}; 
-    color: ${COLORS.textMuted}; 
-    padding: 50px 4% 30px; 
-    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-    font-size: 0.95rem;
+    background-color: ${COLORS.darkBg}; 
+    color: ${COLORS.textMuted}; 
+    padding: 60px 4% 30px; 
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+    font-size: 0.85rem;
+    border-top: 1px solid ${COLORS.borderLine};
 `;
 
 const MainContentWrapper = styled.div`
-    display: flex;
-    gap: 40px;
-    padding-bottom: 40px;
-    border-bottom: 1px solid #1a1a1a; 
+    display: flex;
+    gap: 60px;
+    padding-bottom: 50px;
+    border-bottom: 1px solid ${COLORS.borderLine}; 
 
-    @media (max-width: 1024px) {
-        flex-direction: column;
-    }
+    @media (max-width: 1024px) {
+        flex-direction: column;
+        gap: 40px;
+    }
 `;
 
 // ----------------------------------------------------------------
-// COLUNA DE RELACIONAMENTO (ESQUERDA - REINTRODUZIDA)
+// COLUNA DE RELACIONAMENTO (ESQUERDA)
 // ----------------------------------------------------------------
 
 const RelationshipColumn = styled.div`
-    flex: 0 0 280px; 
-    text-align: left; /* Alinhamento mais moderno */
+    flex: 0 0 280px; 
+    text-align: left;
 
-    h4 {
-        color: ${COLORS.textLight}; 
-        font-size: 1.05rem;
-        margin-bottom: 15px;
-        font-weight: 700;
-    }
+    h4 {
+        color: ${COLORS.textLight}; 
+        font-size: 0.75rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        font-weight: 400;
+    }
 `;
 
 const RelationshipImage = styled.img`
-    width: 100%;
-    max-width: 250px;
-    height: auto;
-    margin: 10px 0;
-    display: block;
+    width: 100%;
+    max-width: 250px;
+    height: auto;
+    margin: 10px 0 20px;
+    display: block;
+    opacity: 0.8;
+    filter: grayscale(100%); /* Deixa o GIF preto e branco para combinar com o tema */
+    transition: filter 0.3s ease, opacity 0.3s ease;
+
+    &:hover {
+        filter: grayscale(0%);
+        opacity: 1;
+    }
 `;
 
 const ContactButton = styled.a`
-    display: block;
-    width: 100%;
-    max-width: 250px;
-    margin: 15px 0 0;
-    padding: 12px 0;
-    background-color: blueviolet; /* Blue Violet */
-    color: ${COLORS.textLight}; /* Branco */
-    text-decoration: none;
-    font-weight: 700;
-    letter-spacing: 1px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-    text-transform: uppercase;
-    font-size: 20px;
-    text-align: center;
+    display: block;
+    width: 100%;
+    max-width: 250px;
+    padding: 14px 0;
+    background-color: transparent;
+    color: ${COLORS.textLight}; 
+    text-decoration: none;
+    font-weight: 500;
+    letter-spacing: 2px;
+    border: 1px solid ${COLORS.textLight}; /* Borda estilo painel de controle */
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    text-align: center;
+    cursor: pointer;
 
-    &:hover {
-        background-color: #8d71a8ff; /* Tom mais escuro de Blue Violet */
-cursor:pointer;
-    }
-
-    @media (max-width: 1024px) {
-        max-width: 250px;
-    }
+    &:hover {
+        background-color: ${COLORS.textLight}; 
+        color: ${COLORS.darkBg}; /* Inverte a cor no hover */
+    }
 `;
 
 // ----------------------------------------------------------------
@@ -89,46 +97,51 @@ cursor:pointer;
 // ----------------------------------------------------------------
 
 const LinksGrid = styled.div`
-    flex: 1;
-    grid-template-columns: repeat(3, 1fr); 
-    display: grid;
-    gap: 20px;
-    
-    @media (max-width: 768px) {
-        grid-template-columns: repeat(2, 1fr); 
-    }
-    @media (max-width: 480px) {
-        grid-template-columns: 1fr;
-    }
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 30px;
+    
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr); 
+    }
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
 `;
 
 const Column = styled.div`
-    h4 {
-        color: ${COLORS.textLight}; 
-        font-size: 1.05rem;
-        margin-bottom: 15px;
-        font-weight: 700;
-    }
+    h4 {
+        color: ${COLORS.textLight}; 
+        font-size: 0.75rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 25px;
+        font-weight: 400;
+    }
 
-    ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
 
-    li {
-        margin-bottom: 8px;
-    }
+    li {
+        margin-bottom: 12px;
+    }
 
-    a {
-        color: ${COLORS.textMuted};
-        text-decoration: none;
-        transition: color 0.2s;
-        
-        &:hover {
-            color: ${COLORS.textLight}; 
-        }
-    }
+    a {
+        color: ${COLORS.textMuted};
+        text-decoration: none;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        transition: color 0.3s ease;
+        
+        &:hover {
+            color: ${COLORS.textLight}; 
+        }
+    }
 `;
 
 // ----------------------------------------------------------------
@@ -136,49 +149,70 @@ const Column = styled.div`
 // ----------------------------------------------------------------
 
 const FooterBottom = styled.div`
-    text-align: center;
-    padding-top: 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    
-    p {
-        margin-bottom: 5px;
-        font-size: 0.8rem;
-        color: #555555;
-    }
+    text-align: center;
+    padding-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    p {
+        margin-bottom: 15px;
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        color: #555555;
+        text-transform: uppercase;
+    }
 `;
 
 const AcceleratorLogo = styled.img`
-    width: 300px; 
-    height: auto;
-    opacity: 0.1; 
-    margin: 20px 0 10px;
-    transition: opacity 0.3s;
+    width: 200px; 
+    height: auto;
+    opacity: 0.15; 
+    margin: 20px 0;
+    filter: grayscale(100%) contrast(150%); /* Look mais cru/técnico */
+    transition: opacity 0.4s ease;
 
-    &:hover {
-        opacity: 0.3;
-    }
+    &:hover {
+        opacity: 0.4;
+    }
 `;
 
-// NOVO ESTILO: Botão clicável para redirecionamento
 const MaxplayButton = styled.button`
-    margin: 0;
-    font-size: 1.2rem; 
-    font-weight: 800; 
-    letter-spacing: 4px; 
-    text-transform: uppercase;
-    
-    /* Estilização do Botão */
-    background: none;
-    border: none;
-    color: ${COLORS.textLight}; /* Branco */
-    cursor: pointer;
-    transition: color 0.2s;
-    
-    &:hover {
-        color: ${COLORS.primary}; /* Blue Violet no hover */
-    }
+    margin: 10px 0 0;
+    font-size: 1.5rem; 
+    font-weight: 300; 
+    letter-spacing: 8px; /* Espaçamento extremo estilo logo de telemetria */
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    color: ${COLORS.textLight}; 
+    cursor: default; /* Mudei para default caso seja só a logo, se for link mude para pointer */
+    transition: color 0.3s ease;
+    
+    &:hover {
+        color: #cccccc; 
+    }
+`;
+
+const StatusIndicator = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.60rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #666;
+    margin-top: 20px;
+
+    &::before {
+        content: '';
+        display: block;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background-color: #00ffaa;
+        box-shadow: 0 0 6px #00ffaa;
+    }
 `;
 
 
@@ -188,7 +222,7 @@ const MaxplayButton = styled.button`
 
 const footerLinks = [
     {
-        title: "Privacidade e Termos",
+        title: "Privacidade",
         links: [
             { label: "Preferências de Cookies", url: "/Privacy" },
             { label: "Suporte Técnico", url: "/support" },
@@ -198,9 +232,7 @@ const footerLinks = [
         title: "Mapa do Site",
         links: [
             { label: "Séries em Destaque", url: "/browse" },
-
             { label: "Minha Lista", url: "/mylist" },
-
         ]
     },
     {
@@ -219,7 +251,6 @@ const footerLinks = [
 // ----------------------------------------------------------------
 
 const Footer = () => {
-
     const handleMaxplayRedirect = () => {
         window.location.href = '/MAXPLAY';
     };
@@ -228,22 +259,21 @@ const Footer = () => {
         <FooterContainer>
             <MainContentWrapper>
 
-                {/* 🛑 Coluna 1: Relacionamento (Descomentada e Estilizada) */}
+                {/* Coluna 1: Relacionamento */}
                 <RelationshipColumn>
-                    <h4>Central de conteudo MAXPLAY</h4>
+                    <h4>Central Maxplay</h4>
 
                     <RelationshipImage
-                        // Usando o mock src original, ajuste o caminho real se necessário
                         src="https://i.pinimg.com/originals/fb/b6/e4/fbb6e48fd9a295be74ca604139787afb.gif"
                         alt="Central de Relacionamento"
                     />
 
                     <ContactButton onClick={handleMaxplayRedirect}>
-                        MAXPLAY
+                        Acessar MAXPLAY
                     </ContactButton>
                 </RelationshipColumn>
 
-                {/* Grid de Links (As Colunas restantes) */}
+                {/* Grid de Links */}
                 <LinksGrid>
                     {footerLinks.map((col, index) => (
                         <Column key={index}>
@@ -264,22 +294,19 @@ const Footer = () => {
 
             {/* Seção inferior de Direitos Autorais e Marca */}
             <FooterBottom>
-
-                <p>
-                    &copy; {new Date().getFullYear()} ToaruFlix. Todos os direitos reservados.
-                </p>
-
-                {/* Logo Decorativo do Accelerator (Sutil) */}
                 <AcceleratorLogo
                     src="https://e1.pxfuel.com/desktop-wallpaper/40/368/desktop-wallpaper-toaru-kagaku-no-accelerator-accelerator-thumbnail.jpg"
                     alt="Accelerator Logo Decorativo"
                     title='Accelerator'
                 />
 
-                {/* 🛑 Botão Maxplay */}
-                <MaxplayButton >
+                <MaxplayButton>
                     TOARUFLIX
                 </MaxplayButton>
+
+                <p>&copy; {new Date().getFullYear()} TOARUFLIX. TODOS OS DIREITOS RESERVADOS.</p>
+                
+                {/* Adicionei aquele ponto verde de 'sistema ativo' que combina com esse tema */}
             </FooterBottom>
         </FooterContainer>
     );

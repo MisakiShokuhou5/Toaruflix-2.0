@@ -1,332 +1,358 @@
-/* ARQUIVO: src/components/Header.css */
+/* ARQUIVO: src/components/Header.css - ESTILO STARLINK */
 
-/* --- Variáveis de Tema (Starlink Vibe) --- */
+@import url('https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@300;400;500;700&display=swap');
+
 :root {
-    --color-primary: #8a2be2;
-    --color-primary-glow: rgba(138, 43, 226, 0.4);
-    --bg-transparent: rgba(5, 5, 5, 0);
-    --bg-glass: rgba(5, 5, 5, 0.65);
-    --border-glass: rgba(255, 255, 255, 0.08);
-    --color-text-light: #a0a0b5;
-    --color-text-white: #ffffff;
-    --header-height: 72px;
+    --sl-nav-bg: rgba(0, 0, 0, 0.95); /* Preto quase sólido */
+    --sl-nav-bg-scrolled: #000000;    /* Preto absoluto ao rolar */
+    --sl-border: #1a1a1a;             /* Linha sutil de divisão */
+    --sl-text-primary: #ffffff;
+    --sl-text-muted: #8a8a8a;
+    --sl-hover: #cccccc;
+    --sl-danger: #ff3333;
+    --sl-transition: 0.3s ease;
+    --sl-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-/* --- Header Principal --- */
+/* --- HEADER PRINCIPAL --- */
 .header-nav {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: var(--header-height);
-    z-index: 1000;
+    top: 0; left: 0; right: 0;
+    height: 70px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 5%;
-    background-color: var(--bg-transparent);
-    transition: all 0.4s ease-in-out;
+    padding: 0 4%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
+    z-index: 1000;
+    transition: background-color var(--sl-transition), border-bottom var(--sl-transition);
+    font-family: var(--sl-font);
     border-bottom: 1px solid transparent;
-    z-index: 99;
 }
 
 .header-nav.scrolled {
-    background-color: var(--bg-glass);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border-glass);
+    background-color: var(--sl-nav-bg-scrolled);
+    border-bottom: 1px solid var(--sl-border);
 }
 
-/* --- Logo (Starlink Style) --- */
+.left-section {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+/* --- LOGO --- */
 .logo-container {
-    font-family: 'Space Grotesk', monospace, sans-serif;
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: 3px;
-    color: var(--color-text-white);
-    display: flex;
-    align-items: center;
+    color: var(--sl-text-primary);
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: 6px; /* Espaçamento largo de telemetria */
+    text-transform: uppercase;
+    transition: color var(--sl-transition);
 }
 
-.logo-container span {
-    color: var(--color-primary);
-    text-shadow: 0 0 15px var(--color-primary-glow);
+.logo-container:hover {
+    color: var(--sl-hover);
 }
 
-/* --- Layout Sections --- */
-.left-section, .right-section {
-    display: flex;
-    align-items: center;
-    gap: 35px;
-}
-
-/* --- Navegação Principal Desktop --- */
+/* --- LINKS DE NAVEGAÇÃO (DESKTOP) --- */
 .nav-links {
-    list-style: none;
     display: flex;
+    list-style: none;
     gap: 30px;
     margin: 0;
     padding: 0;
 }
 
-@media (max-width: 900px) {
-    .nav-links { display: none; }
-    .left-section { gap: 15px; }
-}
-
 .styled-nav-link {
-    color: var(--color-text-light);
+    color: var(--sl-text-muted);
     text-decoration: none;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 2px;
-    transition: color 0.3s ease;
-    position: relative;
-    padding-bottom: 5px;
+    transition: color var(--sl-transition);
+    padding-bottom: 4px;
+    border-bottom: 2px solid transparent;
 }
 
 .styled-nav-link:hover {
-    color: var(--color-text-white);
-}
-
-/* Linha de LED em baixo do link ativo (estilo Starlink) */
-.styled-nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 2px;
-    background-color: var(--color-primary);
-    transition: width 0.3s ease;
-    box-shadow: 0 0 10px var(--color-primary-glow);
-}
-
-.styled-nav-link:hover::after,
-.styled-nav-link.active::after {
-    width: 100%;
+    color: var(--sl-text-primary);
 }
 
 .styled-nav-link.active {
-    color: var(--color-text-white);
+    color: var(--sl-text-primary);
+    border-bottom: 2px solid var(--sl-text-primary);
 }
 
-/* --- Ícones --- */
-.mobile-menu-icon {
-    background: none;
-    border: none;
-    color: var(--color-text-white);
-    font-size: 1.4rem;
-    cursor: pointer;
-    transition: color 0.3s;
-}
-.mobile-menu-icon:hover {
-    color: var(--color-primary);
-}
-@media (min-width: 901px) {
-    .mobile-menu-icon { display: none; }
+/* Esconder links no mobile */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
 }
 
-/* --- Perfil Desktop --- */
+/* --- RIGHT SECTION (PROFILE MENU) --- */
+.right-section {
+    display: flex;
+    align-items: center;
+}
+
 .profile-container {
     position: relative;
 }
+
 .profile-trigger {
-    background: none;
+    background: transparent;
     border: none;
-    cursor: pointer;
     display: flex;
     align-items: center;
     gap: 10px;
-}
-.profile-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%; /* Estilo mais premium */
-    object-fit: cover;
-    border: 1px solid var(--border-glass);
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-@media (max-width: 900px) {
-    .profile-trigger { display: none; }
-}
-.profile-trigger:hover .profile-avatar {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 15px var(--color-primary-glow);
-}
-.caret-icon {
-    color: var(--color-text-light);
-    font-size: 0.75rem;
-}
-@media (max-width: 900px) {
-    .caret-icon { display: none; }
+    cursor: pointer;
+    padding: 5px;
 }
 
-/* --- Dropdown Glassmorphism --- */
+.profile-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 0; /* Starlink não usa cantos arredondados */
+    object-fit: cover;
+    border: 1px solid var(--sl-text-muted);
+    transition: border-color var(--sl-transition);
+}
+
+.profile-trigger:hover .profile-avatar {
+    border-color: var(--sl-text-primary);
+}
+
+.caret-icon {
+    color: var(--sl-text-muted);
+    font-size: 0.8rem;
+    transition: color var(--sl-transition);
+}
+.profile-trigger:hover .caret-icon { color: var(--sl-text-primary); }
+
+/* --- DROPDOWN DO PERFIL (PC) --- */
 .dropdown-menu {
     position: absolute;
-    top: calc(100% + 25px);
+    top: 50px;
     right: 0;
-    background: rgba(15, 15, 20, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border-glass);
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-    width: 220px;
+    background-color: var(--sl-nav-bg-scrolled);
+    border: 1px solid var(--sl-border);
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
     padding: 10px 0;
     z-index: 1001;
+    /* Remover blur e sombras coloridas, usar preto puro */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.9); 
 }
+
+/* Setinha do dropdown */
+.dropdown-arrow {
+    position: absolute;
+    top: -6px;
+    right: 15px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--sl-nav-bg-scrolled);
+    border-left: 1px solid var(--sl-border);
+    border-top: 1px solid var(--sl-border);
+    transform: rotate(45deg);
+}
+
 .dropdown-item {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 15px;
     padding: 12px 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--color-text-light);
-    cursor: pointer;
-    transition: all 0.2s;
+    color: var(--sl-text-muted);
     text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all var(--sl-transition);
 }
+
 .dropdown-item:hover {
     background-color: rgba(255, 255, 255, 0.05);
-    color: var(--color-text-white);
-    padding-left: 25px; /* Efeito de slide no hover */
+    color: var(--sl-text-primary);
 }
-.dropdown-item.text-red:hover {
-    color: #ff4d4d;
-}
+
 .profile-avatar-small {
     width: 24px;
     height: 24px;
-    border-radius: 50%;
+    border-radius: 0;
     object-fit: cover;
+    border: 1px solid transparent;
 }
+.dropdown-item:hover .profile-avatar-small { border-color: var(--sl-text-primary); }
+
 .divider {
     height: 1px;
-    background-color: var(--border-glass);
-    margin: 8px 0;
+    background-color: var(--sl-border);
+    margin: 10px 0;
+    width: 100%;
 }
 
-/* --- Menu Mobile Estilo Dashboard --- */
-.backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 990;
+.text-red:hover {
+    color: var(--sl-danger);
 }
-.mobile-nav-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 80vw;
-    max-width: 320px;
-    height: 100vh;
-    background-color: rgba(10, 10, 12, 0.95);
-    backdrop-filter: blur(20px);
-    border-right: 1px solid var(--border-glass);
-    z-index: 999;
-    display: flex;
-    flex-direction: column;
-}
-.mobile-close-btn {
-    position: absolute;
-    top: 25px;
-    right: 25px;
-    background: none;
+
+/* --- MOBILE MENU ICON (HAMBURGER) --- */
+.mobile-menu-icon {
+    display: none;
+    background: transparent;
     border: none;
-    color: var(--color-text-light);
+    color: var(--sl-text-primary);
     font-size: 1.5rem;
     cursor: pointer;
 }
+
+@media (max-width: 768px) {
+    .mobile-menu-icon { display: block; }
+    .left-section { gap: 15px; }
+    .right-section { display: none; /* Oculta menu de perfil no header no mobile */ }
+    .header-nav { padding: 0 20px; }
+    .logo-container { font-size: 1.2rem; letter-spacing: 4px; }
+}
+
+
+/* ----------------------------------------------------------------
+| MENU MOBILE LATERLA (DRAWER - STARLINK VIBE)
+| ---------------------------------------------------------------- */
+
+.backdrop {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 1050;
+}
+
+.mobile-nav-container {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 280px;
+    max-width: 85vw;
+    background-color: var(--sl-nav-bg-scrolled);
+    border-right: 1px solid var(--sl-border);
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    font-family: var(--sl-font);
+}
+
+.mobile-close-btn {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: transparent;
+    border: none;
+    color: var(--sl-text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color var(--sl-transition);
+}
+.mobile-close-btn:hover { color: var(--sl-text-primary); }
+
+/* --- PERFIL NO MENU MOBILE --- */
 .mobile-profile-section {
-    padding: 40px 25px 25px;
-    border-bottom: 1px solid var(--border-glass);
+    padding: 40px 20px 20px;
     display: flex;
     align-items: center;
     gap: 15px;
+    border-bottom: 1px solid var(--sl-border);
 }
+
 .profile-avatar-large {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 2px solid var(--color-primary);
+    width: 50px; height: 50px;
+    border-radius: 0;
+    object-fit: cover;
+    border: 1px solid var(--sl-text-primary);
 }
+
 .mobile-profile-info {
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column; gap: 5px;
 }
+
 .mobile-profile-name {
-    color: var(--color-text-white);
-    font-weight: 700;
-    font-size: 1.1rem;
-    letter-spacing: 1px;
+    color: var(--sl-text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
+
 .mobile-profile-status {
-    color: var(--color-primary);
+    color: #00ffaa; /* Verde telemetria de sistema online */
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: flex; align-items: center; gap: 5px;
+}
+.mobile-profile-status::before {
+    content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background-color: #00ffaa;
+}
+
+
+/* --- LINKS NO MENU MOBILE --- */
+.mobile-links-section {
+    display: flex; flex-direction: column;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--sl-border);
+}
+
+.mobile-link {
+    color: var(--sl-text-muted);
+    text-decoration: none;
+    padding: 15px 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    transition: all var(--sl-transition);
+}
+
+.mobile-link:hover, .mobile-link.active {
+    color: var(--sl-text-primary);
+    background-color: rgba(255, 255, 255, 0.05);
+    border-left: 2px solid var(--sl-text-primary);
+}
+
+
+/* --- TROCA DE PERFIL NO MENU MOBILE --- */
+.mobile-switch-section {
+    padding: 20px;
+}
+
+.mobile-section-title {
+    color: var(--sl-text-muted);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: 15px;
+}
+
+.mobile-switch-item {
+    display: flex; align-items: center; gap: 15px;
+    padding: 10px 0;
+    cursor: pointer;
+    color: var(--sl-text-muted);
+    transition: color var(--sl-transition);
+}
+.mobile-switch-item:hover { color: var(--sl-text-primary); }
+
+.mobile-switch-item img {
+    width: 30px; height: 30px;
+    border-radius: 0; object-fit: cover;
+    border: 1px solid transparent;
+}
+.mobile-switch-item:hover img { border-color: var(--sl-text-primary); }
+
+.mobile-switch-item span {
     font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-}
-.mobile-links-section {
-    padding: 20px 0;
-    display: flex;
-    flex-direction: column;
-}
-.mobile-link {
-    padding: 15px 25px;
-    color: var(--color-text-light);
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-transform: uppercase;
     letter-spacing: 2px;
-    transition: all 0.3s;
-    border-left: 3px solid transparent;
-}
-.mobile-link:hover, .mobile-link.active {
-    color: var(--color-text-white);
-    background-color: rgba(255, 255, 255, 0.03);
-    border-left-color: var(--color-primary);
-}
-.mobile-switch-section {
-    margin-top: auto;
-    padding: 20px 25px;
-    background: rgba(0, 0, 0, 0.2);
-    border-top: 1px solid var(--border-glass);
-}
-.mobile-section-title {
-    color: var(--color-text-light);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 15px;
-}
-.mobile-switch-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: var(--color-text-white);
-    font-size: 0.85rem;
-    margin-bottom: 15px;
-    cursor: pointer;
-}
-.mobile-switch-item img {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    opacity: 0.7;
-    transition: opacity 0.3s;
-}
-.mobile-switch-item:hover img {
-    opacity: 1;
 }

@@ -16,8 +16,8 @@ const DynamicPlayer = ({ currentSource, onPlaybackUpdate, episodeData, allEpisod
     if (!currentSource || !currentSource.url) {
         return (
             <div className="player-message error">
-                <FaExclamationTriangle size={40} color="#E50914" />
-                <p>Nenhuma fonte de vídeo disponível para este episódio.</p>
+                <FaExclamationTriangle size={30} color="#ff3333" />
+                <p>SISTEMA: FONTE DE TRANSMISSÃO INDISPONÍVEL.</p>
             </div>
         );
     }
@@ -50,7 +50,8 @@ const DynamicPlayer = ({ currentSource, onPlaybackUpdate, episodeData, allEpisod
 
     return (
         <div className="player-message error">
-            <p>Formato de vídeo não suportado: {type}</p>
+            <FaExclamationTriangle size={30} color="#ff3333" />
+            <p>SISTEMA: FORMATO DE ARQUIVO NÃO SUPORTADO ({type.toUpperCase()}).</p>
         </div>
     );
 };
@@ -73,14 +74,14 @@ const useWatchData = (slug, episodeId) => {
                 const seriesRef = doc(db, 'animes', slug);
                 const seriesSnap = await getDoc(seriesRef);
                 
-                if (!seriesSnap.exists()) { throw new Error(`Série "${slug}" não encontrada.`); }
+                if (!seriesSnap.exists()) { throw new Error(`DIRETÓRIO "${slug}" NÃO LOCALIZADO.`); }
                 setSeriesData(seriesSnap.data());
 
                 // 2. Buscar Episódio Atual
                 const episodeRef = doc(db, 'episodes', episodeId);
                 const episodeSnap = await getDoc(episodeRef);
 
-                 if (!episodeSnap.exists()) { throw new Error(`Episódio não encontrado.`); }
+                if (!episodeSnap.exists()) { throw new Error(`ARQUIVO CORROMPIDO OU INEXISTENTE.`); }
                 setEpisode({ id: episodeSnap.id, ...episodeSnap.data() });
 
                 // 3. Buscar Todos os Episódios (Para navegação Next/Prev)
@@ -120,7 +121,7 @@ const WatchPage = () => {
     const navigate = useNavigate();
     const { seriesData, episode, allEpisodes, loading, error } = useWatchData(slug, episodeId);
     
-    // Estado para controlar qual player (fonte) está sendo usado (caso tenha redundância)
+    // Estado para controlar qual player (fonte) está sendo usado
     const [selectedSourceIndex, setSelectedSourceIndex] = useState(0);
 
     // Resetar índice da fonte quando mudar de episódio
@@ -149,11 +150,11 @@ const WatchPage = () => {
     if (error || !episode || !seriesData) {
         return (
             <div className="watch-page-container error-container">
-                <FaExclamationTriangle size={50} color="#E50914"/> 
-                <h2>Erro ao carregar vídeo</h2>
-                <p>{error || "Dados incompletos."}</p>
+                <FaExclamationTriangle size={40} color="#ff3333"/> 
+                <h2>FALHA NA CONEXÃO DE VÍDEO</h2>
+                <p>{error || "DADOS INCOMPLETOS NA REDE."}</p>
                 <button onClick={() => navigate(`/details/${slug}`)} className="btn-back">
-                    <FaArrowLeft /> Voltar para a Série
+                    <FaArrowLeft /> RETORNAR AO DIRETÓRIO
                 </button>
             </div>
         );
@@ -162,31 +163,25 @@ const WatchPage = () => {
     return (
         <div className="watch-page-container">
             
-            {/* Header Flutuante */}
+            {/* Header Flutuante / Terminal */}
             <header className="watch-header">
                 <div className="header-left">
                     <button onClick={() => navigate(-1)} className="btn-icon">
-                        <FaArrowLeft />
+                        <FaArrowLeft /> VOLTAR
                     </button>
-                    {/* <div className="header-info">
-                        <h1>{seriesData.titulo}</h1>
-                        <span>
-                            T{episode.temporada}:E{episode.numeroEpisodio} - {episode.tituloEpisodio}
-                        </span>
-                    </div> */}
                 </div>
 
-                {/* Seletor de Fonte (Só aparece se tiver mais de 1 link) */}
+                {/* Seletor de Fonte */}
                 {episode.videoLinks && episode.videoLinks.length > 1 && (
                     <div className="source-selector">
-                        <FaServer />
+                        <FaServer color="#00ffaa"/>
                         <select 
                             value={selectedSourceIndex} 
                             onChange={(e) => setSelectedSourceIndex(Number(e.target.value))}
                         >
                             {episode.videoLinks.map((link, index) => (
                                 <option key={index} value={index}>
-                                    {link.label || `Fonte ${index + 1}`} ({link.type.toUpperCase()})
+                                    {link.label || `ROTA ${index + 1}`} ({link.type.toUpperCase()})
                                 </option>
                             ))}
                         </select>
@@ -198,7 +193,7 @@ const WatchPage = () => {
             <main className="player-area">
                 <DynamicPlayer 
                     currentSource={currentSource}
-                    type={currentSource?.type} // Passamos explicitamente
+                    type={currentSource?.type}
                     onPlaybackUpdate={handlePlaybackUpdate}
                     episodeData={episode}
                     allEpisodes={allEpisodes}
@@ -206,91 +201,90 @@ const WatchPage = () => {
                 />
             </main>
 
-            {/* Estilos CSS Inline para layout macro da página */}
+            {/* Estilos CSS Inline para layout macro da página (STARLINK THEME) */}
             <style jsx="true">{`
                 .watch-page-container {
-                    background-color: #000;
+                    background-color: #000000;
                     min-height: 100vh;
                     display: flex;
                     flex-direction: column;
-                    color: white;
-                    overflow: hidden; /* Evita scroll duplo */
+                    color: #ffffff;
+                    overflow: hidden; 
+                    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                    letter-spacing: 1px;
                 }
 
                 .watch-header {
-                    height: 60px;
-                    background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+                    height: 70px;
+                    background: linear-gradient(to bottom, rgba(0,0,0,0.95), rgba(0,0,0,0.2));
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
-                    padding: 0 20px;
-                    position: absolute; /* Flutua sobre o vídeo */
+                    padding: 0 40px;
+                    position: absolute; 
                     top: 0;
                     left: 0;
                     width: 100%;
                     z-index: 50;
-                    pointer-events: none; /* Deixa clicar no vídeo embaixo nas áreas vazias */
+                    pointer-events: none; 
+                    border-bottom: 1px solid rgba(26, 26, 26, 0.5);
                 }
 
                 .header-left, .source-selector {
-                    pointer-events: auto; /* Reativa cliques nos botões */
-                }
-
-                .header-left {
-                    display: flex;
-                    align-items: center;
-                    gap: 15px;
-                }
-
-                .header-info h1 {
-                    font-size: 1rem;
-                    margin: 0;
-                    font-weight: 700;
-                    color: #fff;
-                }
-
-                .header-info span {
-                    font-size: 0.85rem;
-                    color: #ccc;
+                    pointer-events: auto; 
                 }
 
                 .btn-icon {
-                    background: none;
-                    border: none;
-                    color: white;
-                    font-size: 1.5rem;
+                    background: transparent;
+                    border: 1px solid #1a1a1a;
+                    color: #7a7a7a;
+                    font-size: 0.75rem;
+                    padding: 10px 20px;
                     cursor: pointer;
                     display: flex;
                     align-items: center;
-                    opacity: 0.8;
-                    transition: opacity 0.2s;
+                    gap: 10px;
+                    transition: all 0.2s;
+                    text-transform: uppercase;
+                    letter-spacing: 3px;
+                    font-family: inherit;
                 }
 
-                .btn-icon:hover { opacity: 1; }
+                .btn-icon:hover { 
+                    color: #ffffff; 
+                    border-color: #ffffff;
+                    background: rgba(255, 255, 255, 0.05);
+                }
 
                 .source-selector {
                     display: flex;
                     align-items: center;
                     gap: 10px;
-                    background: rgba(255, 255, 255, 0);
-                    padding: 5px 10px;
-                    border-radius: 4px;
+                    background: rgba(0, 0, 0, 0.8);
+                    padding: 8px 15px;
+                    border: 1px solid #1a1a1a;
                     backdrop-filter: blur(5px);
+                    color: #7a7a7a;
+                    font-size: 0.75rem;
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
                 }
 
                 .source-selector select {
                     background: transparent;
                     border: none;
-                    color: white;
-                    font-size: 0.85rem;
+                    color: #ffffff;
+                    font-size: 0.75rem;
                     outline: none;
                     cursor: pointer;
+                    text-transform: uppercase;
+                    font-family: inherit;
+                    letter-spacing: 1px;
                 }
                 
                 .source-selector select option {
-                    background: #030303;
-                    color: white;
-                    border: none;
+                    background: #000000;
+                    color: #ffffff;
                 }
 
                 .player-area {
@@ -298,7 +292,13 @@ const WatchPage = () => {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    padding-top: 0; /* Player ocupa tudo */
+                    padding-top: 0; 
+                    
+                    /* Fundo Radar atrás do player */
+                    background-image: 
+                        linear-gradient(rgba(26, 26, 26, 0.4) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(26, 26, 26, 0.4) 1px, transparent 1px);
+                    background-size: 40px 40px;
                 }
 
                 .player-message {
@@ -307,7 +307,12 @@ const WatchPage = () => {
                     align-items: center;
                     justify-content: center;
                     height: 100%;
-                    color: #ccc;
+                    color: #ff3333;
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                    font-size: 0.8rem;
+                    text-align: center;
+                    gap: 15px;
                 }
 
                 .error-container {
@@ -315,19 +320,59 @@ const WatchPage = () => {
                     align-items: center;
                     text-align: center;
                     gap: 20px;
+                    
+                    /* Fundo Radar na tela de erro */
+                    background-image: 
+                        linear-gradient(rgba(26, 26, 26, 0.3) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(26, 26, 26, 0.3) 1px, transparent 1px);
+                    background-size: 40px 40px;
+                }
+
+                .error-container h2 {
+                    font-size: 1.2rem;
+                    font-weight: 300;
+                    letter-spacing: 4px;
+                    text-transform: uppercase;
+                    margin: 0;
+                }
+
+                .error-container p {
+                    color: #7a7a7a;
+                    font-size: 0.8rem;
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
                 }
                 
                 .btn-back {
-                    padding: 10px 20px;
-                    background-color: #E50914;
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
+                    padding: 15px 30px;
+                    background-color: transparent;
+                    color: #ffffff;
+                    border: 1px solid #ffffff;
                     cursor: pointer;
                     display: flex;
                     align-items: center;
                     gap: 10px;
-                    font-weight: bold;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    letter-spacing: 3px;
+                    font-family: inherit;
+                    font-size: 0.75rem;
+                    transition: all 0.2s;
+                    margin-top: 10px;
+                }
+
+                .btn-back:hover {
+                    background-color: #ffffff;
+                    color: #000000;
+                }
+
+                @media (max-width: 768px) {
+                    .watch-header {
+                        padding: 0 20px;
+                    }
+                    .source-selector {
+                        padding: 5px 10px;
+                    }
                 }
             `}</style>
         </div>
