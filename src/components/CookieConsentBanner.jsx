@@ -2,10 +2,20 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 // Chave para armazenar a preferência do usuário
-const COOKIE_CONSENT_KEY = 'toaruflix_cookie_consent';
+const COOKIE_CONSENT_KEY = 'toaruflix_system_authorization';
+
+// --- TEMA TERMINAL ---
+const THEME = {
+    bgDark: '#080808',
+    border: 'rgba(255, 255, 255, 0.2)',
+    textPrimary: '#ffffff',
+    textMuted: '#a0a0a0',
+    fontMono: "'JetBrains Mono', monospace",
+    fontMain: "'Inter', sans-serif",
+};
 
 // ----------------------------------------------------------------
-// ESTILOS (Styled Components)
+// ESTILOS DO BANNER
 // ----------------------------------------------------------------
 
 const BannerWrapper = styled.div`
@@ -13,96 +23,124 @@ const BannerWrapper = styled.div`
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: #1a1a1a; /* Fundo escuro sutil */
-    color: #f0f0f0;
-    padding: 15px 4%;
+    background-color: rgba(0, 0, 0, 0.95);
+    border-top: 1px solid ${THEME.border};
+    color: ${THEME.textPrimary};
+    padding: 20px 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
-    z-index: 1000; /* Garante que fique acima de todo o conteúdo */
-    font-size: 0.9rem;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    font-family: ${THEME.fontMain};
+    font-size: 0.85rem;
 
     @media (max-width: 768px) {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        padding: 20px 15px;
+        gap: 15px;
     }
 `;
 
-const TextContent = styled.p`
+const TextContent = styled.div`
     margin: 0;
     flex-grow: 1;
+    color: ${THEME.textMuted};
+    line-height: 1.5;
+    max-width: 800px;
     
+    strong { color: ${THEME.textPrimary}; font-family: ${THEME.fontMono}; font-size: 0.8rem; letter-spacing: 1px; }
+
     a {
-        color: #8540ff; /* Cor de destaque da MaxPlay */
-        text-decoration: underline;
-        margin-left: 5px;
+        color: ${THEME.textPrimary};
+        text-decoration: none;
+        border-bottom: 1px solid ${THEME.textPrimary};
+        margin-left: 8px;
+        font-weight: 600;
+        white-space: nowrap;
+        &:hover { color: #cccccc; border-color: #cccccc; }
     }
 `;
 
 const ButtonGroup = styled.div`
     display: flex;
-    gap: 10px;
+    gap: 12px;
     flex-shrink: 0;
+
+    @media (max-width: 768px) {
+        width: 100%;
+        flex-direction: column; /* Botões empilhados no celular */
+    }
 `;
 
 const BaseButton = styled.button`
-    padding: 8px 15px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 4px;
+    border-radius: 0; /* Starlink / Terminal: SEM BORDAS ARREDONDADAS */
     cursor: pointer;
-    font-weight: 600;
-    transition: opacity 0.2s;
+    font-family: ${THEME.fontMono};
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.15s linear;
 
-    &:hover {
-        opacity: 0.8;
+    @media (max-width: 768px) {
+        width: 100%;
+        padding: 14px;
+        text-align: center;
     }
 `;
 
 const AcceptButton = styled(BaseButton)`
-    background-color: #8540ff; /* Cor de destaque (Aceitar) */
-    color: white;
+    background-color: ${THEME.textPrimary};
+    color: #000000;
+    border: 1px solid ${THEME.textPrimary};
+
+    &:hover {
+        background-color: transparent;
+        color: ${THEME.textPrimary};
+    }
 `;
 
 const DeclineButton = styled(BaseButton)`
     background-color: transparent;
-    color: #a0a0a0;
-    border: 1px solid #a0a0a0;
-`;
+    color: ${THEME.textMuted};
+    border: 1px solid ${THEME.textMuted};
 
+    &:hover {
+        border-color: ${THEME.textPrimary};
+        color: ${THEME.textPrimary};
+    }
+`;
 
 // ----------------------------------------------------------------
 // COMPONENTE PRINCIPAL
 // ----------------------------------------------------------------
 
 const CookieConsentBanner = () => {
-    // Estado para controlar a visibilidade do banner
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        // Verifica se o usuário já deu o consentimento
+        // Verifica autorização do sistema
         const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
-        if (consent !== 'accepted') {
-            // Se ainda não aceitou, mostra o banner
+        if (consent !== 'authorized') {
             setIsVisible(true);
         }
     }, []);
 
     const handleAccept = () => {
-        // Define o consentimento como 'accepted' no localStorage
-        localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
-        setIsVisible(false); // Esconde o banner
-        // Aqui, você iniciaria o carregamento de scripts de análise (Google Analytics, etc.)
-        console.log("Consentimento de Cookies Aceito!");
+        localStorage.setItem(COOKIE_CONSENT_KEY, 'authorized');
+        setIsVisible(false);
+        console.log("STATUS: Permissão de armazenamento local concedida.");
     };
 
     const handleDecline = () => {
-        // Define o consentimento como 'declined'
-        localStorage.setItem(COOKIE_CONSENT_KEY, 'declined');
-        setIsVisible(false); // Esconde o banner
-        // Aqui, você garantiria que apenas os cookies estritamente necessários fossem carregados
-        console.log("Consentimento de Cookies Recusado.");
+        localStorage.setItem(COOKIE_CONSENT_KEY, 'denied');
+        setIsVisible(false);
+        console.log("STATUS: Armazenamento local restrito. Alguns módulos podem falhar.");
     };
 
     if (!isVisible) return null;
@@ -110,15 +148,18 @@ const CookieConsentBanner = () => {
     return (
         <BannerWrapper>
             <TextContent>
-                Nós usamos cookies essenciais para o funcionamento do site e cookies de terceiros para melhorar sua experiência. Ao clicar em "Aceitar", você concorda com o uso de todos os cookies. 
-                <a href="/privacy" target="_blank" rel="noopener noreferrer">Saiba Mais</a>
+                <strong>PERMISÃO DE COOKIES</strong><br/>
+                Para estabilizar a interface, nossos terminais alocam dados localmente (Cookies e LocalStorage). 
+                Isso assegura que suas credenciais e estado de conexão não sejam perdidos. 
+                <a href="/privacy" target="_blank" rel="noopener noreferrer">Acessar Documentação</a>
             </TextContent>
+            
             <ButtonGroup>
                 <DeclineButton onClick={handleDecline}>
-                    Recusar
+                    Negar
                 </DeclineButton>
                 <AcceptButton onClick={handleAccept}>
-                    Aceitar
+                    Autorizar
                 </AcceptButton>
             </ButtonGroup>
         </BannerWrapper>

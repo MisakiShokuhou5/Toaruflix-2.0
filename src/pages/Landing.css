@@ -1,0 +1,184 @@
+/* ==========================================================================
+   LANDING PAGE - OTIMIZAÇÃO MOBILE (TEMA STARLINK / TERMINAL)
+   ========================================================================== */
+
+/* Todas as regras aqui só afetam telas menores que 768px (Celulares e Tablets pequenos) */
+@media screen and (max-width: 768px) {
+    
+    /* --- ESTRUTURA E BACKGROUND --- */
+    .background-grid {
+        /* No celular, cria uma grade densa de pôsteres verticais */
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(8, 1fr) !important;
+        gap: 2px !important;
+    }
+
+    .background-card {
+        height: 160px !important;
+        filter: brightness(0.2) grayscale(0.2) !important;
+    }
+
+    .dark-overlay {
+        /* O gradiente no celular precisa ser mais escuro mais rápido para dar leitura */
+        background: 
+            linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.98) 60%) !important;
+    }
+
+    /* --- CABEÇALHO --- */
+    .landing-header {
+        flex-direction: column;
+        padding: 25px 15px !important;
+        gap: 20px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+    }
+
+    .landing-logo {
+        font-size: 1.3rem !important;
+        letter-spacing: 4px !important;
+        justify-content: center;
+    }
+
+    .sign-in-btn {
+        width: 100%;
+        text-align: center;
+        padding: 14px !important;
+        font-size: 0.85rem !important;
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    /* --- ÁREA PRINCIPAL (HERO) --- */
+    .main-section {
+        padding: 40px 15px 30px 15px !important;
+    }
+
+    .system-tag {
+        font-size: 0.65rem !important;
+        letter-spacing: 2px !important;
+        margin-bottom: 15px !important;
+    }
+
+    .main-title {
+        font-size: 2.2rem !important;
+        letter-spacing: 0px !important;
+        line-height: 1.1 !important;
+        text-shadow: 0 4px 15px rgba(0,0,0,1) !important;
+    }
+
+    .cta-text {
+        font-size: 0.95rem !important;
+        line-height: 1.5 !important;
+        margin-bottom: 30px !important;
+        padding: 0 10px;
+        color: #b3b3b3 !important;
+    }
+
+    /* --- FORMULÁRIO DE ACESSO --- */
+    .cta-form {
+        flex-direction: column !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    .email-input {
+        width: 100% !important;
+        text-align: center;
+        padding: 16px !important;
+        font-size: 0.85rem !important;
+        /* Restaura a borda direita que foi tirada no desktop */
+        border-right: 1px solid rgba(255, 255, 255, 0.2) !important; 
+    }
+
+    .email-input::placeholder {
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+    }
+
+    .cta-button {
+        width: 100% !important;
+        padding: 16px !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* --- CARROSSEL DE PÔSTERES --- */
+    .showcase-wrapper {
+        margin: 10px 0 50px 0 !important;
+    }
+
+    .showcase-title {
+        font-size: 0.65rem !important;
+        justify-content: center;
+        padding-left: 0 !important;
+        margin-bottom: 15px !important;
+    }
+
+    .poster-img {
+        width: 110px !important;
+        height: 165px !important; /* Mantém a proporção 2:3 exata */
+    }
+
+    /* Sombras laterais menores para não comer espaço da tela do celular */
+    .showcase-wrapper::before, 
+    .showcase-wrapper::after {
+        width: 40px !important;
+    }
+
+    /* --- GRID DE MÓDULOS (PAINÉIS) --- */
+    .modules-grid {
+        grid-template-columns: 1fr !important; /* Empilha 1 abaixo do outro */
+        gap: 15px !important;
+        padding: 0 !important;
+    }
+
+    .module-card {
+        padding: 20px !important;
+        flex-direction: row !important; /* No mobile, ícone na esquerda, texto na direita */
+        align-items: center !important;
+        gap: 15px;
+    }
+
+    .module-card .icon-wrapper {
+        margin-bottom: 0 !important;
+        font-size: 1.8rem !important;
+    }
+
+    .module-card-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .module-card h4 {
+        font-size: 0.85rem !important;
+        margin-bottom: 5px !important;
+    }
+
+    .module-card p {
+        font-size: 0.8rem !important;
+        line-height: 1.4 !important;
+        -webkit-line-clamp: 2; /* Limita a 2 linhas para não ficar gigante */
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* --- AVISO DE PRIVACIDADE FINAL --- */
+    .privacy-disclaimer {
+        padding: 20px 10px !important;
+        margin-top: 40px !important;
+    }
+
+    .privacy-disclaimer h4 {
+        font-size: 0.75rem !important;
+        flex-direction: column;
+        gap: 5px !important;
+    }
+
+    .privacy-disclaimer p {
+        font-size: 0.75rem !important;
+        text-align: justify;
+    }
+}

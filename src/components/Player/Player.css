@@ -1,188 +1,244 @@
-:root {
-    --accent: blueviolet;
-    --max-bg: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%);
-}
+/* ==========================================================================
+   VIDEO PLAYER - ESTILO AMAZON PRIME VIDEO
+   ========================================================================== */
 
-.max-player-container {
+   .pv-player-container {
     position: relative;
-    width: 100%;
+    width: 100vw;
     height: 100vh;
-    background: #000;
+    background-color: #000;
     overflow: hidden;
-    cursor: none;
-    transition: cursor 0.3s;
+    font-family: 'Inter', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.max-player-container.controls-active { cursor: default; }
-
-.max-video-element {
+.pv-video-element {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: contain; /* Garante que o vídeo não corte */
+    cursor: default;
 }
 
-/* UI Overlay */
-.max-ui-wrapper {
+/* --- OVERLAYS E DEGRADÊS --- */
+.pv-controls-overlay {
     position: absolute;
-    inset: 0;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 40px;
-    background: var(--max-bg);
-    opacity: 0;
-    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.3s ease-in-out;
+    background: 
+        linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 15%), /* Sombra no topo */
+        linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 20%);    /* Sombra profunda em baixo */
     z-index: 10;
 }
 
-.controls-active .max-ui-wrapper { opacity: 1; }
-
-/* Topo - Info do Episódio */
-.max-series-title {
-    color: white;
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin: 0;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+/* Oculta interface após 3 segundos */
+.controls-hidden .pv-controls-overlay,
+.controls-hidden .pv-player-container {
+    opacity: 0;
+    cursor: none !important;
+}
+.controls-active .pv-controls-overlay {
+    opacity: 1;
 }
 
-.max-ep-detail {
-    color: #ccc;
-    font-size: 1rem;
-    letter-spacing: 1px;
-}
-
-/* Centro - Play/Pause Gigante */
-.max-center-controls {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+/* --- TOPO DIREITA (Ícones Pequenos) --- */
+.pv-top-right {
     display: flex;
+    justify-content: flex-end;
     align-items: center;
-    gap: 60px;
-}
-
-.max-main-play {
-    background: white;
-    color: black;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: none;
-    font-size: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform 0.2s;
-    padding-left: 5px;
-}
-
-.max-main-play:hover { transform: scale(1.1); }
-
-.max-big-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 2rem;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.max-big-btn:hover { opacity: 1; }
-
-/* Bottom - Barra de Progresso */
-.max-progress-area {
-    width: 100%;
-    margin-bottom: 20px;
-}
-
-.max-seekbar {
-   
-    width: 100%;
-    height: 4px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 2px;
-    outline: none;
-    cursor: pointer;
-    background-image: linear-gradient(var(--accent), var(--accent));
-    background-size: var(--progress) 100%;
-    background-repeat: no-repeat;
-    transition: height 0.2s;
-}
-
-.max-seekbar:hover { height: 8px; }
-
-.max-seekbar::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    height: 15px;
-    width: 15px;
-    background: white;
-    border-radius: 50%;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-}
-
-/* Actions Row */
-.max-actions-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.max-group {
-    display: flex;
-    align-items: center;
+    padding: 25px 40px;
     gap: 20px;
 }
 
-.max-icon-btn {
-    background: none;
+.pv-action-btn {
+    background: transparent;
     border: none;
     color: white;
-    font-size: 1.4rem;
+    z-index: 99;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    opacity: 0.85;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.pv-action-btn img {
+    width: 26px;
+    height: 26px;
+}
+
+.pv-action-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Container do Volume (Para fazer o slider vertical aparecer no hover) */
+.pv-volume-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pv-volume-slider-container {
+    position: absolute;
+    bottom: -130px; /* Joga o slider para baixo do ícone */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(28, 28, 28, 0.9);
+    padding: 15px 10px;
+    width: 50px;
+    border-radius: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.pv-volume-wrapper:hover .pv-volume-slider-container {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* O "Truque" do Slider Vertical */
+.pv-volume-slider {
+    -webkit-appearance: none;
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(to right, #ffffff var(--vol-progress), rgba(255,255,255,0.3) var(--vol-progress));
+    border-radius: 2px;
+    outline: none;
+    transform: rotate(-90deg); /* Vira o slider de lado */
+    margin: 50px 0; /* Compensa o espaço da rotação */
     cursor: pointer;
 }
 
-.max-time {
-    color: white;
-    font-family: 'monospace';
-    font-size: 0.9rem;
+.pv-volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
 }
 
-/* Loading */
-.max-loading {
+/* --- CENTRO (Play e Skip Gigantes) --- */
+.pv-center-controls {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 40px;
 }
 
-.max-spin {
-    font-size: 4rem;
-    color: var(--accent);
+.pv-center-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 75px;
+    height: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.pv-center-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15); /* Círculo sutil no hover */
+}
+
+.pv-center-btn img {
+    width: 55px; /* Tamanho exato das SVGs originais na tela */
+    height: 55px;
+}
+
+/* --- INFERIOR (Barra de Progresso) --- */
+.pv-bottom-controls {
+    padding: 0 40px 30px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pv-time-display {
+    color: #a3a3a3;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.pv-progress-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.pv-seekbar {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px; /* Linha fininha igual Prime Video */
+    background: linear-gradient(to right, #ffffff var(--progress), rgba(255,255,255,0.2) var(--progress));
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    transition: height 0.1s ease;
+}
+
+.pv-seekbar:hover {
+    height: 6px; /* Engrossa levemente ao passar o mouse */
+}
+
+.pv-seekbar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 8px rgba(0,0,0,0.6);
+    transition: transform 0.1s ease;
+}
+
+.pv-seekbar:hover::-webkit-slider-thumb {
+    transform: scale(1.2); /* Bolinha cresce no hover */
+}
+
+/* --- LOADER --- */
+.pv-loading {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 3rem;
+    z-index: 5;
+}
+
+.pv-spin {
     animation: spin 1s linear infinite;
 }
 
-@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 
-/* Mobile */
-@media (max-width: 768px) {
-    .max-center-controls { gap: 30px; }
-    .max-main-play { width: 60px; height: 60px; font-size: 1.5rem; }
-}
-.embed-player-wrapper{
-    width: 100%;
-    height: 100vh;
-    background-color: red;
-}
-.embed-responsive{
-    width: 100%;
-    height: 100%;
-}
-.embed-responsive iframe{
-    width: 100%;
-    height: 100%;
+/* --- MOBILE RESPONSIVE --- */
+@media screen and (max-width: 768px) {
+    .pv-top-right { padding: 15px 20px; gap: 15px; }
+    .pv-center-controls { gap: 20px; }
+    .pv-center-btn { width: 55px; height: 55px; }
+    .pv-center-btn img { width: 40px; height: 40px; }
+    .pv-bottom-controls { padding: 0 20px 20px 20px; }
 }

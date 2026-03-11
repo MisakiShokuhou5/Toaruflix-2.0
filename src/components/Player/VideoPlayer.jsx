@@ -1,21 +1,30 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Hls from 'hls.js';
-import { 
-    FaPlay, FaPause, FaVolumeUp, FaVolumeMute, 
-    FaExpand, FaCompress, FaStepBackward, FaStepForward, 
-    FaSpinner, FaRedo, FaUndo 
-} from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaExpand, FaCompress, FaTimes, FaSpinner } from 'react-icons/fa';
 import './Player.css';
 
-const VideoPlayer = ({ link, type, episodeData, allEpisodes, onEpisodeChange }) => {
+// ============================================================================
+// ÍCONES OFICIAIS (Base64 fornecidos pelo usuário)
+// ============================================================================
+const ICONS = {
+    rewind10: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NyIgaGVpZ2h0PSI2NyIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDY3IDY3Ij48cGF0aCBmaWxsPSIjZmZmIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTMzLjUgMEM1MiAwIDY3IDE1IDY3IDMzLjVTNTIgNjcgMzMuNSA2NyAwIDUyIDAgMzMuNWMuMDMtMS40IDEuMTctMi41MyAyLjU4LTIuNTMgMS40IDAgMi41NSAxLjEzIDIuNTcgMi41MyAwIDE1LjY1IDEyLjcgMjguMzUgMjguMzUgMjguMzUgMTUuNjYgMCAyOC4zNS0xMi43IDI4LjM1LTI4LjM1IDAtMTUuNjYtMTIuNjktMjguMzUtMjguMzUtMjguMzVoLS4wNGMtNyAwLTEzLjc2IDIuNjEtMTguOTQgNy4zLS40Ni40Mi0uOTEuODUtMS4zNCAxLjI5aDYuNThjMS40MiAwIDIuNTctMS4xNiAyLjU3IDIuNTggMCAxLjQyLTEuMTUgMi41OC0yLjU3IDIuNThINi4wMWMtMS40MiAwLTIuNTctMS4xNi0yLjU3LTIuNThWMi41OEMzLjQ0IDEuMTUgNC41OSAwIDYuMDEgMGMxLjQzIDAgMi41OCAxLjE1IDIuNTggMi41OHY4LjUyYy43OC0uODYgMS42MS0xLjcgMi40Ny0yLjQ3QTMzLjQwNyAzMy40MDcgMCAwIDEgMzMuNDYgMGguMDR6bS40OCA0MS4zNGMtMS42LTIuMjEtMi01LjItMi03Ljg1IDAtMi42NS40LTUuNjMgMi03LjgzIDEuNDQtMS45NyAzLjQ3LTIuODQgNS44OC0yLjg0IDIuNDEgMCA0LjQyLjg3IDUuODYgMi44NCAxLjYxIDIuMjEgMi4wMyA1LjE2IDIuMDMgNy44MyAwIDIuNjYtLjQgNS42NC0yIDcuODUtMS40MyAxLjk3LTMuNDcgMi44NC01Ljg5IDIuODQtMi40MSAwLTQuNDUtLjg2LTUuODgtMi44NHptLTkuNzMtMTIuNzdsLTUgMS41OHYtNC4yMWw1Ljg3LTIuNjVoNC4yOHYyMC40N2gtNS4xNVYyOC41N3ptMTcuNjEgOS45NmMuNjEtMS4zMy42OC0zLjYuNjgtNS4wNHMtLjA3LTMuNy0uNjgtNS4wMmMtLjQtLjg2LTEuMDQtMS4yOS0yLTEuMjktLjk1IDAtMS41OS40Mi0xLjk5IDEuMjktLjYxIDEuMzItLjY4IDMuNTgtLjY4IDUuMDIgMCAxLjQ0LjA3IDMuNzEuNjggNS4wNC40Ljg3IDEuMDQgMS4yOSAxLjk5IDEuMjkuOTYgMCAxLjYtLjQyIDItMS4yOXoiLz48L3N2Zz4=",
+    forward10: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NyIgaGVpZ2h0PSI2NyIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDY3IDY3Ij48cGF0aCBmaWxsPSIjZmZmIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0zMy41IDBDMTUgMCAwIDE1IDAgMzMuNVMxNSA2NyAzMy41IDY3IDY3IDUyIDY3IDMzLjVhMi41ODMgMi41ODMgMCAwIDAtMi41OC0yLjUzYy0xLjQgMC0yLjU1IDEuMTMtMi41NyAyLjUzIDAgMTUuNjYtMTIuNjkgMjguMzUtMjguMzUgMjguMzUtMTUuNjUgMC0yOC4zNS0xMi43LTI4LjM1LTI4LjM1IDAtMTUuNjYgMTIuNy0yOC4zNSAyOC4zNS0yOC4zNSA3LjMgMCAxMy45NiAyLjc2IDE4Ljk5IDcuMy40Ni40Mi45Ljg1IDEuMzQgMS4yOWgtNi41OWEyLjU4IDIuNTggMCAwIDAgMCA1LjE2aDEzLjc1YzEuNDIgMCAyLjU3LTEuMTYgMi41Ny0yLjU4VjIuNThjMC0xLjQzLTEuMTUtMi41OC0yLjU3LTIuNTgtMS40MyAwLTIuNTggMS4xNS0yLjU4IDIuNTh2OC41MmMtLjc4LS44Ny0xLjYxLTEuNy0yLjQ3LTIuNDhBMzMuNDQ2IDMzLjQ0NiAwIDAgMCAzMy41NCAwaC0uMDR6bS40OCA0MS4zNGMtMS42LTIuMjEtMi01LjItMi03Ljg1IDAtMi42NS40LTUuNjMgMi03LjgzIDEuNDQtMS45NyAzLjQ3LTIuODQgNS44OC0yLjg0IDIuNDEgMCA0LjQyLjg3IDUuODYgMi44NCAxLjYxIDIuMjEgMi4wMyA1LjE2IDIuMDMgNy44MyAwIDIuNjYtLjQgNS42NC0yIDcuODUtMS40MyAxLjk3LTMuNDcgMi44NC01Ljg5IDIuODQtMi40MSAwLTQuNDUtLjg3LTUuODgtMi44NHptLTkuNzMtMTIuNzdsLTUgMS41OHYtNC4yMWw1Ljg3LTIuNjVoNC4yOHYyMC40N2gtNS4xNVYyOC41N3ptMTcuNjEgOS45NmMuNjEtMS4zMy42OC0zLjYuNjgtNS4wNHMtLjA3LTMuNy0uNjgtNS4wMmMtLjQtLjg3LTEuMDQtMS4yOS0yLTEuMjktLjk1IDAtMS41OS40Mi0xLjk5IDEuMjktLjYxIDEuMzItLjY4IDMuNTgtLjY4IDUuMDIgMCAxLjQ0LjA3IDMuNzEuNjggNS4wNC40Ljg2IDEuMDQgMS4yOCAxLjk5IDEuMjguOTYgMCAxLjYtLjQyIDItMS4yOHoiLz48L3N2Zz4=",
+    pause: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NyIgaGVpZ2h0PSI2NyIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDY3IDY3Ij48cGF0aCBmaWxsPSIjZmZmIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik00Ni4zMzIgNS43NzNhNC4xMjUgNC4xMjUgMCAwIDAtNC4xMjUgNC4xMjV2NDYuNzVhNC4xMjcgNC4xMjcgMCAwIDAgNC4xMjUgNC4xMjUgNC4xMjcgNC4xMjcgMCAwIDAgNC4xMjUtNC4xMjVWOS44OThhNC4xMjUgNC4xMjUgMCAwIDAtNC4xMjUtNC4xMjV6TTI1LjcwNyA5Ljg5OHY0Ni43NWE0LjEyNSA0LjEyNSAwIDEgMS04LjI1IDBWOS44OThhNC4xMjMgNC4xMjMgMCAwIDEgNC4xMjUtNC4xMjUgNC4xMjMgNC4xMjMgMCAwIDEgNC4xMjUgNC4xMjV6IiBjbGlwLXJ1bGU9ImV2ZW5vZGQiLz48L3N2Zz4=",
+    play: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NyIgaGVpZ2h0PSI2NyIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDY3IDY3Ij48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMjAuMjggOS42NWMtMi4yMDUtMS4yNjgtNC4wMjYtLjIyOC00LjAyNiAyLjMwN3Y0My44MDVjMCAyLjUzNSAxLjgyIDMuNTc0IDQuMDI3IDIuMzA3bDM4LjQ3MS0yMS45MDNhMi41NTYgMi41NTYgMCAwIDAgMS4wOTQtLjkzNSAyLjUxNCAyLjUxNCAwIDAgMCAwLTIuNzQzIDIuNTU2IDIuNTU2IDAgMCAwLTEuMDkzLS45MzZMMjAuMjggOS42NXoiLz48L3N2Zz4=",
+    volume: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNSIgaGVpZ2h0PSIyNCIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDI1IDI0Ij48cGF0aCBzdHJva2U9IiNmZmYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIyIiBkPSJNMTUgMjBWNEw4LjExNSA3LjkzNEEuNS41IDAgMCAxIDcuODY3IDhIMy41YS41LjUgMCAwIDAtLjUuNXY3YS41LjUgMCAwIDAgLjUuNWg0LjM2N2EuNS41IDAgMCAxIC4yNDguMDY2TDE1IDIweiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xNy41IDEyYTIgMiAwIDAgMS0yIDJ2LTRhMiAyIDAgMCAxIDIgMnoiLz48cGF0aCBmaWxsPSIjZmZmIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xOC41MzYgNy4wOGEuNzUuNzUgMCAwIDEgMS4wNTMuMTI1QTcuNzIgNy43MiAwIDAgMSAyMS4yNSAxMmE3LjcyIDcuNzIgMCAwIDEtMS42NjEgNC43OTUuNzUuNzUgMCAxIDEtMS4xNzgtLjkyOUE2LjIyIDYuMjIgMCAwIDAgMTkuNzUgMTJjMC0xLjQ2LS41LTIuODAyLTEuMzM5LTMuODY2YS43NS43NSAwIDAgMSAuMTI1LTEuMDUzeiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0iI2ZmZiIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMjAuNTI0IDQuNDM4YS43NS43NSAwIDAgMSAxLjA1NS4xMDMgMTEuNzA1IDExLjcwNSAwIDAgMSAyLjY3MSA3LjQ2YzAgMi44My0xLjAwMiA1LjQzLTIuNjcgNy40NThhLjc1Ljc1IDAgMSAxLTEuMTYtLjk1M0ExMC4yMDUgMTAuMjA1IDAgMCAwIDIyLjc1IDEyYTEwLjIgMTAuMiAwIDAgMC0yLjMzLTYuNTA2Ljc1Ljc1IDAgMCAxIC4xMDQtMS4wNTZ6IiBjbGlwLXJ1bGU9ImV2ZW5vZGQiLz48L3N2Zz4="
+};
+
+const VideoPlayer = ({ link, type, episodeData }) => {
+    const navigate = useNavigate();
     const videoRef = useRef(null);
     const playerContainerRef = useRef(null);
+    const controlsTimeoutRef = useRef(null);
     
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [volume, setVolume] = useState(1);
-    const [isMuted, setIsMuted] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isBuffering, setIsBuffering] = useState(true);
     const [showControls, setShowControls] = useState(true);
@@ -38,6 +47,7 @@ const VideoPlayer = ({ link, type, episodeData, allEpisodes, onEpisodeChange }) 
                 });
             } else {
                 video.src = link;
+                video.play().catch(() => {});
             }
         };
 
@@ -45,30 +55,39 @@ const VideoPlayer = ({ link, type, episodeData, allEpisodes, onEpisodeChange }) 
         return () => { if (hls) hls.destroy(); };
     }, [link, type]);
 
-    // --- Controles de Tempo ---
+    // --- Controla exibição dos botões (Fade In/Out) ---
+    const handleMouseMove = useCallback(() => {
+        setShowControls(true);
+        if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+        
+        controlsTimeoutRef.current = setTimeout(() => {
+            if (isPlaying) setShowControls(false);
+        }, 3000);
+    }, [isPlaying]);
+
+    // --- Ações do Player ---
     const skip = (amount) => {
-        videoRef.current.currentTime += amount;
+        if (videoRef.current) videoRef.current.currentTime += amount;
     };
 
     const togglePlay = useCallback(() => {
+        if (!videoRef.current) return;
         if (videoRef.current.paused) videoRef.current.play();
         else videoRef.current.pause();
     }, []);
 
-    // Atalhos de Teclado
-    useEffect(() => {
-        const handleKeyPress = (e) => {
-            if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
-            if (e.code === 'ArrowRight') skip(10);
-            if (e.code === 'ArrowLeft') skip(-10);
-        };
-        window.addEventListener('keydown', handleKeyPress);
-        return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [togglePlay]);
+    const handleVolumeChange = (e) => {
+        const newVolume = parseFloat(e.target.value);
+        setVolume(newVolume);
+        if (videoRef.current) {
+            videoRef.current.volume = newVolume;
+            videoRef.current.muted = newVolume === 0;
+        }
+    };
 
-    const handleFullscreen = () => {
+    const toggleFullscreen = () => {
         if (!document.fullscreenElement) {
-            playerContainerRef.current.requestFullscreen();
+            playerContainerRef.current.requestFullscreen().catch(err => console.log(err));
             setIsFullscreen(true);
         } else {
             document.exitFullscreen();
@@ -76,7 +95,25 @@ const VideoPlayer = ({ link, type, episodeData, allEpisodes, onEpisodeChange }) 
         }
     };
 
+    const closePlayer = () => {
+        if (document.fullscreenElement) document.exitFullscreen();
+        navigate(-1); // Volta para a página anterior
+    };
+
+    // Atalhos de Teclado
+    useEffect(() => {
+        const handleKeyPress = (e) => {
+            if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+            if (e.code === 'ArrowRight') skip(10);
+            if (e.code === 'ArrowLeft') skip(-10);
+            if (e.code === 'KeyF') toggleFullscreen();
+        };
+        window.addEventListener('keydown', handleKeyPress);
+        return () => window.removeEventListener('keydown', handleKeyPress);
+    }, [togglePlay]);
+
     const formatTime = (time) => {
+        if (isNaN(time)) return "00:00";
         const h = Math.floor(time / 3600);
         const m = Math.floor((time % 3600) / 60);
         const s = Math.floor(time % 60);
@@ -85,73 +122,94 @@ const VideoPlayer = ({ link, type, episodeData, allEpisodes, onEpisodeChange }) 
 
     return (
         <div 
-            className={`max-player-container ${showControls ? 'controls-active' : 'controls-hidden'}`}
+            className={`pv-player-container ${showControls ? 'controls-active' : 'controls-hidden'}`}
             ref={playerContainerRef}
-            onMouseMove={() => {
-                setShowControls(true);
-                clearTimeout(window.controlsTimeout);
-                window.controlsTimeout = setTimeout(() => isPlaying && setShowControls(false), 3000);
-            }}
+            onMouseMove={handleMouseMove}
+            onClick={handleMouseMove}
+            onMouseLeave={() => isPlaying && setShowControls(false)}
         >
-            {isBuffering && <div className="max-loading"><FaSpinner className="max-spin" /></div>}
+            {isBuffering && <div className="pv-loading"><FaSpinner className="pv-spin" /></div>}
 
             <video
                 ref={videoRef}
-                className="max-video-element"
-                onTimeUpdate={() => setCurrentTime(videoRef.current.currentTime)}
-                onLoadedMetadata={() => setDuration(videoRef.current.duration)}
+                className="pv-video-element"
+                onClick={togglePlay}
+                onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
+                onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
                 onWaiting={() => setIsBuffering(true)}
                 onPlaying={() => { setIsBuffering(false); setIsPlaying(true); }}
                 onPause={() => setIsPlaying(false)}
-                onClick={togglePlay}
                 playsInline
             />
 
-            {/* Interface Estilo MAX */}
-            <div className="max-ui-wrapper">
-                <div className="max-top-info">
-                    <h2 className="max-series-title">{episodeData?.tituloEpisodio}</h2>
-                    <p className="max-ep-detail">S{episodeData?.temporada} E{episodeData?.numeroEpisodio}</p>
-                </div>
+            {/* OVERLAYS E CONTROLES (Estilo Prime Video) */}
+            <div className="pv-controls-overlay">
+                
+                {/* TOPO DIREITA (Ações) */}
+                <div className="pv-top-right">
+                    {/* Botão de Volume com Slider Vertical no Hover */}
+                    <div className="pv-volume-wrapper">
+                        <button className="pv-action-btn">
+                            <img src={ICONS.volume} alt="Volume" />
+                        </button>
+                        <div className="pv-volume-slider-container">
+                            <input 
+                                type="range" 
+                                className="pv-volume-slider"
+                                min="0" max="1" step="0.05"
+                                value={volume}
+                                onChange={handleVolumeChange}
+                                style={{ '--vol-progress': `${volume * 100}%` }}
+                            />
+                        </div>
+                    </div>
 
-                <div className="max-center-controls">
-                    <button className="max-big-btn" onClick={() => skip(-10)}><FaUndo /></button>
-                    <button className="max-main-play" onClick={togglePlay}>
-                        {isPlaying ? <FaPause /> : <FaPlay />}
+                    <button className="pv-action-btn" onClick={toggleFullscreen}>
+                        {isFullscreen ? <FaCompress /> : <FaExpand />}
                     </button>
-                    <button className="max-big-btn" onClick={() => skip(10)}><FaRedo /></button>
+                    
+                    <button className="pv-action-btn" onClick={closePlayer} style={{ marginLeft: '10px' }}>
+                        <FaTimes size={22} />
+                    </button>
                 </div>
 
-                <div className="max-bottom-controls">
-                    <div className="max-progress-area">
+                {/* CENTRO (Play/Pause e Skip) */}
+                <div className="pv-center-controls" onClick={(e) => e.stopPropagation()}>
+                    <button className="pv-center-btn" onClick={() => skip(-10)}>
+                        <img src={ICONS.rewind10} alt="-10s" />
+                    </button>
+                    
+                    <button className="pv-center-btn play-pause" onClick={togglePlay}>
+                        <img src={isPlaying ? ICONS.pause : ICONS.play} alt="Play/Pause" />
+                    </button>
+                    
+                    <button className="pv-center-btn" onClick={() => skip(10)}>
+                        <img src={ICONS.forward10} alt="+10s" />
+                    </button>
+                </div>
+
+                {/* INFERIOR (Tempo e Barra de Progresso) */}
+                <div className="pv-bottom-controls" onClick={(e) => e.stopPropagation()}>
+                    <div className="pv-time-display">
+                        {formatTime(currentTime)} / {formatTime(duration)}
+                    </div>
+                    
+                    <div className="pv-progress-wrapper">
                         <input 
                             type="range" 
-                            className="max-seekbar"
-                            min="0" max={duration || 0}
+                            className="pv-seekbar"
+                            min="0" max={duration || 100}
                             value={currentTime}
-                            onChange={(e) => videoRef.current.currentTime = e.target.value}
+                            onChange={(e) => {
+                                const newTime = parseFloat(e.target.value);
+                                videoRef.current.currentTime = newTime;
+                                setCurrentTime(newTime);
+                            }}
                             style={{ '--progress': `${(currentTime / duration) * 100}%` }}
                         />
                     </div>
-                    
-                    <div className="max-actions-row">
-                        <div className="max-group">
-                            <button onClick={() => {
-                                videoRef.current.muted = !isMuted;
-                                setIsMuted(!isMuted);
-                            }} className="max-icon-btn">
-                                {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
-                            </button>
-                            <span className="max-time">{formatTime(currentTime)} / {formatTime(duration)}</span>
-                        </div>
-
-                        <div className="max-group">
-                            <button className="max-icon-btn" onClick={handleFullscreen}>
-                                {isFullscreen ? <FaCompress /> : <FaExpand />}
-                            </button>
-                        </div>
-                    </div>
                 </div>
+
             </div>
         </div>
     );

@@ -1,182 +1,243 @@
 import React from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
+import { FaShieldAlt, FaExclamationTriangle } from 'react-icons/fa';
 
-// ----------------------------------------------------------------
-// ESTILOS GLOBAIS E DO LAYOUT
-// ----------------------------------------------------------------
+// --- FONTES ---
+const FONTS = `
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap');
+`;
+
+// --- TEMA TERMINAL ---
+const THEME = {
+    bgDark: '#000000',
+    border: 'rgba(255, 255, 255, 0.2)',
+    textPrimary: '#ffffff',
+    textMuted: '#8c8c8c',
+    danger: '#ff3333',
+    fontMain: "'Inter', sans-serif",
+    fontMono: "'JetBrains Mono', monospace"
+};
 
 const GlobalStyle = createGlobalStyle`
+    ${FONTS}
     body {
-        background-color: #000000;
-        color: #f0f0f0;
-        font-family: 'Inter', sans-serif;
+        background-color: ${THEME.bgDark};
+        color: ${THEME.textPrimary};
+        font-family: ${THEME.fontMain};
+        margin: 0;
+        padding: 0;
+    }
+`;
+
+const PageWrapper = styled.div`
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 60px 20px;
+
+    @media (max-width: 768px) {
+        padding: 30px 15px;
     }
 `;
 
 const PrivacyContainer = styled.div`
-    max-width: 900px;
-    margin: 50px auto;
-    padding: 0 4%;
+    width: 100%;
+    max-width: 800px;
     line-height: 1.6;
+    background: rgba(10, 10, 10, 0.8);
+    border: 1px solid ${THEME.border};
+    padding: 50px;
+    position: relative;
+
+    /* Detalhe técnico lateral */
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 4px; height: 100%;
+        background-color: ${THEME.textPrimary};
+    }
 
     @media (max-width: 768px) {
-        margin-top: 20px;
-        padding-top: 20px;
+        padding: 25px;
+        &::before { width: 2px; }
     }
+`;
+
+const HeaderSection = styled.div`
+    border-bottom: 1px dashed ${THEME.border};
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+`;
+
+const SystemTag = styled.div`
+    font-family: ${THEME.fontMono};
+    font-size: 0.75rem;
+    color: ${THEME.textMuted};
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
 `;
 
 const Title = styled.h1`
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #f0f0f0;
-    border-bottom: 2px solid #1a1a1a;
-    padding-bottom: 10px;
-    margin-bottom: 30px;
+    font-size: 2rem;
+    font-weight: 600;
+    color: ${THEME.textPrimary};
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    @media (max-width: 768px) {
+        font-size: 1.5rem;
+    }
 `;
 
 const Subtitle = styled.h2`
-    font-size: 1.5rem;
+    font-family: ${THEME.fontMono};
+    font-size: 1.1rem;
     font-weight: 700;
-    color: #ffffff;
-    margin-top: 30px;
+    color: ${THEME.textPrimary};
+    margin-top: 40px;
     margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-left: 2px solid ${THEME.border};
+    padding-left: 10px;
+
+    @media (max-width: 768px) {
+        font-size: 1rem;
+    }
 `;
 
 const Section = styled.section`
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     
-    p {
-        margin-bottom: 15px;
-    }
+    p { margin-bottom: 15px; color: #cccccc; font-size: 0.95rem; }
+    ul { list-style: square; margin-left: 20px; padding-left: 0; color: #cccccc; }
+    li { margin-bottom: 10px; font-size: 0.95rem; line-height: 1.5; }
+    strong { color: ${THEME.textPrimary}; font-weight: 600; }
+`;
 
-    ul {
-        list-style: disc;
-        margin-left: 20px;
-        padding-left: 0;
-    }
+const Warning = styled.div`
+    background-color: rgba(255, 51, 51, 0.05);
+    color: ${THEME.danger};
+    padding: 20px;
+    border: 1px solid rgba(255, 51, 51, 0.3);
+    border-left: 4px solid ${THEME.danger};
+    font-family: ${THEME.fontMono};
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-bottom: 40px;
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
 
-    li {
-        margin-bottom: 8px;
+    .icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+
+    @media (max-width: 768px) {
+        padding: 15px;
+        flex-direction: column;
+        gap: 10px;
     }
 `;
 
-const Warning = styled.p`
-    background-color: #331f0d; /* Fundo escuro sutil para avisos */
-    color: #ff9933; /* Texto laranja/amarelo para destaque de aviso */
-    padding: 15px;
-    border-left: 4px solid #cc5200;
-    font-size: 0.95rem;
-    font-weight: 600;
+const LinkButton = styled.a`
+    color: ${THEME.textPrimary};
+    text-decoration: none;
+    border-bottom: 1px solid ${THEME.textPrimary};
+    padding-bottom: 2px;
+    transition: all 0.2s;
+    &:hover { color: ${THEME.textMuted}; border-color: transparent; }
 `;
-
-// ----------------------------------------------------------------
-// COMPONENTE PRINCIPAL
-// ----------------------------------------------------------------
 
 const Privacy = () => {
     const currentYear = new Date().getFullYear();
 
     return (
-        <>
+        <PageWrapper>
             <GlobalStyle />
             <PrivacyContainer>
-                <Title>Política de Privacidade e Termos de Uso</Title>
-                <p>
-                    Data da última atualização: 02 de Dezembro de {currentYear}
-                </p>
+                <HeaderSection>
+                    <SystemTag>REGISTRO DE DADOS // {currentYear}</SystemTag>
+                    <Title><FaShieldAlt /> Protocolo de Privacidade</Title>
+                    <p style={{ color: THEME.textMuted, fontSize: '0.85rem', margin: 0 }}>
+                        ÚLTIMA ATUALIZAÇÃO DO SISTEMA: 02 DE DEZEMBRO DE {currentYear}
+                    </p>
+                </HeaderSection>
 
-                {/* AVISO DE NATUREZA DO PROJETO FÃ (Novo) */}
                 <Warning>
-                    AVISO: A ToaruFlix é um projeto  sem fins lucrativos dedicado à franquia Toaru . Não somos afiliados, endossados ou oficialmente conectados aos detentores dos direitos autorais.
+                    <FaExclamationTriangle className="icon" />
+                    <div>
+                        <strong>ALERTA DE DIRETRIZ:</strong> A ToaruFlix é um projeto de pesquisa estruturado por fãs, sem fins lucrativos, dedicado ao ecossistema Toaru. Não possuímos afiliação, endosso ou conexão oficial com os detentores originais dos direitos autorais. O acesso é restrito e monitorado.
+                    </div>
                 </Warning>
 
-
                 <Section>
-                    <Subtitle>1. Introdução e Aceitação dos Termos</Subtitle>
+                    <Subtitle>01. INICIALIZAÇÃO E ACEITAÇÃO</Subtitle>
                     <p>
-                        Esta Política de Privacidade descreve como a ToaruFlix coleta, utiliza e protege as informações de seus usuários. Ao acessar e utilizar o site e seus serviços, você aceita integralmente estes termos e a forma como processamos seus dados, em conformidade com a Lei Geral de Proteção de Dados (LGPD).
+                        Este protocolo descreve os métodos de coleta, processamento e proteção de dados dentro da matriz ToaruFlix. Ao estabelecer um "Uplink" (login) e utilizar nossos terminais, o usuário aceita integralmente as diretrizes de tráfego de dados, em conformidade com as leis globais de proteção (LGPD).
                     </p>
                 </Section>
 
                 <Section>
-                    <Subtitle>2. Coleta e Uso de Informações</Subtitle>
+                    <Subtitle>02. TELEMETRIA E COLETA DE DADOS</Subtitle>
                     <p>
-                        Coletamos informações essenciais para a operação e personalização de nosso serviço, que incluem:
+                        Para manter a estabilidade da rede, rastreamos pacotes de dados essenciais:
                     </p>
                     <ul>
-                        <li>
-                            **Informações de Conta (Firebase Authentication):** Coletadas no momento do cadastro e login (Endereço de e-mail e ID de usuário).
-                        </li>
-                        <li>
-                            **Dados de Perfil:** Informações que você fornece ao criar perfis (Nome do perfil, Avatar).
-                        </li>
-                        <li>
-                            **Dados de Visualização (Firestore):** O histórico de conteúdo assistido, *timestamps* (tempo de pausa/continuação) e listas de favoritos. Estes dados são cruciais para a funcionalidade "Continuar Assistindo".
-                        </li>
+                        <li><strong>Credenciais Base (Firebase Auth):</strong> Endereço de e-mail e UID criptografado gerados no primeiro acesso.</li>
+                        <li><strong>Parâmetros de Interface:</strong> Avatar e designação (Nome) do pesquisador.</li>
+                        <li><strong>Cache de Mídia (Firestore):</strong> Histórico de arquivos acessados, <em>timestamps</em> exatos de interrupção de vídeo e indexação de favoritos. Essencial para o módulo "Continuar Conexão".</li>
                     </ul>
                 </Section>
                 
                 <Section>
-                    <Subtitle>3. Propriedade Intelectual e Uso do Conteúdo (Direitos Autorais)</Subtitle>
+                    <Subtitle>03. DIREITOS AUTORAIS E PROPRIEDADE</Subtitle>
                     <p>
-                        O conteúdo exibido na ToaruFlix (títulos, sinopses, imagens, vídeos, etc.) é de propriedade exclusiva de seus respectivos detentores de direitos autorais. O projeto se esforça para utilizar apenas informações e mídias promocionais licenciadas ou de domínio público.
+                        O material audiovisual transmitido na rede ToaruFlix (registros, descrições, frames e frequências sonoras) pertence exclusivamente aos comitês de produção originais.
                     </p>
                     <p>
-                        **Proibição de Reaproveitamento:** Qualquer ato de **cópia, download, compartilhamento, link direto ou reaproveitamento** não autorizado de qualquer conteúdo (incluindo imagens, capturas de tela, logos ou vídeos) do nosso site é estritamente proibido e pode violar leis de direitos autorais. Você tem permissão apenas para usar o serviço para visualização pessoal.
+                        <strong>VIOLAÇÃO DE PROTOCOLO:</strong> É estritamente proibida a extração (download), espelhamento, cópia ou redirecionamento de links do nosso servidor central. O sistema é programado para uso estritamente de visualização pessoal no navegador.
                     </p>
                 </Section>
                 
                 <Section>
-                    <Subtitle>4. Segurança da Conta e Links Externos</Subtitle>
+                    <Subtitle>04. BLINDAGEM E AMEAÇAS EXTERNAS</Subtitle>
                     <p>
-                        A segurança da sua conta é de sua responsabilidade. Tome precauções para proteger suas credenciais de login. A ToaruFlix **não** solicita informações confidenciais por e-mail ou mensagens.
+                        A custódia das chaves de acesso (senhas) é responsabilidade do usuário. A administração da ToaruFlix <strong>nunca</strong> solicitará credenciais por canais não criptografados ou comunicações diretas.
                     </p>
-                    <Warning>
-                        ALERTA DE SEGURANÇA: Não nos responsabilizamos por links externos ou sites de terceiros que você possa acessar através de nosso serviço. Verifique sempre o endereço (URL) do site. Qualquer link que inicie o download ou solicite sua senha é uma tentativa de fraude ("phishing").
-                    </Warning>
+                    <p style={{ color: THEME.textMuted, borderLeft: '2px solid #555', paddingLeft: '10px', fontStyle: 'italic' }}>
+                        Cuidado com anomalias externas. Não garantimos segurança caso o tráfego seja desviado por links de terceiros infiltrados na rede. 
+                    </p>
                 </Section>
                 
                 <Section>
-                    <Subtitle>5. Cookies e Tecnologias de Rastreamento</Subtitle>
-                    <p>
-                        A ToaruFlix utiliza cookies e armazenamento local (`localStorage`) para garantir a funcionalidade da plataforma.
-                    </p>
-                    
-                    <h3>5.1. Cookies de Funcionalidade (Essenciais)</h3>
-                    <p>
-                        Estes cookies são estritamente necessários para o funcionamento básico do site e não requerem consentimento.
-                    </p>
+                    <Subtitle>05. ARMAZENAMENTO LOCAL (COOKIES)</Subtitle>
+                    <p>Nossos terminais dependem de armazenamento estático na sua máquina (Cookies/LocalStorage) para sustentação da sessão:</p>
                     <ul>
-                        <li>
-                            **Autenticação (Firebase Auth):** Armazena o token de sessão para mantê-lo logado.
-                        </li>
-                        <li>
-                            **Persistência de Perfil:** Utilizamos o `localStorage` para lembrar o último perfil selecionado (`selectedProfileId`).
-                        </li>
+                        <li><strong>Módulo de Autenticação:</strong> Retenção de token de segurança do Firebase.</li>
+                        <li><strong>Persistência de UID:</strong> Memorização do último perfil acessado pelo usuário na máquina.</li>
                     </ul>
-
-                    <h3>5.2. Seu Consentimento</h3>
-                    <p>
-                        Ao aceitar nosso banner de consentimento, você nos permite utilizar as tecnologias listadas acima para otimizar sua experiência.
-                    </p>
                 </Section>
                 
                 <Section>
-                    <Subtitle>6. Seus Direitos e Contato</Subtitle>
-                    <p>
-                        Você tem o direito de acessar, corrigir, atualizar e excluir seus dados pessoais. Para exercer esses direitos ou para dúvidas sobre esta política, entre em contato:
-                    </p>
-                    <p>
-                        Entre em contato através do link: <a href="/support" style={{ color: '#8540ff' }}>Central de Suporte</a>.
-                    </p>
-                </Section>
+    <Subtitle>06. ACESSO A SUPORTE</Subtitle>
+    <p>
+        Para retificação de dados, purgação de conta ou reportar falhas no sistema, estabeleça contato através da nossa <LinkButton href="/support">Central de Suporte Operacional</LinkButton>
+    </p>
+</Section>
 
-                <p style={{ marginTop: '50px', fontSize: '0.85rem', color: '#666', textAlign: 'center' }}>
-                    &copy; {currentYear} ToaruFlix. Está sujeito à nossa Política de Uso.
-                </p>
+                <div style={{ marginTop: '60px', borderTop: `1px solid ${THEME.border}`, paddingTop: '20px', textAlign: 'center' }}>
+                    <p style={{ fontFamily: THEME.fontMono, fontSize: '0.75rem', color: THEME.textMuted, margin: 0, letterSpacing: '1px' }}>
+                        SISTEMA TOARUFLIX &copy; {currentYear} // ACESSO CLASSIFICADO
+                    </p>
+                </div>
 
             </PrivacyContainer>
-        </>
+        </PageWrapper>
     );
 };
 
