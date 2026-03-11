@@ -1,15 +1,14 @@
+// ARQUIVO: src/pages/WatchParceria.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getAnimeFromMyApi, getTmdbShowDetails, getNextEpisodeDetails } from '../services/tmdb'; // Imports atualizados
-import { FaArrowLeft, FaPlay, FaBookmark, FaGem, FaExclamationTriangle } from 'react-icons/fa';
+import { getAnimeFromMyApi, getTmdbShowDetails, getNextEpisodeDetails } from '../services/tmdb'; 
+import { FaArrowLeft, FaPlay, FaBookmark, FaGem, FaExclamationTriangle, FaShieldAlt, FaDatabase } from 'react-icons/fa';
 import './WatchParceria.css';
 
 const WatchParceria = () => {
-    // "slug" aqui na verdade é o ID do firebase (ex: ipu8Vq2qgIe0Jbk77cTt)
     const { slug, episodeId } = useParams(); 
     const navigate = useNavigate();
 
-    // Estados
     const [loading, setLoading] = useState(true);
     const [episodeData, setEpisodeData] = useState(null);
     const [embedUrl, setEmbedUrl] = useState(null);
@@ -19,84 +18,62 @@ const WatchParceria = () => {
         const fetchContent = async () => {
             setLoading(true);
             try {
-                // 1. IDENTIFICA O NÚMERO DO EPISÓDIO ATUAL
                 let currentEp = 1;
-                // Tenta pegar da URL se for número, senão assume 1
                 if (!isNaN(episodeId)) {
                     currentEp = parseInt(episodeId);
                 }
 
-                // 🔒 REGRA DE BLOQUEIO (> EP 3)
                 if (currentEp > 3) {
-                    alert("Episódio exclusivo para assinantes Premium.");
+                    alert("PROTOCOLO DE SEGURANÇA: Episódio exclusivo para assinantes Premium.");
                     navigate(`/details-parceria/${slug}`);
                     return;
                 }
 
-                // 2. BUSCA NA SUA API PRIMEIRO (Para pegar o tmdbId correto)
-                const myApiData = await getAnimeFromMyApi(slug); // slug = ipu8Vq2qgIe0Jbk77cTt
+                const myApiData = await getAnimeFromMyApi(slug); 
                 
                 let tmdbId = null;
-                let showTitle = "Carregando...";
-                let backdrop = "https://image.tmdb.org/t/p/original/bQLrHIRq9161x37Zc2E0N75L62.jpg"; // Fallback genérico bonito
+                let showTitle = "CARREGANDO...";
+                let backdrop = ""; 
 
                 if (myApiData) {
                     tmdbId = myApiData.tmdbId;
                     showTitle = myApiData.title;
-                    // Se sua API tiver poster/backdrop, use aqui se quiser
-                } else {
-                    console.error("Anime não encontrado na base de dados.");
-                    // Se não achar na sua API, não temos como achar no TMDB
                 }
 
-                // 3. SE TIVER TMDB ID, BUSCA DETALHES VISUAIS (Backdrop e Títulos)
-                let currentTitle = `Episódio ${currentEp}`;
-                let season = 1; // Assumindo temporada 1 por padrão baseada na sua API
+                let currentTitle = `ARQUIVO EP. ${currentEp}`;
+                let season = 1; 
 
                 if (tmdbId) {
-                    // Pega detalhes da Série (para o fundo/backdrop)
                     const showDetails = await getTmdbShowDetails(tmdbId);
-                    if (showDetails) {
-                        if (showDetails.backdrop_path) {
-                            backdrop = `https://image.tmdb.org/t/p/original${showDetails.backdrop_path}`;
-                        }
+                    if (showDetails && showDetails.backdrop_path) {
+                        backdrop = `https://image.tmdb.org/t/p/original${showDetails.backdrop_path}`;
                     }
 
-                    // Pega detalhes do Episódio Atual (Título e Imagem)
                     const epDetails = await getNextEpisodeDetails(tmdbId, season, currentEp);
                     if (epDetails) {
-                        currentTitle = epDetails.titulo || `Episódio ${currentEp}`;
+                        currentTitle = epDetails.titulo || `EPISÓDIO ${currentEp}`;
                     }
                 }
 
-                // 4. SETA DADOS NA TELA
                 setEpisodeData({
-                    tituloEpisodio: currentTitle,
-                    tituloSerie: showTitle,
+                    tituloEpisodio: currentTitle.toUpperCase(),
+                    tituloSerie: showTitle.toUpperCase(),
                     temporada: season,
                     numeroEpisodio: currentEp,
                     backdrop: backdrop
                 });
 
-                // 5. GERA URL DO PLAYER
-                // Usando o ID do firebase na URL do player como você fazia antes
                 const generatedUrl = `https://maxplay.vercel.app/embed/anime/${slug}?season=1&ep=${currentEp}&autoplay=1`;
                 setEmbedUrl(generatedUrl);
 
-
-                // --- 6. LÓGICA DO PRÓXIMO EPISÓDIO ---
                 const nextEpNum = currentEp + 1;
                 const isLocked = nextEpNum > 3;
-                let nextThumb = backdrop; // Começa com o backdrop como garantia
-                let nextTitle = `Episódio ${nextEpNum}`;
+                let nextThumb = backdrop; 
+                let nextTitle = `ARQUIVO EP. ${nextEpNum}`;
 
-                // Verifica se existe link para o próximo episódio na sua API (opcional, mas bom pra saber se acabou)
                 const hasNextLink = myApiData?.links?.["1"]?.[String(nextEpNum)];
 
-                // Se houver próximo episódio (baseado na sua lista ou lógica TMDB)
                 if (hasNextLink || tmdbId) {
-                    
-                    // Tenta buscar imagem real no TMDB
                     if (tmdbId) {
                         const nextTmdbData = await getNextEpisodeDetails(tmdbId, season, nextEpNum);
                         if (nextTmdbData) {
@@ -108,16 +85,16 @@ const WatchParceria = () => {
                     setNextEpInfo({
                         id: String(nextEpNum),
                         num: nextEpNum,
-                        title: nextTitle,
+                        title: nextTitle.toUpperCase(),
                         thumb: nextThumb,
                         locked: isLocked
                     });
                 } else {
-                    setNextEpInfo(null); // Fim da lista
+                    setNextEpInfo(null);
                 }
 
             } catch (error) {
-                console.error("Erro geral:", error);
+                console.error("Erro geral no terminal:", error);
             }
             setLoading(false);
         };
@@ -127,33 +104,39 @@ const WatchParceria = () => {
 
     return (
         <div className="watch-parceria-container">
-            {/* GLOW DE FUNDO */}
-            {episodeData?.backdrop && (
-                <div className="wp-ambient-glow" ></div>
-            )}
+            {/* GRID DE FUNDO (STARLINK MESH) */}
+            <div className="wp-system-mesh"></div>
 
             {/* HEADER */}
             <div className="wp-header">
                 <button className="wp-back-btn" onClick={() => navigate(`/MAXPLAY`)}>
-                    <FaArrowLeft /> VOLTAR
+                    <FaArrowLeft /> VOLTAR AO DIRETÓRIO
                 </button>
             </div>
 
             {/* PLAYER SECTION */}
             <section className="wp-player-section">
                 <div className="wp-video-container">
-                    {loading && <div className="wp-loader-overlay"><div className="wp-spinner"></div></div>}
+                    {loading && (
+                        <div className="wp-loader-overlay">
+                            <div className="wp-spinner"></div>
+                            <span className="wp-status-text">Sincronizando Sinal...</span>
+                        </div>
+                    )}
                     
                     {!loading && embedUrl ? (
                         <iframe 
                             src={embedUrl}
-                            title="Player"
+                            title="Terminal Player"
                             className="wp-iframe"
                             allowFullScreen
                             allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
                         ></iframe>
                     ) : !loading && (
-                        <div className="wp-loader-overlay"><FaExclamationTriangle size={40} color="#e74c3c" /></div>
+                        <div className="wp-loader-overlay">
+                            <FaExclamationTriangle size={40} color="#ff3333" />
+                            <span className="wp-status-text" style={{color: '#ff3333'}}>Falha de Conexão</span>
+                        </div>
                     )}
                 </div>
             </section>
@@ -161,8 +144,11 @@ const WatchParceria = () => {
             {/* INFO BAR */}
             <section className="wp-info-bar">
                 <div className="wp-info-grid">
-                    {/* ESQUERDA: INFO ATUAL */}
                     <div className="wp-info-left">
+                        <div className="wp-status-badge">
+                            <FaShieldAlt /> SINAL EXTERNO VERIFICADO
+                        </div>
+                        
                         <h4 className="wp-anime-title" onClick={() => navigate(`/details-parceria/${slug}`)}>
                             {episodeData?.tituloSerie}
                         </h4>
@@ -173,11 +159,11 @@ const WatchParceria = () => {
                         </div>
 
                         <div className="wp-metadata-row">
-                            <span className="rating-l">L</span>
-                            <span className="meta-divider">▪</span>
-                            <span className="meta-text">Leg | Dub</span>
-                            <span className="meta-divider">▪</span>
-                            <span className="meta-text">T{episodeData?.temporada} E{episodeData?.numeroEpisodio}</span>
+                            <span className="rating-l">ID: CLASSIFICADO</span>
+                            <span className="meta-divider">|</span>
+                            <span className="meta-text">TEMP_{episodeData?.temporada}</span>
+                            <span className="meta-divider">|</span>
+                            <span className="meta-text">ARQUIVO_{episodeData?.numeroEpisodio}</span>
                         </div>
                     </div>
 
@@ -185,23 +171,23 @@ const WatchParceria = () => {
                     <div className="wp-next-column">
                         {nextEpInfo ? (
                             <>
-                                <h5 className="wp-next-header">A SEGUIR</h5>
+                                <h5 className="wp-next-header"><FaDatabase /> SEQUÊNCIA DETECTADA</h5>
                                 <div 
                                     className={`wp-next-card ${nextEpInfo.locked ? 'locked' : ''}`}
                                     onClick={() => !nextEpInfo.locked && navigate(`/watch-parceria/${slug}/${nextEpInfo.num}`)}
                                 >
                                     <div className="wp-next-thumb">
                                         <img src={nextEpInfo.thumb} alt="Próximo" onError={(e) => e.target.src = episodeData.backdrop} />
-                                        <div className="wp-duration-badge">24m</div>
+                                        <div className="wp-duration-badge">24M</div>
                                         {!nextEpInfo.locked && <div className="wp-play-overlay"><FaPlay /></div>}
                                     </div>
                                     
                                     <div className="wp-next-info">
                                         <span className="next-ep-number">
-                                            E{nextEpInfo.num} - {nextEpInfo.locked ? 'Premium' : 'Dublado'}
+                                            ARQUIVO_{nextEpInfo.num} {nextEpInfo.locked ? '// BLOQUEADO' : ''}
                                         </span>
                                         <span className="next-ep-title">
-                                            {nextEpInfo.locked ? 'Assine para continuar assistindo' : nextEpInfo.title}
+                                            {nextEpInfo.locked ? 'ADQUIRIR ACESSO PREMIUM' : nextEpInfo.title}
                                         </span>
                                     </div>
 
@@ -210,7 +196,7 @@ const WatchParceria = () => {
                             </>
                         ) : (
                             <div className="wp-next-empty">
-                                <h5 className="wp-next-header">FIM DA LISTA</h5>
+                                <h5 className="wp-next-header">FIM DO DIRETÓRIO</h5>
                             </div>
                         )}
                     </div>

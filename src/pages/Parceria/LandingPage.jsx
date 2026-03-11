@@ -1,7 +1,8 @@
+// ARQUIVO: src/pages/LandingPage.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Hls from 'hls.js'; 
-import { FaPlay, FaInfoCircle, FaVolumeMute, FaVolumeUp } from 'react-icons/fa'; 
+import { FaPlay, FaInfoCircle, FaVolumeMute, FaVolumeUp, FaDatabase, FaShieldAlt } from 'react-icons/fa'; 
 import { getAllMedia, TMDB_IMAGE_BASE_URL } from '../../services/dataService'; 
 import './LandingPage.css';
 
@@ -18,41 +19,30 @@ const LandingPage = () => {
     const [showVideo, setShowVideo] = useState(false); 
 
     // ✅ NOVOS VÍDEOS DE FUNDO (Fallbacks mais estáveis)
-    // Se o anime sorteado não tiver link, usa um desses:
     const safeBackgroundVideos = [
-        // Demon Slayer (Exemplo MP4 - Mais estável para background)
         "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", 
-        // Você pode trocar esses links por links diretos .mp4 de animes que você tenha
-        // Vou deixar um genérico aqui para garantir que mude o vídeo do Naruto
         "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4" 
     ];
 
-    // DICA: Para colocar um anime específico, procure um link .mp4 direto de um trailer
-    // Exemplo: Trailer de Solo Leveling ou One Piece
-
     const features = [
-        { icon: '🚀', title: 'Anime Rápido', desc: 'Streaming otimizado.' },
-        { icon: '🇯🇵', title: '100% Anime', desc: 'Focado em animação.' },
-        { icon: '📱', title: 'Mobile', desc: 'Assista onde quiser.' },
-        { icon: '💎', title: 'HD', desc: 'Qualidade máxima.' },
+        { icon: '🚀', title: 'PROTOCOLO VELOZ', desc: 'Streaming otimizado via CDN.' },
+        { icon: '🇯🇵', title: 'ORIGINALIDADE', desc: 'Sincronização com o acervo nipônico.' },
+        { icon: '📱', title: 'MOBILIDADE', desc: 'Acesso multiplataforma.' },
+        { icon: '💎', title: 'ALTA DEFINIÇÃO', desc: 'Registros em 4K nativo.' },
     ];
 
     const extractVideoLink = (item) => {
         if (!item?.links) return null;
         try {
-            // Tenta achar links na estrutura padrão
             const s1 = item.links['1'] || item.links[1];
             if (s1) {
                 const ep1 = s1['1'] || s1[1];
-                // Prioriza m3u8 ou mp4
                 if (ep1 && (typeof ep1 === 'string') && (ep1.includes('.m3u8') || ep1.includes('.mp4'))) {
                     return ep1;
                 }
-                // Se for objeto, tenta pegar valor
                 if (typeof ep1 === 'object') return Object.values(ep1)[0];
                 return ep1;
             }
-            // Fallback genérico profundo
             const firstSeason = Object.values(item.links)[0];
             if (firstSeason) return Object.values(firstSeason)[0];
         } catch (e) { return null; }
@@ -74,7 +64,7 @@ const LandingPage = () => {
                     ...item,
                     uniqueId: item.id || item.tmdbId,
                     title: item.title || item.name || item.titulo,
-                    overview: item.overview || item.sinopse || "Sem descrição.",
+                    overview: item.overview || item.sinopse || "Sem descrição disponível no banco de dados.",
                     poster: item.posterPath || item.poster_path 
                         ? (item.posterPath?.startsWith('http') ? item.posterPath : `${TMDB_IMAGE_BASE_URL}${item.posterPath}`)
                         : null,
@@ -108,9 +98,12 @@ const LandingPage = () => {
         fetchContent();
     }, []);
 
-    // --- PLAYER HLS / MP4 ---
+    // --- PLAYER HLS / MP4 (Apenas Desktop) ---
     useEffect(() => {
-        if (!videoUrl || !videoRef.current) return;
+        // Detecção básica de mobile para não iniciar o player
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile || !videoUrl || !videoRef.current) return;
+        
         const video = videoRef.current;
         let hls;
 
@@ -142,10 +135,10 @@ const LandingPage = () => {
     return (
         <div className="lp-container">
             <nav className="lp-navbar">
-                <div className="lp-logo">MAX<span>ANIME</span></div>
+                <div className="lp-logo">TOARU<span>FLIX</span></div>
                 <div className="lp-nav-actions">
-                    <button className="lp-btn-text" onClick={() => navigate('/login')}>Entrar</button>
-                    <button className="lp-btn-primary small" onClick={() => navigate('/login')}>Assinar</button>
+                    <button className="lp-btn-text" onClick={() => navigate('/login')}>AUTENTICAR</button>
+                    <button className="lp-btn-primary small" onClick={() => navigate('/login')}>CRIAR CONTA</button>
                 </div>
             </nav>
 
@@ -163,18 +156,17 @@ const LandingPage = () => {
                 </div>
 
                 <div className="lp-hero-content">
-                    <span className="lp-tag">Anime em Destaque</span>
+                    <div className="lp-status-tag"><FaDatabase /> REGISTRO DE ALTA PRIORIDADE</div>
                     <h1 className="lp-title">{heroItem?.title}</h1>
                     <p className="lp-desc">{heroItem?.overview}</p>
                     
                     <div className="lp-actions">
                         <button className="lp-btn-primary" onClick={() => navigate('/login')}>
-                            <FaPlay /> Começar a Assistir
+                            <FaPlay /> INICIAR PROTOCOLO
                         </button>
                         
-                        {/* Link para details-parceria */}
                         <button className="lp-btn-secondary" onClick={() => navigate(`/details-parceria/${heroItem?.uniqueId}`)}>
-                            <FaInfoCircle /> Mais Informações
+                            <FaInfoCircle /> ESPECIFICAÇÕES
                         </button>
                     </div>
                 </div>
@@ -185,7 +177,7 @@ const LandingPage = () => {
 
             <section className="lp-section">
                 <div className="lp-section-header">
-                    <h3>Animes em Alta</h3>
+                    <h3><FaShieldAlt /> ARQUIVOS EM DESTAQUE</h3>
                     <div className="lp-line"></div>
                 </div>
 
@@ -204,7 +196,7 @@ const LandingPage = () => {
                             </div>
                             <div className="lp-card-meta">
                                 <h4>{item.title}</h4>
-                                <span>Anime</span>
+                                <span>TIPO: ANIME_DATA</span>
                             </div>
                         </div>
                     ))}
@@ -222,9 +214,9 @@ const LandingPage = () => {
             </section>
 
             <footer className="lp-footer">
-                <div className="lp-logo muted">MAX<span>ANIME</span></div>
-                <p>O melhor do mundo anime está aqui.</p>
-                <div className="lp-copy">© 2025 MaxAnime. Todos os direitos reservados.</div>
+                <div className="lp-logo muted">TOARU<span>FLIX</span></div>
+                <p>TERMINAL DE ACESSO AO BANCO DE DADOS DA CIDADE ACADÊMICA.</p>
+                <div className="lp-copy">© 2026 ACADEMIA_CITY_NETWORK. TODOS OS DIREITOS RESERVADOS.</div>
             </footer>
         </div>
     );
