@@ -21,7 +21,7 @@
     cursor: default;
 }
 
-/* --- OVERLAYS E DEGRADÊS --- */
+/* --- OVERLAYS E DEGRADÊS (CORRIGIDO PARA O ESTILO PRIME) --- */
 .pv-controls-overlay {
     position: absolute;
     top: 0; left: 0;
@@ -30,10 +30,13 @@
     flex-direction: column;
     justify-content: space-between;
     transition: opacity 0.3s ease-in-out;
+    
+    /* Degradê Suave Cinematográfico: Escuro nas pontas, transparente no meio */
     background: 
-        linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 15%), /* Sombra no topo */
-        linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 20%);    /* Sombra profunda em baixo */
+        linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 12%, transparent 25%),
+        linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 15%, transparent 35%);
     z-index: 10;
+    pointer-events: none; /* Permite clicar no centro do vídeo mesmo com o overlay visível */
 }
 
 /* Oculta interface após 3 segundos */
@@ -44,6 +47,13 @@
 }
 .controls-active .pv-controls-overlay {
     opacity: 1;
+}
+
+/* Reativa o clique apenas onde os botões estão */
+.pv-top-right, 
+.pv-center-controls, 
+.pv-bottom-controls {
+    pointer-events: auto;
 }
 
 /* --- TOPO DIREITA (Ícones Pequenos) --- */
@@ -58,8 +68,7 @@
 .pv-action-btn {
     background: transparent;
     border: none;
-    color: white;
-    z-index: 99;
+    color: #fff;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -94,7 +103,6 @@
     transform: translateX(-50%);
     background-color: rgba(28, 28, 28, 0.9);
     padding: 15px 10px;
-    width: 50px;
     border-radius: 8px;
     opacity: 0;
     visibility: hidden;
@@ -102,6 +110,7 @@
     display: flex;
     justify-content: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    width: 40px;
 }
 
 .pv-volume-wrapper:hover .pv-volume-slider-container {

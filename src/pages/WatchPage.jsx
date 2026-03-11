@@ -216,7 +216,7 @@ const WatchPage = () => {
 
                 .watch-header {
                     height: 70px;
-                    background: linear-gradient(to bottom, rgba(0,0,0,0.95), rgba(0,0,0,0.2));
+                   
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
@@ -227,7 +227,7 @@ const WatchPage = () => {
                     width: 100%;
                     z-index: 50;
                     pointer-events: none; 
-                    border-bottom: 1px solid rgba(26, 26, 26, 0.5);
+                    
                 }
 
                 .header-left, .source-selector {

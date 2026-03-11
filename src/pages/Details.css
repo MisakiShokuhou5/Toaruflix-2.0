@@ -1,413 +1,502 @@
-/*
-|--------------------------------------------------------------------------
-| Detalhes da Série (Details.css) - ESTILO STARLINK / TELEMETRIA
-|--------------------------------------------------------------------------
-*/
+/* ==========================================================================
+   DETALHES DA SÉRIE / FILME - ESTILO STARLINK / TELEMETRIA
+   ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@300;400;500;700&display=swap');
+   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
 
-/* --- Cores e Variáveis do Sistema --- */
-:root {
-    --sl-bg-dark: #000000;
-    --sl-bg-card: rgba(5, 5, 5, 0.85);
-    --sl-text-white: #ffffff;
-    --sl-text-muted: #7a7a7a;
-    --sl-border: #1a1a1a;
-    --sl-accent: #00ffaa; /* Verde Telemetria */
-    --sl-danger: #ff3333;
-    --sl-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
-body {
-    background-color: var(--sl-bg-dark);
-    color: var(--sl-text-white);
-    font-family: var(--sl-font);
-    letter-spacing: 1px;
-}
-
-.details-wrapper {
-    min-height: 100vh;
-    padding-bottom: 80px;
-    background-color: var(--sl-bg-dark);
-}
-
-/* ----------------------------------------------------------------
-| 1. SEÇÃO HERO / BANNER (VISUAL RADAR)
-| ---------------------------------------------------------------- */
-
-.hero-details {
-    position: relative;
-    width: 100%;
-    height: 80vh; 
-    min-height: 550px;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: flex-end;
-    border-bottom: 1px solid var(--sl-border);
-}
-
-/* Gradiente + Malha de Terminal sobre a imagem */
-.hero-gradient-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.95) 100%),
-                linear-gradient(to top, #000000 0%, transparent 100%);
-    
-    /* Grade fina de radar */
-    background-image: 
-        linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.9) 100%),
-        linear-gradient(to top, #000000 0%, transparent 100%),
-        linear-gradient(rgba(26, 26, 26, 0.5) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(26, 26, 26, 0.5) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
-    z-index: 1;
-}
-
-.hero-content {
-    position: relative;
-    z-index: 2;
-    padding: 0 5%;
-    padding-bottom: 60px;
-    max-width: 900px;
-    width: 100%;
-}
-
-.hero-title {
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 300;
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    margin-bottom: 15px;
-    line-height: 1.1;
-    text-shadow: 0 4px 15px rgba(0,0,0,0.9);
-}
-
-/* Metadados (Ano, Nota, Duração) */
-.hero-metadata {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    font-size: 0.75rem;
-    color: var(--sl-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    margin-bottom: 25px;
-}
-
-.metadata-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.rating { color: var(--sl-text-white); }
-.rating-star { color: var(--sl-accent); }
-
-/* --- BOTÕES DE AÇÃO --- */
-.hero-actions {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-}
-
-.hero-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 15px 30px;
-    border-radius: 0; /* Cantos vivos */
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    font-family: var(--sl-font);
-}
-
-/* Botão Executar (Antigo Play) */
-.play-btn-detail {
-    background-color: var(--sl-text-white);
-    color: var(--sl-bg-dark);
-    border: 1px solid var(--sl-text-white);
-}
-
-.play-btn-detail:hover {
-    background-color: transparent;
-    color: var(--sl-text-white);
-}
-
-/* Botão Salvar (Antigo Minha Lista) */
-.list-btn {
-    background-color: rgba(0, 0, 0, 0.6);
-    color: var(--sl-text-white);
-    backdrop-filter: blur(4px);
-    border: 1px solid var(--sl-text-muted);
-}
-
-.list-btn:hover {
-    border-color: var(--sl-text-white);
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-/* Estado Ativo do Botão Lista */
-.list-btn.active {
-    border-color: var(--sl-accent);
-    color: var(--sl-accent);
-}
-
-.list-btn.active:hover {
-    background-color: rgba(0, 255, 170, 0.1);
-}
-
-.hero-overview {
-    font-size: 0.85rem;
-    line-height: 1.6;
-    color: #cccccc;
-    max-width: 650px;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.9);
-    letter-spacing: 1px;
-}
-
-/* Caixa de Aviso de Fonte Externa */
-.partner-notice-box {
-    margin-top: 25px;
-    padding: 12px;
-    background: rgba(255, 51, 51, 0.1); 
-    border: 1px dashed var(--sl-danger);
-    color: var(--sl-danger);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    max-width: 600px;
-}
-
-
-/* ----------------------------------------------------------------
-| 2. SEÇÃO DE EPISÓDIOS (ÍNDICE DE ARQUIVOS)
-| ---------------------------------------------------------------- */
-
-.episodes-section {
-    padding: 40px 5%;
-    background-color: var(--sl-bg-dark);
-}
-
-.episodes-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    border-bottom: 1px solid var(--sl-border);
-    padding-bottom: 15px;
-}
-
-.episodes-title {
-    font-size: 1rem;
-    font-weight: 300;
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    color: var(--sl-text-white);
-}
-
-/* Select customizado (Lotes) */
-.custom-select-wrapper {
-    position: relative;
-}
-
-.season-selector {
-    background-color: transparent;
-    color: var(--sl-text-white);
-    padding: 10px 15px;
-    border: 1px solid var(--sl-border);
-    border-radius: 0;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    cursor: pointer;
-    outline: none;
-    font-family: var(--sl-font);
-}
-
-.season-selector:focus, .season-selector:hover {
-    border-color: var(--sl-text-white);
-}
-
-.season-selector option {
-    background-color: var(--sl-bg-dark);
-}
-
-/* LISTA DE EPISÓDIOS */
-.episodes-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.episode-card {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 15px;
-    background: rgba(5, 5, 5, 0.8);
-    border: 1px solid var(--sl-border);
-    transition: all 0.2s;
-}
-
-.episode-card:hover {
-    background-color: rgba(20, 20, 20, 0.9);
-    border-color: var(--sl-text-white);
-}
-
-/* Episódio Bloqueado (Parceria) */
-.episode-card.partner-locked {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-.episode-card.partner-locked:hover {
-    border-color: var(--sl-border);
-    background: rgba(5, 5, 5, 0.8);
-}
-
-.episode-card.watchable {
-    cursor: pointer;
-}
-
-/* Número do Episódio */
-.episode-number {
-    font-size: 1.2rem;
-    font-weight: 300;
-    color: var(--sl-text-muted);
-    width: 40px;
-    text-align: center;
-}
-
-/* Thumbnail */
-.episode-thumbnail {
-    position: relative;
-    width: 200px;
-    height: 110px;
-    flex-shrink: 0;
-    border: 1px solid var(--sl-border);
-    overflow: hidden;
-}
-
-.episode-thumbnail img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(80%) brightness(0.6);
-    transition: filter 0.3s;
-}
-
-/* Efeito de Play na Thumbnail */
-.play-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.play-icon {
-    font-size: 2rem;
-    color: var(--sl-text-white);
-}
-
-/* Hover na Thumbnail */
-.episode-card.watchable:hover .episode-thumbnail img {
-    filter: grayscale(0%) brightness(1);
-}
-
-.episode-card.watchable:hover .play-overlay {
-    opacity: 1;
-}
-
-/* Informações */
-.episode-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.episode-title-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.episode-title-meta h3 {
-    margin: 0;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--sl-text-white);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.episode-title-meta .runtime {
-    font-size: 0.70rem;
-    color: var(--sl-text-muted);
-    border: 1px solid var(--sl-border);
-    padding: 2px 6px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.episode-overview {
-    font-size: 0.75rem;
-    color: var(--sl-text-muted);
-    line-height: 1.5;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* --- RESPONSIVIDADE --- */
-@media (max-width: 768px) {
-    .hero-details {
-        min-height: 500px;
-        height: 60vh;
-        padding-top: 80px;
-    }
-
-    .hero-title {
-        font-size: 2rem;
-    }
-
-    .hero-btn {
-        padding: 12px 20px;
-        font-size: 0.7rem;
-        flex: 1;
-    }
-
-    .episodes-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-
-    .episode-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-        padding: 15px;
-    }
-
-    .episode-number {
-        display: none; 
-    }
-
-    .episode-thumbnail {
-        width: 100%;
-        height: 160px;
-    }
-}
+   /* ----------------------------------------------------------------
+      0. VARIÁVEIS DO SISTEMA
+   ----------------------------------------------------------------- */
+   :root {
+       /* Cores */
+       --sl-bg-dark: #000000;
+       --sl-bg-card: rgba(10, 10, 10, 0.85);
+       --sl-bg-card-hover: rgba(20, 20, 20, 0.95);
+       --sl-text-white: #ffffff;
+       --sl-text-muted: #8c8c8c;
+       --sl-border: rgba(255, 255, 255, 0.15);
+       --sl-border-focus: rgba(255, 255, 255, 0.5);
+       --sl-accent: #00ffaa; /* Verde Telemetria / Confirmação */
+       --sl-danger: #ff3333;
+       
+       /* Tipografia */
+       --sl-font-main: 'Inter', sans-serif;
+       --sl-font-mono: 'JetBrains Mono', monospace; /* Para números e dados */
+   }
+   
+   /* Base */
+   .details-wrapper {
+       min-height: 100vh;
+       padding-bottom: 80px;
+       background-color: var(--sl-bg-dark);
+       color: var(--sl-text-white);
+       font-family: var(--sl-font-main);
+       overflow-x: hidden;
+   }
+   
+   /* ----------------------------------------------------------------
+      1. SEÇÃO HERO / BANNER PRINCIPAL
+   ----------------------------------------------------------------- */
+   .hero-details {
+       position: relative;
+       width: 100%;
+       height: 75vh; 
+       min-height: 500px;
+       background-size: cover;
+       background-position: center 20%;
+       display: flex;
+       align-items: flex-end;
+       border-bottom: 1px solid var(--sl-border);
+   }
+   
+   /* Gradiente + Malha de Terminal */
+   .hero-gradient-overlay {
+       position: absolute;
+       inset: 0;
+       background: 
+           linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.8) 100%),
+           linear-gradient(to top, #000000 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
+       
+       /* Grade fina técnica */
+       background-image: 
+           linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.9) 100%),
+           linear-gradient(to top, #000000 0%, transparent 100%),
+           linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+           linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+       background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+       z-index: 1;
+   }
+   
+   .hero-content {
+       position: relative;
+       z-index: 2;
+       padding: 0 5% 50px 5%;
+       max-width: 1000px;
+       width: 100%;
+   }
+   
+   .hero-title {
+       font-size: clamp(2.2rem, 5vw, 4rem);
+       font-weight: 800;
+       text-transform: uppercase;
+       letter-spacing: 2px;
+       margin-bottom: 15px;
+       line-height: 1.05;
+       text-shadow: 0 4px 20px rgba(0,0,0,1);
+   }
+   
+   /* --- Metadados (Ano, Nota, Duração) --- */
+   .hero-metadata {
+       display: flex;
+       align-items: center;
+       flex-wrap: wrap;
+       gap: 20px;
+       font-family: var(--sl-font-mono);
+       font-size: 0.8rem;
+       color: var(--sl-text-muted);
+       margin-bottom: 25px;
+   }
+   
+   .metadata-item {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       background: rgba(0, 0, 0, 0.5);
+       padding: 4px 8px;
+       border: 1px solid var(--sl-border);
+   }
+   
+   .rating { color: var(--sl-text-white); }
+   .rating-star { color: var(--sl-accent); font-size: 0.9rem; }
+   
+   /* --- Ações (Botões) --- */
+   .hero-actions {
+       display: flex;
+       gap: 15px;
+       margin-bottom: 25px;
+       flex-wrap: wrap;
+   }
+   
+   .hero-btn {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       gap: 12px;
+       padding: 16px 32px;
+       border-radius: 0;
+       font-family: var(--sl-font-mono);
+       font-size: 0.8rem;
+       font-weight: 700;
+       cursor: pointer;
+       transition: all 0.2s ease;
+       text-transform: uppercase;
+       letter-spacing: 2px;
+   }
+   
+   .play-btn-detail {
+       background-color: var(--sl-text-white);
+       color: var(--sl-bg-dark);
+       border: 1px solid var(--sl-text-white);
+   }
+   
+   .play-btn-detail:hover {
+       background-color: transparent;
+       color: var(--sl-text-white);
+   }
+   
+   .list-btn {
+       background-color: rgba(0, 0, 0, 0.6);
+       color: var(--sl-text-white);
+       backdrop-filter: blur(5px);
+       border: 1px solid var(--sl-border);
+   }
+   
+   .list-btn:hover {
+       border-color: var(--sl-text-white);
+       background-color: rgba(255, 255, 255, 0.1);
+   }
+   
+   .list-btn.active {
+       border-color: var(--sl-accent);
+       color: var(--sl-accent);
+   }
+   
+   .list-btn.active:hover {
+       background-color: rgba(0, 255, 170, 0.1);
+   }
+   
+   /* --- Sinopse --- */
+   .hero-overview {
+       font-size: 0.95rem;
+       line-height: 1.6;
+       color: #cccccc;
+       max-width: 700px;
+       text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+   }
+   
+   .partner-notice-box {
+       margin-top: 25px;
+       padding: 15px;
+       background: rgba(255, 51, 51, 0.05); 
+       border-left: 3px solid var(--sl-danger);
+       color: var(--sl-danger);
+       font-family: var(--sl-font-mono);
+       font-size: 0.75rem;
+       text-transform: uppercase;
+       letter-spacing: 1px;
+       max-width: 600px;
+   }
+   
+   /* ----------------------------------------------------------------
+      2. SEÇÃO DE EPISÓDIOS (ÍNDICE DE ARQUIVOS)
+   ----------------------------------------------------------------- */
+   .episodes-section {
+       padding: 40px 5%;
+       max-width: 1200px;
+       margin: 0 auto;
+   }
+   
+   .episodes-header {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       margin-bottom: 30px;
+       border-bottom: 1px solid var(--sl-border);
+       padding-bottom: 15px;
+   }
+   
+   .episodes-title {
+       font-family: var(--sl-font-mono);
+       font-size: 1rem;
+       font-weight: 700;
+       text-transform: uppercase;
+       letter-spacing: 4px;
+       color: var(--sl-text-white);
+       margin: 0;
+       display: flex;
+       align-items: center;
+       gap: 10px;
+   }
+   .episodes-title::before {
+       content: '';
+       display: inline-block;
+       width: 8px;
+       height: 8px;
+       background-color: var(--sl-text-white);
+   }
+   
+   /* Select customizado */
+   .season-selector {
+       background-color: var(--sl-bg-dark);
+       color: var(--sl-text-white);
+       padding: 10px 15px;
+       border: 1px solid var(--sl-border);
+       font-family: var(--sl-font-mono);
+       font-size: 0.75rem;
+       text-transform: uppercase;
+       letter-spacing: 1px;
+       cursor: pointer;
+       outline: none;
+       transition: border-color 0.2s;
+   }
+   
+   .season-selector:focus, .season-selector:hover {
+       border-color: var(--sl-border-focus);
+   }
+   
+   /* --- Lista de Episódios --- */
+   .episodes-list {
+       display: flex;
+       flex-direction: column;
+       gap: 15px;
+   }
+   
+   .episode-card {
+       display: flex;
+       align-items: center;
+       gap: 20px;
+       padding: 15px;
+       background: var(--sl-bg-card);
+       border: 1px solid var(--sl-border);
+       transition: all 0.2s ease;
+       position: relative;
+       overflow: hidden;
+   }
+   
+   /* Barra lateral de status */
+   .episode-card::before {
+       content: '';
+       position: absolute;
+       top: 0; left: 0;
+       width: 3px; height: 100%;
+       background-color: transparent;
+       transition: background-color 0.2s;
+   }
+   
+   .episode-card:hover {
+       background-color: var(--sl-bg-card-hover);
+       border-color: var(--sl-border-focus);
+   }
+   
+   .episode-card.watchable:hover::before {
+       background-color: var(--sl-text-white);
+   }
+   
+   /* Episódio Bloqueado (Parceria) */
+   .episode-card.partner-locked {
+       opacity: 0.5;
+       cursor: not-allowed;
+       filter: grayscale(100%);
+   }
+   
+   .episode-card.watchable {
+       cursor: pointer;
+   }
+   
+   /* Número do Episódio */
+   .episode-number {
+       font-family: var(--sl-font-mono);
+       font-size: 1.5rem;
+       font-weight: 700;
+       color: var(--sl-border-focus);
+       width: 50px;
+       text-align: center;
+   }
+   
+   /* Thumbnail */
+   .episode-thumbnail {
+       position: relative;
+       width: 220px;
+       aspect-ratio: 16 / 9; /* Mantém a proporção perfeita */
+       flex-shrink: 0;
+       border: 1px solid var(--sl-border);
+       overflow: hidden;
+       background-color: #111; /* Fallback enquanto carrega */
+   }
+   
+   .episode-thumbnail img {
+       width: 100%;
+       height: 100%;
+       object-fit: cover;
+       filter: grayscale(50%) brightness(0.7);
+       transition: filter 0.3s, transform 0.5s;
+   }
+   
+   /* Hover na Thumbnail */
+   .episode-card.watchable:hover .episode-thumbnail img {
+       filter: grayscale(0%) brightness(1);
+       transform: scale(1.05);
+   }
+   
+   /* Ícone de Play */
+   .play-overlay {
+       position: absolute;
+       inset: 0;
+       background: rgba(0,0,0,0.5);
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       opacity: 0;
+       transition: opacity 0.3s ease;
+   }
+   
+   .play-icon {
+       font-size: 2.5rem;
+       color: var(--sl-text-white);
+       filter: drop-shadow(0 2px 5px rgba(0,0,0,0.8));
+   }
+   
+   .episode-card.watchable:hover .play-overlay {
+       opacity: 1;
+   }
+   
+   /* Informações do Episódio */
+   .episode-info {
+       flex: 1;
+       display: flex;
+       flex-direction: column;
+       gap: 10px;
+       padding-right: 15px;
+   }
+   
+   .episode-title-meta {
+       display: flex;
+       justify-content: space-between;
+       align-items: flex-start;
+       gap: 15px;
+   }
+   
+   .episode-title-meta h3 {
+       margin: 0;
+       font-size: 1rem;
+       font-weight: 600;
+       color: var(--sl-text-white);
+       line-height: 1.4;
+   }
+   
+   .episode-title-meta .runtime {
+       font-family: var(--sl-font-mono);
+       font-size: 0.70rem;
+       color: var(--sl-text-muted);
+       border: 1px solid var(--sl-border);
+       padding: 4px 8px;
+       white-space: nowrap;
+   }
+   
+   .episode-overview {
+       font-size: 0.85rem;
+       color: var(--sl-text-muted);
+       line-height: 1.6;
+       margin: 0;
+       display: -webkit-box;
+       -webkit-line-clamp: 2;
+       -webkit-box-orient: vertical;
+       overflow: hidden;
+   }
+   
+   
+   /* ----------------------------------------------------------------
+      3. RESPONSIVIDADE (MOBILE OPTIMIZED)
+   ----------------------------------------------------------------- */
+   @media (max-width: 768px) {
+       
+       /* Hero Section Mobile */
+       .hero-details {
+           min-height: 550px;
+           height: auto;
+           padding-top: 100px;
+       }
+   
+       .hero-content {
+           padding: 0 20px 30px 20px;
+       }
+   
+       .hero-title {
+           font-size: 2rem;
+           letter-spacing: 0px;
+       }
+   
+       .hero-metadata {
+           margin-bottom: 20px;
+           gap: 10px;
+       }
+   
+       .hero-actions {
+           flex-direction: column; /* Empilha os botões */
+           gap: 10px;
+       }
+   
+       .hero-btn {
+           width: 100%;
+           padding: 16px;
+           font-size: 0.85rem;
+       }
+   
+       .hero-overview {
+           font-size: 0.85rem;
+           -webkit-line-clamp: 4;
+           display: -webkit-box;
+           -webkit-box-orient: vertical;
+           overflow: hidden;
+       }
+   
+       /* Episodes Section Mobile */
+       .episodes-section {
+           padding: 30px 20px;
+       }
+   
+       .episodes-header {
+           flex-direction: column;
+           align-items: stretch;
+           gap: 15px;
+       }
+   
+       .season-selector {
+           width: 100%;
+       }
+   
+       /* Episode Card Mobile: Transforma em grade empilhada */
+       .episode-card {
+           flex-direction: column;
+           align-items: stretch;
+           padding: 0; /* Remove o padding do card para a imagem colar nas bordas */
+           gap: 0;
+       }
+   
+       .episode-number {
+           /* Transforma o número num badge em cima da imagem */
+           position: absolute;
+           top: 10px;
+           left: 10px;
+           z-index: 2;
+           background: rgba(0,0,0,0.8);
+           border: 1px solid var(--sl-border);
+           color: var(--sl-text-white);
+           font-size: 1rem;
+           width: 35px;
+           height: 35px;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+       }
+   
+       .episode-thumbnail {
+           width: 100%; /* Ocupa 100% da largura do card */
+           aspect-ratio: 16 / 9; /* Mantém proporção de vídeo, sem espremer a imagem */
+           border: none;
+           border-bottom: 1px solid var(--sl-border);
+       }
+   
+       .episode-info {
+           padding: 15px; /* Devolve o padding apenas para o texto */
+       }
+   
+       .episode-title-meta {
+           flex-direction: column; /* Tempo desce pra baixo do título */
+           gap: 8px;
+       }
+   
+       .episode-title-meta .runtime {
+           align-self: flex-start;
+       }
+   }
