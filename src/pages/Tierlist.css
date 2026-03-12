@@ -1,0 +1,331 @@
+/* ARQUIVO: src/pages/Tierlist.css */
+
+.tier-list-wrapper {
+    min-height: 100vh;
+    transition: padding-bottom 0.4s ease;
+}
+
+/* CONTAINER DA LINHA DO TIER */
+.tier-row {
+    display: flex;
+    margin: 8px 4rem;
+    background: #1e1e1e;
+    min-height: 90px;
+    border: 1px solid #222;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+
+.tier-row:hover .tier-actions {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+    .tier-row {
+        margin: 8px 10px;
+        min-height: 70px;
+        border-radius: 8px;
+    }
+    .tier-row .tier-actions {
+        opacity: 1;
+        transform: translateX(0);
+        width: 30px;
+        padding: 0 5px;
+    }
+}
+
+/* LABEL LATERAL DO TIER */
+.tier-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: #fff;
+    flex-shrink: 0;
+    text-align: center;
+    padding: 10px;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+.tier-label.normal { min-width: 100px; font-size: 1.5rem; }
+.tier-label.large { min-width: 160px; font-size: 0.9rem; }
+
+@media (max-width: 768px) {
+    .tier-label.normal { min-width: 60px; font-size: 1.1rem; padding: 5px; }
+    .tier-label.large { min-width: 80px; font-size: 0.7rem; padding: 5px; }
+}
+
+/* ÁREA DE DROP (ONDE FICAM OS PERSONAGENS) */
+.drop-zone {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .drop-zone { padding: 5px; gap: 5px; }
+}
+
+/* ITEM DO PERSONAGEM */
+.character-item {
+    cursor: grab;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #1a1a1a;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    border: 2px solid #333;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: all 0.2s ease;
+}
+
+.character-item:hover {
+    transform: translateY(-5px);
+    z-index: 10;
+    border-color: #e50914 !important;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.8);
+}
+
+@media (max-width: 768px) {
+    .character-item:hover { transform: none; }
+}
+
+/* NOME DO PERSONAGEM */
+.character-name-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+    color: white;
+    align-items: flex-end;
+    justify-content: center;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 0 4px 4px 4px;
+    z-index: 5;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .character-name-label { font-size: 8px; padding: 0 2px 2px 2px; }
+}
+
+/* TOOLTIP DO PERSONAGEM */
+.character-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 200;
+    border: 1px solid #e50914;
+}
+
+.character-item:hover .character-tooltip {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .character-tooltip { display: none; }
+}
+
+/* AÇÕES DO TIER (ENGRENAGEM, SETAS) */
+.tier-actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #111;
+    padding: 0 10px;
+    flex-shrink: 0;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: 0.3s;
+}
+
+.tier-actions button {
+    background: none;
+    border: none;
+    color: #999999;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.tier-actions button:hover:not(:disabled) { color: #e50914; }
+.tier-actions button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* BARRA DE CONTROLES SUPERIOR */
+.controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 4rem;
+    border-bottom: 1px solid #333;
+    position: sticky;
+    top: 68px;
+    z-index: 100;
+    background: #000000;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+@media (max-width: 768px) {
+    .controls-container {
+        flex-direction: column;
+        padding: 1rem 10px;
+        gap: 15px;
+        top: 60px;
+    }
+    .control-group {
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+    }
+}
+
+/* BOTÕES DE CONTROLE */
+.control-btn {
+    background: #2a2a2a;
+    color: white;
+    border: 1px solid #444;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.control-btn:hover { background: #333; border-color: #e50914; }
+.control-btn.active { background: #e50914; border-color: #e50914; }
+
+@media (max-width: 768px) {
+    .control-btn { padding: 8px 10px; font-size: 0.85rem; }
+}
+
+/* SPOILER TOGGLE */
+.spoiler-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.spoiler-toggle span {
+    font-size: 12px;
+    font-weight: bold;
+    color: #999999;
+}
+
+.spoiler-toggle.active span { color: #ffffff; }
+
+.switch {
+    width: 40px; height: 20px;
+    background: #444;
+    border-radius: 20px;
+    position: relative;
+    transition: 0.3s;
+}
+.switch.active { background: #e50914; }
+.switch::after {
+    content: ''; position: absolute; width: 16px; height: 16px;
+    background: white; border-radius: 50%; top: 2px; left: 2px;
+    transition: 0.3s;
+}
+.switch.active::after { left: 22px; }
+
+/* CONTAINER DO POOL DE PERSONAGENS */
+.character-pool-container {
+    padding: 1rem 2rem;
+    background: #181818;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 100;
+    border-top: 3px solid #e50914;
+    max-height: 280px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.pool-controls-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.search-input-wrapper {
+    display: flex; flex: 1; align-items: center; gap: 10px;
+    background: #222; border: 1px solid #444; border-radius: 4px; padding: 0 10px;
+}
+.search-input-wrapper input {
+    flex: 1; padding: 8px 0; background: transparent; border: none; color: white; outline: none;
+}
+
+@media (max-width: 768px) {
+    .character-pool-container { padding: 1rem; max-height: 350px; }
+    .pool-controls-wrapper { flex-direction: column; align-items: stretch; }
+}
+
+/* BOTÃO FLUTUANTE DE ABRIR/FECHAR O POOL */
+.floating-toggle-btn {
+    position: fixed;
+    right: 40px;
+    z-index: 110;
+    background-color: #e50914;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px; height: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (max-width: 768px) {
+    .floating-toggle-btn { right: 20px; width: 45px; height: 45px; }
+}
+
+/* MODAIS */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 1000;
+}
+
+.modal-content {
+    background: #1e1e1e; padding: 2rem; border-radius: 8px; width: 400px;
+    max-height: 80vh; overflow-y: auto; border-top: 5px solid #e50914; box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .modal-content { width: 90%; padding: 1.5rem; }
+}

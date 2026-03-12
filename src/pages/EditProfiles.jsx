@@ -12,13 +12,13 @@ import './EditProfiles.css';
 
 // --- Avatares pré-definidos ---
 const avatarOptions = [
-    'https://github.com/MisakiShokuhou5/A-certain-Digital-Database/blob/main/src/profile/Accelerator.png?raw=true',
-    'https://github.com/MisakiShokuhou5/A-certain-Digital-Database/blob/main/src/profile/kakine.png?raw=true',
-    'https://github.com/MisakiShokuhou5/A-certain-Digital-Database/blob/main/src/profile/mikoto.png?raw=true',
-    'https://github.com/MisakiShokuhou5/A-certain-Digital-Database/blob/main/src/profile/mugino.png?raw=true',
-    'https://github.com/MisakiShokuhou5/A-certain-Digital-Database/blob/main/src/profile/misaki.png?raw=true',
-    'https://github.com/MisakiShokuhou5/A-certain-Digital-Database/blob/main/src/profile/Junko.png?raw=true',
-    'https://github.com/MisakiShokuhou5/A-certain-Digital-Database/blob/main/src/profile/index.png?raw=true',
+    'https://pub-21c0e76d1678456bb9aaf26fa4bb0dd2.r2.dev/perfil/Accelerator.png',
+    'https://pub-21c0e76d1678456bb9aaf26fa4bb0dd2.r2.dev/perfil/kakine.png',
+    'https://pub-21c0e76d1678456bb9aaf26fa4bb0dd2.r2.dev/perfil/mikoto.png',
+    'https://pub-21c0e76d1678456bb9aaf26fa4bb0dd2.r2.dev/perfil/mugino.png',
+    'https://pub-21c0e76d1678456bb9aaf26fa4bb0dd2.r2.dev/perfil/misaki.png',
+    'https://pub-21c0e76d1678456bb9aaf26fa4bb0dd2.r2.dev/perfil/Junko.png',
+    'https://pub-21c0e76d1678456bb9aaf26fa4bb0dd2.r2.dev/perfil/index.png',
 ];
 const MAX_PROFILES = 5;
 const DEFAULT_AVATAR = avatarOptions[0];

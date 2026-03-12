@@ -1,8 +1,9 @@
 // ----------------------------------------------------------------
 // ARQUIVO: src/pages/Account.jsx
+// DESCRIÇÃO: Perfil e Configurações (Minimalist B&W + Fundo Dinâmico)
 // ----------------------------------------------------------------
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect } from 'react';
+import styled, { createGlobalStyle } from 'styled-components';
 import { 
     FaUserCircle, FaLock, FaCheckCircle, 
     FaExclamationTriangle, FaTrash, FaPen, 
@@ -23,173 +24,225 @@ import {
     EmailAuthProvider 
 } from 'firebase/auth';
 
-// --- CORES (Mantendo o tema Dark Premium) ---
-const COLORS = {
-    primary: '#e50914', 
-    background: '#141414',
-    panelBg: '#1f1f1f',
-    textLight: '#ffffff',
-    textMuted: '#b3b3b3', 
-    border: '#333333',
-    success: '#4CAF50',
-    error: '#e50914',
-    inputBg: '#333333',
-};
+// --- ESTILO GLOBAL PRETO E BRANCO ---
+const GlobalStyle = createGlobalStyle`
+    body {
+        background-color: #000000;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+`;
 
-// --- STYLED COMPONENTS ---
+// --- STYLED COMPONENTS (Minimalismo Premium) ---
 const PageContainer = styled.div`
-    background-color: ${COLORS.background};
     min-height: 100vh;
-    color: ${COLORS.textLight};
-    padding-top: 90px;
+    padding-top: 100px;
+    padding-bottom: 50px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+
+    /* FUNDO DINÂMICO */
+    background-image: url('${props => props.$bgImage}'); 
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    transition: background-image 0.5s ease-in-out;
+
+    /* Overlay escuro para destacar o texto */
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 50%, rgba(0,0,0,0.98) 100%);
+        z-index: 1;
+    }
 `;
 
 const MainLayout = styled.div`
+    position: relative;
+    z-index: 2; /* Acima do overlay */
+    width: 100%;
     max-width: 1000px;
-    margin: 0 auto;
     padding: 2rem;
     display: grid;
-    grid-template-columns: 250px 1fr;
-    gap: 2rem;
+    grid-template-columns: 280px 1fr;
+    gap: 4rem; /* Mais respiro entre o menu e o conteúdo */
 
     @media (max-width: 800px) {
         grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 1rem;
     }
 `;
 
-// Sidebar
+// Sidebar sem bordas
 const Sidebar = styled.aside`
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
 `;
 
 const UserCard = styled.div`
-    background: ${COLORS.panelBg};
-    padding: 1.5rem;
-    border-radius: 8px;
-    text-align: center;
-    border: 1px solid ${COLORS.border};
+    padding: 0 0 1.5rem 0;
+    text-align: left;
+    border-bottom: 1px solid #333333;
     margin-bottom: 1rem;
 
-    svg { font-size: 3.5rem; color: ${COLORS.textMuted}; margin-bottom: 0.8rem; }
-    h3 { margin-bottom: 0.3rem; font-size: 1.1rem; }
-    p { color: ${COLORS.textMuted}; font-size: 0.8rem; word-break: break-all; }
+    svg { font-size: 3rem; color: #ffffff; margin-bottom: 1rem; }
+    h3 { margin: 0 0 0.3rem 0; font-size: 1.2rem; font-weight: 700; }
+    p { color: #888888; font-size: 0.85rem; word-break: break-all; margin: 0; }
 `;
 
 const MenuButton = styled.button`
-    background: ${props => props.$active ? COLORS.primary : 'transparent'};
-    color: ${COLORS.textLight};
+    background: transparent;
+    color: ${props => props.$active ? '#ffffff' : '#888888'};
     border: none;
-    padding: 12px 15px;
+    padding: 15px 0;
     text-align: left;
-    border-radius: 4px;
     cursor: pointer;
-    font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: ${props => props.$active ? '600' : '400'};
     display: flex;
     align-items: center;
     gap: 12px;
-    transition: all 0.2s;
-    border-left: 3px solid ${props => props.$active ? '#fff' : 'transparent'};
+    transition: all 0.2s ease;
+    
+    /* Sem borda nos lados, apenas uma linha indicadora subtil se ativo */
+    position: relative;
 
     &:hover {
-        background: ${props => props.$active ? COLORS.primary : '#333'};
+        color: #ffffff;
+    }
+
+    svg {
+        font-size: 1.1rem;
     }
 `;
 
-// Conteúdo
+// Conteúdo sem bordas laterais
 const ContentArea = styled.main`
-    background: ${COLORS.panelBg};
-    padding: 2.5rem;
-    border-radius: 8px;
-    border: 1px solid ${COLORS.border};
+    background: transparent;
+    padding: 0;
     min-height: 400px;
 `;
 
 const SectionHeader = styled.div`
-    margin-bottom: 2rem;
-    border-bottom: 1px solid ${COLORS.border};
-    padding-bottom: 1rem;
-    h2 { font-size: 1.6rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 1.5rem;
+    
+    h2 { 
+        font-size: 1.8rem; 
+        font-weight: 700; 
+        display: flex; 
+        align-items: center; 
+        gap: 12px; 
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
 `;
 
 const FormGroup = styled.div`
-    margin-bottom: 1.5rem;
+    margin-bottom: 2.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 `;
 
 const Label = styled.label`
-    color: ${COLORS.textMuted};
-    font-size: 0.85rem;
-    font-weight: 500;
+    color: #888888;
+    font-size: 0.8rem;
+    font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 1px;
 `;
 
+// Inputs com borda apenas embaixo
 const Input = styled.input`
-    background: ${COLORS.inputBg};
+    background: transparent;
     border: none;
-    padding: 12px 15px;
-    border-radius: 4px;
-    color: white;
-    font-size: 1rem;
-    border-bottom: 2px solid transparent;
+    border-bottom: 1px solid #333333;
+    padding: 15px 0;
+    border-radius: 0;
+    color: #ffffff;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+
     &:focus {
         outline: none;
-        background: #404040;
-        border-bottom-color: ${COLORS.primary};
+        border-bottom: 2px solid #ffffff;
     }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
+    &:disabled { 
+        color: #666666; 
+        border-bottom-color: #222222;
+        cursor: not-allowed; 
+    }
 `;
 
+// Botões Alto Contraste
 const ActionButton = styled.button`
-    background-color: ${props => props.$danger ? 'transparent' : COLORS.primary};
-    border: ${props => props.$danger ? `1px solid ${COLORS.error}` : 'none'};
-    color: ${props => props.$danger ? COLORS.error : 'white'};
-    padding: 12px 24px;
-    border-radius: 4px;
-    font-weight: bold;
+    background-color: ${props => props.$danger ? 'transparent' : '#ffffff'};
+    border: 1px solid ${props => props.$danger ? '#aaaaaa' : '#ffffff'};
+    color: ${props => props.$danger ? '#aaaaaa' : '#000000'};
+    padding: 16px 30px;
+    font-weight: 700;
     cursor: pointer;
     font-size: 0.95rem;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    transition: 0.2s;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s ease;
     margin-top: 10px;
 
-    &:hover {
-        background-color: ${props => props.$danger ? 'rgba(229, 9, 20, 0.1)' : '#c40812'};
+    &:hover:not(:disabled) {
+        background-color: ${props => props.$danger ? '#ffffff' : '#dddddd'};
+        color: ${props => props.$danger ? '#000000' : '#000000'};
+        border-color: #ffffff;
     }
     &:disabled { opacity: 0.5; cursor: not-allowed; }
 `;
 
 const StatusMessage = styled.div`
-    padding: 12px;
-    border-radius: 4px;
-    margin-top: 15px;
+    padding: 15px 0;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: ${props => props.type === 'error' ? '#aaaaaa' : '#ffffff'};
+    border-bottom: 1px solid ${props => props.type === 'error' ? '#444444' : '#ffffff'};
+    font-size: 0.95rem;
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 0.9rem;
-    background: ${props => props.type === 'error' ? 'rgba(229, 9, 20, 0.15)' : 'rgba(76, 175, 80, 0.15)'};
-    color: ${props => props.type === 'error' ? '#ff8a80' : '#81c784'};
-    border: 1px solid ${props => props.type === 'error' ? COLORS.error : COLORS.success};
+    gap: 12px;
+    font-weight: 500;
 `;
 
 const DangerZone = styled.div`
-    margin-top: 3rem;
-    border: 1px solid ${COLORS.error};
-    border-radius: 8px;
-    padding: 1.5rem;
-    background: rgba(229, 9, 20, 0.05);
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px dashed #333333;
 
-    h3 { color: ${COLORS.error}; margin-bottom: 10px; font-size: 1.1rem; }
-    p { color: ${COLORS.textMuted}; font-size: 0.9rem; margin-bottom: 1rem; }
+    h3 { 
+        color: #ffffff; 
+        margin: 0 0 15px 0; 
+        font-size: 1.2rem; 
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    p { 
+        color: #888888; 
+        font-size: 0.95rem; 
+        margin-bottom: 1.5rem; 
+        line-height: 1.6;
+    }
 `;
 
 const Account = () => {
-    const auth = getAuth(); // Instância direta do Auth
+    const auth = getAuth();
     const { user, loading, logout } = useAuth();
     const navigate = useNavigate();
 
@@ -203,7 +256,42 @@ const Account = () => {
     const [statusMsg, setStatusMsg] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // --- FUNÇÃO 1: ATUALIZAR NOME (REAL) ---
+    // --- LÓGICA DO FUNDO DINÂMICO ---
+    const [backgroundImage, setBackgroundImage] = useState('https://image.tmdb.org/t/p/original/8Z2NOJ1X5Dq2NuuWk9A1h6Zf4S.jpg');
+
+    useEffect(() => {
+        const fetchBackgroundFromJSON = async () => {
+            try {
+                const response = await fetch('https://a-certain-digital-database.netlify.app/src/json/Anime.json');
+                const data = await response.json();
+                
+                let allImages = [];
+
+                Object.values(data).forEach(franchise => {
+                    if (Array.isArray(franchise)) {
+                        franchise.forEach(anime => {
+                            if (anime.FundoImagem) allImages.push(anime.FundoImagem);
+                        });
+                    } else {
+                        Object.values(franchise).forEach(anime => {
+                            if (anime.FundoImagem) allImages.push(anime.FundoImagem);
+                        });
+                    }
+                });
+
+                if (allImages.length > 0) {
+                    const randomImg = allImages[Math.floor(Math.random() * allImages.length)];
+                    setBackgroundImage(randomImg);
+                }
+            } catch (error) {
+                console.error("Erro ao puxar imagem de fundo do JSON:", error);
+            }
+        };
+
+        fetchBackgroundFromJSON();
+    }, []);
+
+    // --- FUNÇÕES DA CONTA ---
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -222,7 +310,6 @@ const Account = () => {
         }
     };
 
-    // --- FUNÇÃO 2: ALTERAR SENHA (REAL) ---
     const handleUpdatePassword = async (e) => {
         e.preventDefault();
         setStatusMsg(null);
@@ -245,7 +332,6 @@ const Account = () => {
             }
         } catch (error) {
             console.error(error);
-            // Se pedir login recente, avisa o usuário
             if (error.code === 'auth/requires-recent-login') {
                 setStatusMsg({ type: 'error', text: 'Por segurança, faça logout e login novamente antes de alterar a senha.' });
             } else {
@@ -256,27 +342,22 @@ const Account = () => {
         }
     };
 
-    // --- FUNÇÃO 3: EXCLUIR CONTA (REAL COM RE-AUTH) ---
     const handleDeleteAccount = async () => {
         const confirmDelete = window.confirm("ATENÇÃO: Isso excluirá permanentemente sua conta e todos os dados. Não há como desfazer. Deseja continuar?");
         if (!confirmDelete) return;
 
-        // Firebase exige re-autenticação para operações sensíveis como deletar
         const password = window.prompt("Por favor, digite sua senha atual para confirmar a exclusão:");
         if (!password) return;
 
         setIsSubmitting(true);
         try {
             if (auth.currentUser && auth.currentUser.email) {
-                // 1. Re-autenticar o usuário
                 const credential = EmailAuthProvider.credential(auth.currentUser.email, password);
                 await reauthenticateWithCredential(auth.currentUser, credential);
-
-                // 2. Deletar o usuário
                 await deleteUser(auth.currentUser);
                 
                 alert("Sua conta foi excluída com sucesso.");
-                navigate('/'); // Redireciona para home/login
+                navigate('/'); 
             }
         } catch (error) {
             console.error("Erro ao excluir:", error);
@@ -366,12 +447,12 @@ const Account = () => {
                             <h2><FaShieldAlt /> Configurações Gerais</h2>
                         </SectionHeader>
                         
-                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 0', borderBottom: '1px solid #333'}}>
+                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 0', borderBottom: '1px solid #333'}}>
                             <div>
-                                <strong style={{display: 'flex', alignItems: 'center', gap: '8px'}}><FaGlobe /> Idioma do Sistema</strong>
-                                <p style={{color: COLORS.textMuted, fontSize: '0.85rem'}}>O idioma padrão da interface.</p>
+                                <strong style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.1rem'}}><FaGlobe /> Idioma do Sistema</strong>
+                                <p style={{color: '#888888', fontSize: '0.9rem', margin: '5px 0 0 0'}}>O idioma padrão da interface.</p>
                             </div>
-                            <span style={{background: '#333', padding: '5px 10px', borderRadius: '4px', fontSize: '0.9rem'}}>Português (BR)</span>
+                            <span style={{color: '#ffffff', fontWeight: '600'}}>Português (BR)</span>
                         </div>
 
                         <DangerZone>
@@ -393,8 +474,14 @@ const Account = () => {
 
     return (
         <>
+            <GlobalStyle />
+            {/* INJEÇÃO SEGURA DAS FONTES */}
+            <style>
+                {`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');`}
+            </style>
+
             <Header />
-            <PageContainer>
+            <PageContainer $bgImage={backgroundImage}>
                 <MainLayout>
                     {/* MENU LATERAL */}
                     <Sidebar>
@@ -416,8 +503,8 @@ const Account = () => {
                             </MenuButton>
                         </nav>
 
-                        <MenuButton onClick={handleLogout} style={{marginTop: 'auto', borderTop: '1px solid #333', paddingTop: '1rem'}}>
-                            <FaSignOutAlt /> Sair
+                        <MenuButton onClick={handleLogout} style={{marginTop: 'auto', borderTop: '1px solid #333', paddingTop: '1.5rem'}}>
+                            <FaSignOutAlt /> Sair do Sistema
                         </MenuButton>
                     </Sidebar>
 

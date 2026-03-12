@@ -1,11 +1,11 @@
 // ----------------------------------------------------------------
 // ARQUIVO: src/pages/Support.jsx
-// DESCRIÇÃO: Página de suporte estilo Netflix (Dark UI + Floating Labels)
+// DESCRIÇÃO: Página de suporte (Premium Minimalist B&W)
 // FUNCIONALIDADE: Salva os tickets diretamente no Firebase Firestore
 // ----------------------------------------------------------------
 import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
-import { FaHeadset, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
+import styled, { css, createGlobalStyle } from 'styled-components';
+import { FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
 import Header from '../components/Header';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -13,30 +13,26 @@ import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase/config';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 
-// --- CONFIGURAÇÃO DE CORES NETFLIX ---
-const THEME = {
-    red: '#E50914',
-    redHover: '#f40612',
-    background: '#000000',
-    cardBg: 'rgba(0, 0, 0, 0.75)', // Fundo semi-transparente
-    inputBg: '#333333',
-    inputText: '#ffffff',
-    label: '#8c8c8c',
-    orange: '#e87c03',
-    success: '#4CAF50'
-};
+// --- ESTILO GLOBAL PRETO E BRANCO ---
+const GlobalStyle = createGlobalStyle`
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap');
+    
+    body {
+        background-color: #000000;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+`;
 
-// --- STYLED COMPONENTS (Visual Netflix) ---
+// --- STYLED COMPONENTS (Minimalismo Premium) ---
 
 const Background = styled.div`
-    background-color: ${THEME.background};
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    /* Imagem de fundo padrão Netflix com overlay escuro */
-    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://assets.nflxext.com/ffe/siteui/vlv3/f841d4c7-10e1-40af-bcae-07a3f8dc141a/f6d7434e-d6de-4185-a6d4-c77a2d08737b/BR-pt-20220502-popsignuptwoweeks-perspective_alpha_website_medium.jpg');
-    background-size: cover;
-    background-position: center;
+    background-color: #000000;
 `;
 
 const MainContent = styled.div`
@@ -44,90 +40,86 @@ const MainContent = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 90px 20px 40px; 
+    padding: 120px 20px 60px; 
 
     @media (max-width: 740px) {
-        background-color: #000;
-        padding-top: 0;
+        padding-top: 100px;
         align-items: flex-start;
     }
 `;
 
+// Container sem bordas laterais, totalmente mesclado ao fundo
 const FormCard = styled.div`
-    background-color: ${THEME.cardBg};
-    border-radius: 4px;
-    box-sizing: border-box;
+    width: 100%;
+    max-width: 480px; 
     display: flex;
     flex-direction: column;
-    min-height: 550px;
-    padding: 60px 68px 40px;
-    width: 100%;
-    max-width: 450px; 
-    border: 1px solid rgba(255,255,255,0.1);
+    background: transparent;
+    border: none; /* SEM BORDAS NOS LADOS */
 
     @media (max-width: 740px) {
-        max-width: 100%;
-        padding: 40px 20px;
-        background-color: transparent;
-        border: none;
+        padding: 0 10px;
     }
 `;
 
 const Title = styled.h1`
-    color: #fff;
-    font-size: 32px;
+    color: #ffffff;
+    font-size: 36px;
     font-weight: 700;
-    margin-bottom: 28px;
+    margin-bottom: 40px;
     text-align: left;
+    letter-spacing: -1px;
 `;
 
-// --- SISTEMA DE FLOATING LABEL (Rótulo Flutuante) ---
+// --- SISTEMA DE FLOATING LABEL (Sem bordas laterais) ---
 
 const InputGroup = styled.div`
     position: relative;
     width: 100%;
-    margin-bottom: 16px;
+    margin-bottom: 30px; /* Mais espaço para respirar */
 `;
 
 const FloatingLabel = styled.label`
     position: absolute;
-    top: 50%;
-    left: 20px;
-    transform: translateY(-50%);
+    top: 20px;
+    left: 0; /* Alinhado à esquerda, já que não tem caixa */
     font-size: 16px;
-    color: ${THEME.label};
+    color: #888888;
     pointer-events: none;
-    transition: all 0.1s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     
-    /* Quando o input tem foco ou texto, o label sobe e diminui */
+    /* Animação do label subindo */
     ${props => (props.active) && css`
-        top: 7px;
-        transform: translateY(0);
-        font-size: 11px;
-        font-weight: 700;
+        top: -8px;
+        font-size: 12px;
+        font-weight: 500;
+        color: #ffffff;
     `}
 `;
 
+// Estilo base para Inputs, Selects e Textareas
 const BaseInputStyles = css`
-    background: ${THEME.inputBg};
-    border-radius: 4px;
-    border: 0;
-    color: #fff;
-    height: 50px;
-    line-height: 50px;
-    padding: 16px 20px 0; /* Espaço extra no topo para o label */
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #333333; /* APENAS BORDA INFERIOR */
+    border-radius: 0;
+    color: #ffffff;
     width: 100%;
     font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    padding: 20px 0 10px 0;
     box-sizing: border-box;
+    transition: border-bottom-color 0.3s ease;
     
     &:focus {
-        background: #454545;
         outline: none;
+        border-bottom: 2px solid #ffffff; /* Linha grossa branca no foco */
     }
 
-    border-bottom: 2px solid transparent;
-    &:focus {
-        border-bottom-color: ${props => props.hasError ? THEME.orange : 'transparent'}; 
+    &:disabled {
+        color: #666666;
+        border-bottom-color: #222222;
+        cursor: not-allowed;
     }
 `;
 
@@ -138,9 +130,14 @@ const Input = styled.input`
 const Select = styled.select`
     ${BaseInputStyles}
     appearance: none;
-    padding-top: 12px;
-    color: ${props => props.value ? '#fff' : THEME.label};
     cursor: pointer;
+    color: ${props => props.value ? '#ffffff' : 'transparent'};
+
+    option {
+        background-color: #111111;
+        color: #ffffff;
+        padding: 10px;
+    }
 `;
 
 const TextArea = styled.textarea`
@@ -151,47 +148,63 @@ const TextArea = styled.textarea`
     padding-top: 25px;
 `;
 
+// Botão de alto contraste: Fundo Branco, Texto Preto
 const SubmitButton = styled.button`
-    background-color: ${THEME.red};
+    background-color: #ffffff;
+    color: #000000;
     border-radius: 4px;
     font-size: 16px;
     font-weight: 700;
-    margin: 24px 0 12px;
-    padding: 16px;
-    color: #fff;
-    border: 0;
+    margin: 20px 0 15px;
+    padding: 18px;
+    border: none;
     cursor: pointer;
     width: 100%;
-    transition: background-color 0.2s;
+    transition: opacity 0.2s ease, transform 0.1s;
 
     &:hover:not(:disabled) {
-        background-color: ${THEME.redHover};
+        opacity: 0.85;
+    }
+
+    &:active:not(:disabled) {
+        transform: scale(0.98);
     }
     
     &:disabled {
-        opacity: 0.5;
+        background-color: #333333;
+        color: #888888;
         cursor: wait;
     }
 `;
 
 const HelperText = styled.p`
-    color: ${THEME.label};
+    color: #888888;
     font-size: 13px;
     margin-top: 10px;
-    line-height: 1.4;
+    line-height: 1.5;
+
+    span {
+        color: #ffffff;
+        cursor: pointer;
+        text-decoration: underline;
+    }
 `;
 
+// Mensagem de status minimalista
 const StatusMessage = styled.div`
-    padding: 10px 15px;
-    border-radius: 4px;
-    margin-bottom: 20px;
-    background-color: ${props => props.type === 'error' ? THEME.orange : THEME.success};
-    color: white;
+    padding: 15px 0;
+    margin-bottom: 30px;
+    color: ${props => props.type === 'error' ? '#aaaaaa' : '#ffffff'};
+    border-bottom: 1px solid ${props => props.type === 'error' ? '#444444' : '#ffffff'};
     font-size: 14px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     font-weight: 500;
+
+    svg {
+        font-size: 1.2rem;
+    }
 `;
 
 // --- COMPONENTE PRINCIPAL ---
@@ -199,7 +212,6 @@ const StatusMessage = styled.div`
 const Support = () => {
     const { user } = useAuth();
     
-    // Referência à coleção no Firestore
     const ticketsCollectionRef = collection(db, 'support_tickets'); 
 
     const initialFormData = {
@@ -218,7 +230,6 @@ const Support = () => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         
-        // Limpa URL se mudar categoria
         if (name === 'category' && value !== 'Conteúdo') {
             setFormData(prev => ({ ...prev, contentUrl: '' }));
         }
@@ -228,7 +239,7 @@ const Support = () => {
         e.preventDefault();
         setMessage(null);
 
-        // Validação básica
+        // Textos ORIGINAIS de validação
         if (!formData.category || !formData.subject || !formData.description) {
             setMessage({ type: 'error', text: 'Preencha todos os campos obrigatórios.' });
             return;
@@ -237,25 +248,25 @@ const Support = () => {
         setIsSubmitting(true);
 
         try {
-            // 🛑 SALVANDO NO FIRESTORE
             await addDoc(ticketsCollectionRef, {
                 ...formData,
-                status: 'Novo', // Status inicial para painel admin
+                status: 'Novo', 
                 userId: user?.uid || 'anonymous',
                 timestamp: Timestamp.fromDate(new Date()),
-                userAgent: navigator.userAgent // Útil para debug
+                userAgent: navigator.userAgent 
             });
 
+            // Textos ORIGINAIS de sucesso
             setMessage({ 
                 type: 'success', 
                 text: 'Solicitação recebida! Verifique seu email em breve.' 
             });
             
-            // Limpa o formulário mantendo o email
             setFormData({ ...initialFormData, email: user?.email || formData.email });
 
         } catch (error) {
             console.error("Erro ao salvar ticket:", error);
+            // Textos ORIGINAIS de erro
             setMessage({ 
                 type: 'error', 
                 text: 'Erro de conexão. Tente novamente mais tarde.' 
@@ -269,13 +280,13 @@ const Support = () => {
 
     return (
         <Background>
+            <GlobalStyle />
             <Header /> 
             
             <MainContent>
                 <FormCard>
                     <Title>Central de Ajuda</Title>
                     
-                    {/* Mensagens de Feedback */}
                     {message && (
                         <StatusMessage type={message.type}>
                             {message.type === 'error' ? <FaExclamationTriangle /> : <FaCheckCircle />}
@@ -285,7 +296,6 @@ const Support = () => {
 
                     <form onSubmit={handleSubmit}>
                         
-                        {/* Email (Visualmente travado se logado, ou editável) */}
                         <InputGroup>
                             <Input
                                 id="email"
@@ -300,7 +310,6 @@ const Support = () => {
                             </FloatingLabel>
                         </InputGroup>
 
-                        {/* Categoria */}
                         <InputGroup>
                             <Select
                                 id="category"
@@ -321,7 +330,6 @@ const Support = () => {
                             </FloatingLabel>
                         </InputGroup>
 
-                        {/* URL Condicional */}
                         {isContentRelated && (
                             <InputGroup>
                                 <Input
@@ -336,7 +344,6 @@ const Support = () => {
                             </InputGroup>
                         )}
 
-                        {/* Assunto */}
                         <InputGroup>
                             <Input
                                 name="subject"
@@ -349,7 +356,6 @@ const Support = () => {
                             </FloatingLabel>
                         </InputGroup>
 
-                        {/* Descrição */}
                         <InputGroup>
                             <TextArea
                                 name="description"
@@ -367,7 +373,7 @@ const Support = () => {
                         </SubmitButton>
 
                         <HelperText>
-                            Esta página é protegida pelo Google reCAPTCHA para garantir que você não é um robô. <span style={{color:'#0071eb', cursor:'pointer'}}>Saiba mais.</span>
+                            Esta página é protegida pelo Google reCAPTCHA para garantir que você não é um robô. <span>Saiba mais.</span>
                         </HelperText>
 
                     </form>

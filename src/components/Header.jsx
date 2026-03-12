@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { FaChevronDown, FaUserCog, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
+import { FaChevronDown, FaUserCog, FaSignOutAlt, FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
 import { AnimatePresence, motion } from 'framer-motion';
 import './Header.css';
 
@@ -122,6 +122,11 @@ const Header = () => {
 
                                     {otherProfiles.length > 0 && <div className="divider" />}
 
+                                    {/* --- LINK DA CONTA --- */}
+                                    <Link to="/account" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                                        <FaUserCircle /> <span>Minha Conta</span>
+                                    </Link>
+
                                     <Link to="/edit-profiles" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
                                         <FaUserCog /> <span>Gerenciar Perfis</span>
                                     </Link>
@@ -186,6 +191,23 @@ const Header = () => {
                                         {link.label}
                                     </NavLink>
                                 ))}
+                            </div>
+
+                            {/* --- AÇÕES DA CONTA NO MOBILE --- */}
+                            <div className="mobile-links-section" style={{ borderTop: '1px solid #333', paddingTop: '15px', marginTop: '15px' }}>
+                                <p className="mobile-section-title">Ações da Conta</p>
+                                
+                                <Link to="/account" className="mobile-link" onClick={() => setMobileMenuOpen(false)} style={{ padding: '10px 15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <FaUserCircle /> Minha Conta
+                                </Link>
+                                
+                                <Link to="/edit-profiles" className="mobile-link" onClick={() => setMobileMenuOpen(false)} style={{ padding: '10px 15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <FaUserCog /> Gerenciar Perfis
+                                </Link>
+                                
+                                <div className="mobile-link" onClick={() => { signOut(); setMobileMenuOpen(false); }} style={{ padding: '10px 15px', display: 'flex', alignItems: 'center', gap: '10px', color: '#ff3333', cursor: 'pointer' }}>
+                                    <FaSignOutAlt /> Sair do Sistema
+                                </div>
                             </div>
 
                             {/* Troca de perfil no mobile */}
