@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Hls from 'hls.js';
 import { useNavigate } from 'react-router-dom';
-import { FaTimes, FaSpinner } from 'react-icons/fa';
+import { FaTimes, FaSpinner, FaEyeSlash } from 'react-icons/fa';
+import VideoDiagnostic from './VideoDiagnostic'; // <-- Importando o componente de diagnóstico
 import './Player.css';
 
 // ============================================================================
@@ -24,6 +25,9 @@ const VideoPlayer = ({ link, type, episodeData }) => {
     const playerContainerRef = useRef(null);
     const controlsTimeoutRef = useRef(null);
     
+    // ============================================================================
+    // ESTADOS (UI & PLAYER)
+    // ============================================================================
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -31,8 +35,63 @@ const VideoPlayer = ({ link, type, episodeData }) => {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isBuffering, setIsBuffering] = useState(true);
     const [showControls, setShowControls] = useState(true);
+    
+    // NOVO: Estado para mostrar o diagnóstico (padrão falso)
+    const [showDiagnostic, setShowDiagnostic] = useState(false);
 
-    // --- Lógica de HLS e Inicialização ---
+    // ============================================================================
+    // LÓGICA DO COMANDO DE CONSOLE (Ativar Diagnóstico)
+    // ============================================================================
+    useEffect(() => {
+        // Cria os comandos globais no objeto window
+        window.enablePlayerStats = () => {
+            setShowDiagnostic(true);
+            console.log("%c📊 Diagnóstico Ativado!", "color: lightgreen; font-weight: bold; font-size: 14px;");
+        };
+
+        window.disablePlayerStats = () => {
+            setShowDiagnostic(false);
+            console.log("%c📊 Diagnóstico Desativado!", "color: orange; font-weight: bold; font-size: 14px;");
+        };
+
+        // Deixa uma dica silenciosa no console
+        console.log("%c💡 DICA DEV: Digite 'enablePlayerStats()' no console para ver o painel de diagnóstico em tempo real.", "color: #00bfff; font-style: italic;");
+
+        // Limpa os comandos globais quando o componente for desmontado para evitar vazamento de memória
+        return () => {
+            delete window.enablePlayerStats;
+            delete window.disablePlayerStats;
+        };
+    }, []);
+
+    // ============================================================================
+    // LÓGICA DE OTIMIZAÇÃO DE REDE (Preconnect & DNS-Prefetch)
+    // ============================================================================
+    useEffect(() => {
+        const cdns = [
+            'https://cdn.plyr.io',
+            'https://cdnjs.cloudflare.com',
+            'https://unpkg.com',
+            'https://cdn.jsdelivr.net'
+        ];
+
+        cdns.forEach(domain => {
+            const dns = document.createElement('link');
+            dns.rel = 'dns-prefetch';
+            dns.href = domain;
+            document.head.appendChild(dns);
+
+            const preconnect = document.createElement('link');
+            preconnect.rel = 'preconnect';
+            preconnect.href = domain;
+            preconnect.crossOrigin = 'anonymous';
+            document.head.appendChild(preconnect);
+        });
+    }, []);
+
+    // ============================================================================
+    // LÓGICA DO PLAYER (HLS, Estabilidade e Buffering)
+    // ============================================================================
     useEffect(() => {
         const video = videoRef.current;
         if (!video) return;
@@ -40,17 +99,44 @@ const VideoPlayer = ({ link, type, episodeData }) => {
 
         const initPlayer = () => {
             setIsBuffering(true);
+            
             if (type === 'm3u8' && Hls.isSupported()) {
-                hls = new Hls({ capLevelToPlayerSize: true });
+                hls = new Hls({ 
+                    capLevelToPlayerSize: true,
+                    maxBufferLength: 30, 
+                    maxMaxBufferLength: 60 
+                });
+                
                 hls.loadSource(link);
                 hls.attachMedia(video);
+                
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
                     setIsBuffering(false);
-                    video.play().catch(() => {});
+                    video.play().catch(() => console.warn("Autoplay bloqueado pelo navegador"));
                 });
+
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.log("Erro de rede detectado, tentando recuperar...");
+                                hls.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.log("Erro de mídia detectado, tentando recuperar...");
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                console.error("Erro fatal irrecoverável no HLS.");
+                                hls.destroy();
+                                break;
+                        }
+                    }
+                });
+
             } else {
                 video.src = link;
-                video.play().catch(() => {});
+                video.play().catch(() => console.warn("Autoplay bloqueado pelo navegador"));
             }
         };
 
@@ -58,7 +144,20 @@ const VideoPlayer = ({ link, type, episodeData }) => {
         return () => { if (hls) hls.destroy(); };
     }, [link, type]);
 
-    // --- Controla exibição dos botões (Fade In/Out) ---
+    const handleVideoError = () => {
+        console.error("Erro no carregamento do vídeo nativo. Tentando recarregar...");
+        setIsBuffering(true);
+        setTimeout(() => {
+            if (videoRef.current) {
+                videoRef.current.load();
+            }
+        }, 2000);
+    };
+
+    // ============================================================================
+    // LÓGICA DE UI E CONTROLES
+    // ============================================================================
+    
     const handleMouseMove = useCallback(() => {
         setShowControls(true);
         if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
@@ -68,7 +167,12 @@ const VideoPlayer = ({ link, type, episodeData }) => {
         }, 3000);
     }, [isPlaying]);
 
-    // --- Ações do Player ---
+    const forceHideControls = (e) => {
+        e.stopPropagation();
+        setShowControls(false);
+        if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+    };
+
     const skip = (amount) => {
         if (videoRef.current) videoRef.current.currentTime += amount;
     };
@@ -98,7 +202,6 @@ const VideoPlayer = ({ link, type, episodeData }) => {
         }
     };
 
-    // NOVA FUNÇÃO: Picture-in-Picture
     const togglePiP = async () => {
         try {
             if (document.pictureInPictureElement) {
@@ -113,10 +216,9 @@ const VideoPlayer = ({ link, type, episodeData }) => {
 
     const closePlayer = () => {
         if (document.fullscreenElement) document.exitFullscreen();
-        navigate(-1); // Volta para a página anterior
+        navigate(-1);
     };
 
-    // Atalhos de Teclado
     useEffect(() => {
         const handleKeyPress = (e) => {
             if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
@@ -145,26 +247,36 @@ const VideoPlayer = ({ link, type, episodeData }) => {
             onClick={handleMouseMove}
             onMouseLeave={() => isPlaying && setShowControls(false)}
         >
+            {/* PAINEL DE DIAGNÓSTICO (Aparece apenas se a variável de estado for true) */}
+            {showDiagnostic && <VideoDiagnostic videoRef={videoRef} />}
+
             {isBuffering && <div className="pv-loading"><FaSpinner className="pv-spin" /></div>}
 
             <video
                 ref={videoRef}
                 className="pv-video-element"
+                preload="auto"
                 onClick={togglePlay}
                 onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
                 onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
                 onWaiting={() => setIsBuffering(true)}
                 onPlaying={() => { setIsBuffering(false); setIsPlaying(true); }}
                 onPause={() => setIsPlaying(false)}
+                onError={handleVideoError}
                 playsInline
             />
 
-            {/* OVERLAYS E CONTROLES (Estilo Prime Video) */}
             <div className="pv-controls-overlay">
                 
-                {/* TOPO DIREITA (Ações) */}
                 <div className="pv-top-right">
-                    {/* Botão de Volume com Slider Vertical no Hover */}
+                    <button 
+                        className="pv-action-btn" 
+                        onClick={forceHideControls} 
+                        title="Esconder Controles"
+                    >
+                        <FaEyeSlash size={22} color="#fff" />
+                    </button>
+
                     <div className="pv-volume-wrapper">
                         <button className="pv-action-btn">
                             <img src={ICONS.volume} alt="Volume" />
@@ -181,14 +293,12 @@ const VideoPlayer = ({ link, type, episodeData }) => {
                         </div>
                     </div>
 
-                    {/* BOTÃO PiP */}
                     {document.pictureInPictureEnabled && (
                         <button className="pv-action-btn" onClick={togglePiP} title="Picture-in-Picture">
                             <img src={ICONS.pip} alt="PiP" />
                         </button>
                     )}
 
-                    {/* BOTÃO TELA CHEIA */}
                     <button className="pv-action-btn" onClick={toggleFullscreen}>
                         <img 
                             src={isFullscreen ? ICONS.fullscreenClose : ICONS.fullscreenOpen} 
@@ -197,11 +307,10 @@ const VideoPlayer = ({ link, type, episodeData }) => {
                     </button>
                     
                     <button className="pv-action-btn" onClick={closePlayer} style={{ marginLeft: '10px' }}>
-                        <FaTimes size={22} />
+                        <FaTimes size={22} color="#fff" />
                     </button>
                 </div>
 
-                {/* CENTRO (Play/Pause e Skip) */}
                 <div className="pv-center-controls" onClick={(e) => e.stopPropagation()}>
                     <button className="pv-center-btn" onClick={() => skip(-10)}>
                         <img src={ICONS.rewind10} alt="-10s" />
@@ -216,7 +325,6 @@ const VideoPlayer = ({ link, type, episodeData }) => {
                     </button>
                 </div>
 
-                {/* INFERIOR (Tempo e Barra de Progresso) */}
                 <div className="pv-bottom-controls" onClick={(e) => e.stopPropagation()}>
                     <div className="pv-time-display">
                         {formatTime(currentTime)} / {formatTime(duration)}
