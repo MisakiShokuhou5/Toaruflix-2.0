@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import Hls from 'hls.js';
 import { useNavigate } from 'react-router-dom';
 import { FaTimes, FaSpinner, FaEyeSlash } from 'react-icons/fa';
-import VideoDiagnostic from './VideoDiagnostic'; // <-- Importando o componente de diagnóstico
+import VideoDiagnostic from './VideoDiagnostic'; 
+import { useVideoOptimization } from './VideoOptimization'; // Motor HLS otimizado para mobile
 import './Player.css';
 
 // ============================================================================
@@ -35,15 +35,18 @@ const VideoPlayer = ({ link, type, episodeData }) => {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isBuffering, setIsBuffering] = useState(true);
     const [showControls, setShowControls] = useState(true);
-    
-    // NOVO: Estado para mostrar o diagnóstico (padrão falso)
     const [showDiagnostic, setShowDiagnostic] = useState(false);
 
     // ============================================================================
-    // LÓGICA DO COMANDO DE CONSOLE (Ativar Diagnóstico)
+    // MOTOR DE OTIMIZAÇÃO (HLS Inteligente para Mobile)
+    // ============================================================================
+    useVideoOptimization(videoRef, link, type, setIsBuffering);
+
+    // ============================================================================
+    // LÓGICA DE DIAGNÓSTICO E PRECONNECT DE REDE
     // ============================================================================
     useEffect(() => {
-        // Cria os comandos globais no objeto window
+        // Comandos de Console para ativar/desativar Stats
         window.enablePlayerStats = () => {
             setShowDiagnostic(true);
             console.log("%c📊 Diagnóstico Ativado!", "color: lightgreen; font-weight: bold; font-size: 14px;");
@@ -54,20 +57,7 @@ const VideoPlayer = ({ link, type, episodeData }) => {
             console.log("%c📊 Diagnóstico Desativado!", "color: orange; font-weight: bold; font-size: 14px;");
         };
 
-        // Deixa uma dica silenciosa no console
-        console.log("%c💡 DICA DEV: Digite 'enablePlayerStats()' no console para ver o painel de diagnóstico em tempo real.", "color: #00bfff; font-style: italic;");
-
-        // Limpa os comandos globais quando o componente for desmontado para evitar vazamento de memória
-        return () => {
-            delete window.enablePlayerStats;
-            delete window.disablePlayerStats;
-        };
-    }, []);
-
-    // ============================================================================
-    // LÓGICA DE OTIMIZAÇÃO DE REDE (Preconnect & DNS-Prefetch)
-    // ============================================================================
-    useEffect(() => {
+        // Otimização de Resolução DNS e Pré-conexão (Melhora a latência)
         const cdns = [
             'https://cdn.plyr.io',
             'https://cdnjs.cloudflare.com',
@@ -87,75 +77,23 @@ const VideoPlayer = ({ link, type, episodeData }) => {
             preconnect.crossOrigin = 'anonymous';
             document.head.appendChild(preconnect);
         });
+
+        return () => {
+            delete window.enablePlayerStats;
+            delete window.disablePlayerStats;
+        };
     }, []);
 
-    // ============================================================================
-    // LÓGICA DO PLAYER (HLS, Estabilidade e Buffering)
-    // ============================================================================
-    useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
-        let hls;
-
-        const initPlayer = () => {
-            setIsBuffering(true);
-            
-            if (type === 'm3u8' && Hls.isSupported()) {
-                hls = new Hls({ 
-                    capLevelToPlayerSize: true,
-                    maxBufferLength: 30, 
-                    maxMaxBufferLength: 60 
-                });
-                
-                hls.loadSource(link);
-                hls.attachMedia(video);
-                
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    setIsBuffering(false);
-                    video.play().catch(() => console.warn("Autoplay bloqueado pelo navegador"));
-                });
-
-                hls.on(Hls.Events.ERROR, (event, data) => {
-                    if (data.fatal) {
-                        switch (data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR:
-                                console.log("Erro de rede detectado, tentando recuperar...");
-                                hls.startLoad();
-                                break;
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                console.log("Erro de mídia detectado, tentando recuperar...");
-                                hls.recoverMediaError();
-                                break;
-                            default:
-                                console.error("Erro fatal irrecoverável no HLS.");
-                                hls.destroy();
-                                break;
-                        }
-                    }
-                });
-
-            } else {
-                video.src = link;
-                video.play().catch(() => console.warn("Autoplay bloqueado pelo navegador"));
-            }
-        };
-
-        initPlayer();
-        return () => { if (hls) hls.destroy(); };
-    }, [link, type]);
-
     const handleVideoError = () => {
-        console.error("Erro no carregamento do vídeo nativo. Tentando recarregar...");
+        console.error("Erro no vídeo nativo. Recarregando...");
         setIsBuffering(true);
         setTimeout(() => {
-            if (videoRef.current) {
-                videoRef.current.load();
-            }
+            if (videoRef.current) videoRef.current.load();
         }, 2000);
     };
 
     // ============================================================================
-    // LÓGICA DE UI E CONTROLES
+    // LÓGICA DE CONTROLES (UI)
     // ============================================================================
     
     const handleMouseMove = useCallback(() => {
@@ -239,6 +177,9 @@ const VideoPlayer = ({ link, type, episodeData }) => {
         return `${h > 0 ? h + ':' : ''}${m < 10 && h > 0 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
     };
 
+    // ============================================================================
+    // RENDERIZAÇÃO
+    // ============================================================================
     return (
         <div 
             className={`pv-player-container ${showControls ? 'controls-active' : 'controls-hidden'}`}
@@ -247,7 +188,7 @@ const VideoPlayer = ({ link, type, episodeData }) => {
             onClick={handleMouseMove}
             onMouseLeave={() => isPlaying && setShowControls(false)}
         >
-            {/* PAINEL DE DIAGNÓSTICO (Aparece apenas se a variável de estado for true) */}
+            {/* PAINEL DE DIAGNÓSTICO */}
             {showDiagnostic && <VideoDiagnostic videoRef={videoRef} />}
 
             {isBuffering && <div className="pv-loading"><FaSpinner className="pv-spin" /></div>}

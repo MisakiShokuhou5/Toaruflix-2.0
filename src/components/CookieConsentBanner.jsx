@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 // Chave para armazenar a preferência do usuário
 const COOKIE_CONSENT_KEY = 'toaruflix_system_authorization';
 
-// --- TEMA TERMINAL ---
+// --- TEMA PREMIUM MINIMALIST B&W (Baseado em Support.jsx) ---
 const THEME = {
-    bgDark: '#080808',
-    border: 'rgba(255, 255, 255, 0.2)',
+    bgDark: '#000000',
     textPrimary: '#ffffff',
-    textMuted: '#a0a0a0',
-    fontMono: "'JetBrains Mono', monospace",
+    textMuted: '#888888',
+    border: '#333333',
     fontMain: "'Inter', sans-serif",
 };
 
@@ -23,24 +22,21 @@ const BannerWrapper = styled.div`
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: rgba(0, 0, 0, 0.95);
+    background-color: rgba(0, 0, 0, 0.95); /* Quase totalmente preto, mas com blur */
     border-top: 1px solid ${THEME.border};
-    color: ${THEME.textPrimary};
-    padding: 20px 5%;
+    padding: 24px 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
     z-index: 9999;
     font-family: ${THEME.fontMain};
-    font-size: 0.85rem;
+    backdrop-filter: blur(10px);
 
     @media (max-width: 768px) {
         flex-direction: column;
         align-items: flex-start;
-        padding: 20px 15px;
-        gap: 15px;
+        padding: 24px 20px;
+        gap: 20px;
     }
 `;
 
@@ -49,18 +45,28 @@ const TextContent = styled.div`
     flex-grow: 1;
     color: ${THEME.textMuted};
     line-height: 1.5;
+    font-size: 14px;
     max-width: 800px;
     
-    strong { color: ${THEME.textPrimary}; font-family: ${THEME.fontMono}; font-size: 0.8rem; letter-spacing: 1px; }
+    strong { 
+        color: ${THEME.textPrimary}; 
+        font-size: 16px; 
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        display: block;
+        margin-bottom: 6px;
+    }
 
     a {
         color: ${THEME.textPrimary};
-        text-decoration: none;
-        border-bottom: 1px solid ${THEME.textPrimary};
-        margin-left: 8px;
-        font-weight: 600;
-        white-space: nowrap;
-        &:hover { color: #cccccc; border-color: #cccccc; }
+        text-decoration: underline;
+        margin-left: 6px;
+        font-weight: 500;
+        transition: opacity 0.2s ease;
+        
+        &:hover { 
+            opacity: 0.8;
+        }
     }
 `;
 
@@ -71,48 +77,48 @@ const ButtonGroup = styled.div`
 
     @media (max-width: 768px) {
         width: 100%;
-        flex-direction: column; /* Botões empilhados no celular */
+        flex-direction: column;
     }
 `;
 
+// Estilo base herdado do SubmitButton do Support.jsx
 const BaseButton = styled.button`
-    padding: 12px 24px;
-    border: none;
-    border-radius: 0; /* Starlink / Terminal: SEM BORDAS ARREDONDADAS */
-    cursor: pointer;
-    font-family: ${THEME.fontMono};
-    font-size: 0.75rem;
+    border-radius: 4px;
+    font-size: 15px;
     font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: all 0.15s linear;
+    padding: 14px 24px;
+    border: none;
+    cursor: pointer;
+    font-family: ${THEME.fontMain};
+    transition: opacity 0.2s ease, transform 0.1s, background-color 0.2s;
+
+    &:active {
+        transform: scale(0.98);
+    }
 
     @media (max-width: 768px) {
         width: 100%;
-        padding: 14px;
-        text-align: center;
+        padding: 16px;
     }
 `;
 
 const AcceptButton = styled(BaseButton)`
     background-color: ${THEME.textPrimary};
-    color: #000000;
-    border: 1px solid ${THEME.textPrimary};
+    color: ${THEME.bgDark};
 
     &:hover {
-        background-color: transparent;
-        color: ${THEME.textPrimary};
+        opacity: 0.85;
     }
 `;
 
 const DeclineButton = styled(BaseButton)`
     background-color: transparent;
     color: ${THEME.textMuted};
-    border: 1px solid ${THEME.textMuted};
+    border: 1px solid ${THEME.border};
 
     &:hover {
-        border-color: ${THEME.textPrimary};
         color: ${THEME.textPrimary};
+        border-color: ${THEME.textPrimary};
     }
 `;
 
@@ -124,7 +130,6 @@ const CookieConsentBanner = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        // Verifica autorização do sistema
         const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
         if (consent !== 'authorized') {
             setIsVisible(true);
@@ -147,16 +152,21 @@ const CookieConsentBanner = () => {
 
     return (
         <BannerWrapper>
+            {/* Injeção da fonte Inter para garantir o estilo, igual no Support.jsx */}
+            <style>
+                {`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');`}
+            </style>
+            
             <TextContent>
-                <strong>PERMISÃO DE COOKIES</strong><br/>
-                Para estabilizar a interface, nossos terminais alocam dados localmente (Cookies e LocalStorage). 
+                <strong>Permissão de Cookies</strong>
+                Para estabilizar a interface, nosso sistema alocam dados (Cookies e LocalStorage). 
                 Isso assegura que suas credenciais e estado de conexão não sejam perdidos. 
-                <a href="/privacy" target="_blank" rel="noopener noreferrer">Acessar Documentação</a>
+                <a href="/privacy" target="_blank" rel="noopener noreferrer">Saiba mais</a>
             </TextContent>
             
             <ButtonGroup>
                 <DeclineButton onClick={handleDecline}>
-                    Negar
+                    Recusar
                 </DeclineButton>
                 <AcceptButton onClick={handleAccept}>
                     Autorizar
