@@ -41,9 +41,9 @@
 .cards-container {
     display: flex;
     overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 20px;
-    padding-top: 10px;
+    overflow-y: visible; /* MUDOU DE HIDDEN PARA VISIBLE */
+    padding-bottom: 50px; /* Aumentei o padding pra dar espaço pro menu abrir sem ser esmagado pela linha de baixo */
+    padding-top: 30px; /* Aumentei o padding pra cima pro card não cortar quando der 'scale' */
     gap: var(--card-gap);
     padding-left: var(--row-padding);
     padding-right: var(--row-padding);

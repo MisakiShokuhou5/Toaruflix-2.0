@@ -1,12 +1,12 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaTimes, FaSpinner, FaEyeSlash } from 'react-icons/fa';
 import VideoDiagnostic from './VideoDiagnostic'; 
-import { useVideoOptimization } from './VideoOptimization'; // Motor HLS otimizado para mobile
+import { useVideoOptimization } from './VideoOptimization'; 
 import './Player.css';
 
 // ============================================================================
-// ÍCONES OFICIAIS (Base64 Limpos e Corrigidos)
+// ÍCONES OFICIAIS (Abreviados para não poluir o código aqui - mantenha os seus)
 // ============================================================================
 const ICONS = {
     rewind10: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NyIgaGVpZ2h0PSI2NyIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDY3IDY3Ij48cGF0aCBmaWxsPSIjZmZmIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTMzLjUgMEM1MiAwIDY3IDE1IDY3IDMzLjVTNTIgNjcgMzMuNSA2NyAwIDUyIDAgMzMuNWMuMDMtMS40IDEuMTctMi41MyAyLjU4LTIuNTMgMS40IDAgMi41NSAxLjEzIDIuNTcgMi41MyAwIDE1LjY1IDEyLjcgMjguMzUgMjguMzUgMjguMzUgMTUuNjYgMCAyOC4zNS0xMi43IDI4LjM1LTI4LjM1IDAtMTUuNjYtMTIuNjktMjguMzUtMjguMzUtMjguMzVoLS4wNGMtNyAwLTEzLjc2IDIuNjEtMTguOTQgNy4zLS40Ni40Mi0uOTEuODUtMS4zNCAxLjI5aDYuNThjMS40MiAwIDIuNTctMS4xNiAyLjU3IDIuNTggMCAxLjQyLTEuMTUgMi41OC0yLjU3IDIuNThINi4wMWMtMS40MiAwLTIuNTctMS4xNi0yLjU3LTIuNThWMi41OEMzLjQ0IDEuMTUgNC41OSAwIDYuMDEgMGMxLjQzIDAgMi41OCAxLjE1IDIuNTggMi41OHY4LjUyYy43OC0uODYgMS42MS0xLjcgMi40Ny0yLjQ3QTMzLjQwNyAzMy40MDcgMCAwIDEgMzMuNDYgMGguMDR6bS40OCA0MS4zNGMtMS42LTIuMjEtMi01LjItMi03Ljg1IDAtMi42NS40LTUuNjMgMi03LjgzIDEuNDQtMS45NyAzLjQ3LTIuODQgNS44OC0yLjg0IDIuNDEgMCA0LjQyLjg3IDUuODYgMi44NCAxLjYxIDIuMjEgMi4wMyA1LjE2IDIuMDMgNy44MyAwIDIuNjYtLjQgNS42NC0yIDcuODUtMS40MyAxLjk3LTMuNDcgMi44NC01Ljg5IDIuODQtMi40MSAwLTQuNDUtLjg2LTUuODgtMi44NHptLTkuNzMtMTIuNzdsLTUgMS41OHYtNC4yMWw1Ljg3LTIuNjVoNC4yOHYyMC40N2gtNS4xNVYyOC41N3ptMTcuNjEgOS45NmMuNjEtMS4zMy42OC0zLjYuNjgtNS4wNHMtLjA3LTMuNy0uNjgtNS4wMmMtLjQtLjg2LTEuMDQtMS4yOS0yLTEuMjktLjk1IDAtMS41OS40Mi0xLjk5IDEuMjktLjYxIDEuMzItLjY4IDMuNTgtLjY4IDUuMDIgMCAxLjQ0LjA3IDMuNzEuNjggNS4wNC40Ljg3IDEuMDQgMS4yOSAxLjk5IDEuMjkuOTYgMCAxLjYtLjQyIDItMS4yOXoiLz48L3N2Zz4=",
@@ -26,6 +26,42 @@ const VideoPlayer = ({ link, type, episodeData }) => {
     const controlsTimeoutRef = useRef(null);
     
     // ============================================================================
+    // 🧠 ANALISADOR INTELIGENTE DE LINKS
+    // ============================================================================
+    const { smartLink, smartType } = useMemo(() => {
+        if (!link) return { smartLink: '', smartType: type };
+        
+        let l = link.trim();
+        
+        // 1. O admin colou uma tag HTML <iframe> inteira?
+        if (l.toLowerCase().includes('<iframe')) {
+            const match = l.match(/src=["'](.*?)["']/);
+            return { smartLink: match ? match[1] : l, smartType: 'embed' };
+        }
+
+        // 2. O admin colou o link do navegador do Google Drive (drive.google.com/.../view)?
+        if (l.includes('drive.google.com/file/d/')) {
+            const idMatch = l.match(/file\/d\/([a-zA-Z0-9_-]{25,35})/);
+            if (idMatch) {
+                // Transforma /view em /preview para o Google permitir o Iframe
+                return { smartLink: `https://drive.google.com/file/d/${idMatch[1]}/preview`, smartType: 'embed' };
+            }
+        }
+
+        // 3. O admin colou APENAS O ID puro do Google Drive? (ex: 1cZPzlWzNNulz_...)
+        if (/^[a-zA-Z0-9_-]{25,35}$/.test(l)) {
+            return { smartLink: l, smartType: 'drive' };
+        }
+
+        // 4. Detecção automática por extensão (independente do que o admin marcou)
+        if (l.includes('.mp4')) return { smartLink: l, smartType: 'mp4' };
+        if (l.includes('.m3u8')) return { smartLink: l, smartType: 'm3u8' };
+
+        // 5. Se não for nada disso, confia no que veio do banco
+        return { smartLink: l, smartType: type };
+    }, [link, type]);
+
+    // ============================================================================
     // ESTADOS (UI & PLAYER)
     // ============================================================================
     const [isPlaying, setIsPlaying] = useState(false);
@@ -38,68 +74,28 @@ const VideoPlayer = ({ link, type, episodeData }) => {
     const [showDiagnostic, setShowDiagnostic] = useState(false);
 
     // ============================================================================
-    // MOTOR DE OTIMIZAÇÃO (HLS Inteligente para Mobile)
+    // MOTOR DE OTIMIZAÇÃO (Agora usa as variáveis inteligentes)
     // ============================================================================
-    useVideoOptimization(videoRef, link, type, setIsBuffering);
+    useVideoOptimization(videoRef, smartLink, smartType, setIsBuffering);
 
-    // ============================================================================
-    // LÓGICA DE DIAGNÓSTICO E PRECONNECT DE REDE
-    // ============================================================================
     useEffect(() => {
-        // Comandos de Console para ativar/desativar Stats
-        window.enablePlayerStats = () => {
-            setShowDiagnostic(true);
-            console.log("%c📊 Diagnóstico Ativado!", "color: lightgreen; font-weight: bold; font-size: 14px;");
-        };
-
-        window.disablePlayerStats = () => {
-            setShowDiagnostic(false);
-            console.log("%c📊 Diagnóstico Desativado!", "color: orange; font-weight: bold; font-size: 14px;");
-        };
-
-        // Otimização de Resolução DNS e Pré-conexão (Melhora a latência)
-        const cdns = [
-            'https://cdn.plyr.io',
-            'https://cdnjs.cloudflare.com',
-            'https://unpkg.com',
-            'https://cdn.jsdelivr.net'
-        ];
-
+        const cdns = ['https://cdn.plyr.io', 'https://cdnjs.cloudflare.com', 'https://unpkg.com', 'https://cdn.jsdelivr.net'];
         cdns.forEach(domain => {
-            const dns = document.createElement('link');
-            dns.rel = 'dns-prefetch';
-            dns.href = domain;
+            const dns = document.createElement('link'); dns.rel = 'dns-prefetch'; dns.href = domain;
             document.head.appendChild(dns);
-
-            const preconnect = document.createElement('link');
-            preconnect.rel = 'preconnect';
-            preconnect.href = domain;
-            preconnect.crossOrigin = 'anonymous';
+            const preconnect = document.createElement('link'); preconnect.rel = 'preconnect'; preconnect.href = domain; preconnect.crossOrigin = 'anonymous';
             document.head.appendChild(preconnect);
         });
-
-        return () => {
-            delete window.enablePlayerStats;
-            delete window.disablePlayerStats;
-        };
     }, []);
 
     const handleVideoError = () => {
-        console.error("Erro no vídeo nativo. Recarregando...");
         setIsBuffering(true);
-        setTimeout(() => {
-            if (videoRef.current) videoRef.current.load();
-        }, 2000);
+        setTimeout(() => { if (videoRef.current) videoRef.current.load(); }, 2000);
     };
 
-    // ============================================================================
-    // LÓGICA DE CONTROLES (UI)
-    // ============================================================================
-    
     const handleMouseMove = useCallback(() => {
         setShowControls(true);
         if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-        
         controlsTimeoutRef.current = setTimeout(() => {
             if (isPlaying) setShowControls(false);
         }, 3000);
@@ -111,9 +107,7 @@ const VideoPlayer = ({ link, type, episodeData }) => {
         if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
     };
 
-    const skip = (amount) => {
-        if (videoRef.current) videoRef.current.currentTime += amount;
-    };
+    const skip = (amount) => { if (videoRef.current) videoRef.current.currentTime += amount; };
 
     const togglePlay = useCallback(() => {
         if (!videoRef.current) return;
@@ -142,14 +136,9 @@ const VideoPlayer = ({ link, type, episodeData }) => {
 
     const togglePiP = async () => {
         try {
-            if (document.pictureInPictureElement) {
-                await document.exitPictureInPicture();
-            } else if (document.pictureInPictureEnabled && videoRef.current) {
-                await videoRef.current.requestPictureInPicture();
-            }
-        } catch (error) {
-            console.error("Erro ao ativar PiP:", error);
-        }
+            if (document.pictureInPictureElement) await document.exitPictureInPicture();
+            else if (document.pictureInPictureEnabled && videoRef.current) await videoRef.current.requestPictureInPicture();
+        } catch (error) { console.error("Erro ao ativar PiP:", error); }
     };
 
     const closePlayer = () => {
@@ -171,15 +160,40 @@ const VideoPlayer = ({ link, type, episodeData }) => {
 
     const formatTime = (time) => {
         if (isNaN(time)) return "00:00";
-        const h = Math.floor(time / 3600);
-        const m = Math.floor((time % 3600) / 60);
-        const s = Math.floor(time % 60);
+        const h = Math.floor(time / 3600); const m = Math.floor((time % 3600) / 60); const s = Math.floor(time % 60);
         return `${h > 0 ? h + ':' : ''}${m < 10 && h > 0 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
     };
 
     // ============================================================================
-    // RENDERIZAÇÃO
+    // RENDERIZAÇÃO INTELIGENTE
     // ============================================================================
+    
+    // CASO 1: SE A INTELIGÊNCIA DECIDIU QUE É UM EMBED/IFRAME
+    if (smartType === 'embed') {
+        return (
+            <div className="pv-player-container controls-active" ref={playerContainerRef}>
+                <div className="pv-controls-overlay" style={{ background: 'transparent', pointerEvents: 'none' }}>
+                    <div className="pv-top-right" style={{ pointerEvents: 'auto' }}>
+                        <button className="pv-action-btn" onClick={toggleFullscreen}>
+                            <img src={isFullscreen ? ICONS.fullscreenClose : ICONS.fullscreenOpen} alt="Tela Cheia" />
+                        </button>
+                        <button className="pv-action-btn" onClick={closePlayer} style={{ marginLeft: '10px' }}>
+                            <FaTimes size={22} color="#fff" />
+                        </button>
+                    </div>
+                </div>
+                <iframe 
+                    src={smartLink}
+                    className="pv-video-element" 
+                    frameBorder="0" 
+                    allowFullScreen 
+                    style={{ width: '100%', height: '100%', pointerEvents: 'auto' }}
+                ></iframe>
+            </div>
+        );
+    }
+
+    // CASO 2: SE FOR MP4, M3U8 OU ID PURO DO DRIVE (USA O PLAYER CUSTOMIZADO)
     return (
         <div 
             className={`pv-player-container ${showControls ? 'controls-active' : 'controls-hidden'}`}
@@ -188,9 +202,7 @@ const VideoPlayer = ({ link, type, episodeData }) => {
             onClick={handleMouseMove}
             onMouseLeave={() => isPlaying && setShowControls(false)}
         >
-            {/* PAINEL DE DIAGNÓSTICO */}
             {showDiagnostic && <VideoDiagnostic videoRef={videoRef} />}
-
             {isBuffering && <div className="pv-loading"><FaSpinner className="pv-spin" /></div>}
 
             <video
@@ -208,29 +220,15 @@ const VideoPlayer = ({ link, type, episodeData }) => {
             />
 
             <div className="pv-controls-overlay">
-                
                 <div className="pv-top-right">
-                    <button 
-                        className="pv-action-btn" 
-                        onClick={forceHideControls} 
-                        title="Esconder Controles"
-                    >
+                    <button className="pv-action-btn" onClick={forceHideControls} title="Esconder Controles">
                         <FaEyeSlash size={22} color="#fff" />
                     </button>
 
                     <div className="pv-volume-wrapper">
-                        <button className="pv-action-btn">
-                            <img src={ICONS.volume} alt="Volume" />
-                        </button>
+                        <button className="pv-action-btn"><img src={ICONS.volume} alt="Volume" /></button>
                         <div className="pv-volume-slider-container">
-                            <input 
-                                type="range" 
-                                className="pv-volume-slider"
-                                min="0" max="1" step="0.05"
-                                value={volume}
-                                onChange={handleVolumeChange}
-                                style={{ '--vol-progress': `${volume * 100}%` }}
-                            />
+                            <input type="range" className="pv-volume-slider" min="0" max="1" step="0.05" value={volume} onChange={handleVolumeChange} style={{ '--vol-progress': `${volume * 100}%` }} />
                         </div>
                     </div>
 
@@ -241,10 +239,7 @@ const VideoPlayer = ({ link, type, episodeData }) => {
                     )}
 
                     <button className="pv-action-btn" onClick={toggleFullscreen}>
-                        <img 
-                            src={isFullscreen ? ICONS.fullscreenClose : ICONS.fullscreenOpen} 
-                            alt="Tela Cheia" 
-                        />
+                        <img src={isFullscreen ? ICONS.fullscreenClose : ICONS.fullscreenOpen} alt="Tela Cheia" />
                     </button>
                     
                     <button className="pv-action-btn" onClick={closePlayer} style={{ marginLeft: '10px' }}>
@@ -253,40 +248,17 @@ const VideoPlayer = ({ link, type, episodeData }) => {
                 </div>
 
                 <div className="pv-center-controls" onClick={(e) => e.stopPropagation()}>
-                    <button className="pv-center-btn" onClick={() => skip(-10)}>
-                        <img src={ICONS.rewind10} alt="-10s" />
-                    </button>
-                    
-                    <button className="pv-center-btn play-pause" onClick={togglePlay}>
-                        <img src={isPlaying ? ICONS.pause : ICONS.play} alt="Play/Pause" />
-                    </button>
-                    
-                    <button className="pv-center-btn" onClick={() => skip(10)}>
-                        <img src={ICONS.forward10} alt="+10s" />
-                    </button>
+                    <button className="pv-center-btn" onClick={() => skip(-10)}><img src={ICONS.rewind10} alt="-10s" /></button>
+                    <button className="pv-center-btn play-pause" onClick={togglePlay}><img src={isPlaying ? ICONS.pause : ICONS.play} alt="Play/Pause" /></button>
+                    <button className="pv-center-btn" onClick={() => skip(10)}><img src={ICONS.forward10} alt="+10s" /></button>
                 </div>
 
                 <div className="pv-bottom-controls" onClick={(e) => e.stopPropagation()}>
-                    <div className="pv-time-display">
-                        {formatTime(currentTime)} / {formatTime(duration)}
-                    </div>
-                    
+                    <div className="pv-time-display">{formatTime(currentTime)} / {formatTime(duration)}</div>
                     <div className="pv-progress-wrapper">
-                        <input 
-                            type="range" 
-                            className="pv-seekbar"
-                            min="0" max={duration || 100}
-                            value={currentTime}
-                            onChange={(e) => {
-                                const newTime = parseFloat(e.target.value);
-                                videoRef.current.currentTime = newTime;
-                                setCurrentTime(newTime);
-                            }}
-                            style={{ '--progress': `${(currentTime / duration) * 100}%` }}
-                        />
+                        <input type="range" className="pv-seekbar" min="0" max={duration || 100} value={currentTime} onChange={(e) => { const newTime = parseFloat(e.target.value); videoRef.current.currentTime = newTime; setCurrentTime(newTime); }} style={{ '--progress': `${(currentTime / duration) * 100}%` }} />
                     </div>
                 </div>
-
             </div>
         </div>
     );

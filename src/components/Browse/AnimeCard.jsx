@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import CardInfo from './CardInfo'; // <-- Importando o novo componente
 
 const calculateProgress = (history) => {
     if (!history || typeof history.duration !== 'number' || typeof history.currentTime !== 'number' || history.duration <= 0) {
@@ -26,7 +27,7 @@ const AnimeCard = ({ anime }) => {
 
     return (
         <div 
-            className="anime-card-container"
+            className="anime-card-container hover-scale-effect" // <-- Adicionada a classe hover-scale-effect
             onClick={handleCardClick}
             role="button"
             aria-label={`Ver detalhes de ${anime.titulo}`}
@@ -53,6 +54,9 @@ const AnimeCard = ({ anime }) => {
                     <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
                 </div>
             )}
+
+            {/* Renderiza o CardInfo (ele é invisível no celular e oculto por padrão no Desktop) */}
+            <CardInfo anime={anime} animeSlug={animeSlug} />
         </div>
     );
 };
