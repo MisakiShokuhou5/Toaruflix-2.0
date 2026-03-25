@@ -1,119 +1,179 @@
-import React from 'react';
+import React, { useState } from 'react';
+// Descomente a linha abaixo dependendo do caminho do seu AuthContext
+// import { useAuth } from '../contexts/AuthContext';
+
+// Chave em Base64 do seu e-mail: joaopaulonevesbatista20@gmail.com
+// Isso é o que realmente valida o acesso, mantendo seu e-mail oculto no código.
+const _0xMasterHash = 'am9hb3BhdWxvbmV2ZXNiYXRpc3RhMjBAZ21haWwuY29t'; 
 
 const Terror = () => {
+    const [loading, setLoading] = useState(false);
+    // Se estiver usando o seu AuthContext, você puxaria a função de login assim:
+    // const { loginWithGoogle } = useAuth();
+
+    const handleGoogleLogin = async () => {
+        setLoading(true);
+        
+        try {
+            // --- INGRAÇÃO COM O GOOGLE (SIMULAÇÃO) ---
+            // Quando você integrar o Firebase ou Auth0, substitua o prompt pela função real.
+            // Exemplo: const result = await loginWithGoogle(); const userEmail = result.user.email;
+            const userEmail = prompt("[SIMULAÇÃO] Digite o e-mail retornado pelo Google:");
+
+            // --- VALIDAÇÃO DA REDE (Utilizando o Base64) ---
+            // Compara o e-mail recebido (em minúsculo) convertido para Base64 com nossa hash mestra.
+            if (userEmail && btoa(userEmail.toLowerCase()) === _0xMasterHash) {
+                alert('ACESSO AUTORIZADO. Credenciais reconhecidas na rede.');
+                
+                // Salva permanentemente no navegador que este dispositivo está liberado
+                localStorage.setItem('toaruflix_unlocked', 'true');
+                
+                // Recarrega a página para o porteiro (App.js) ler o novo estado
+                window.location.reload();
+            } else {
+                alert('ACESSO NEGADO. Este e-mail não possui permissão de acesso.');
+            }
+        } catch (error) {
+            console.error("Erro na autenticação:", error);
+            alert('Falha ao conectar com os satélites de autenticação.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <>
             <style>
                 {`
-                /* Animação para o texto tremendo */
-                @keyframes glitchText {
-                    0% { transform: translate(0) }
-                    20% { transform: translate(-2px, 2px) }
-                    40% { transform: translate(-2px, -2px) }
-                    60% { transform: translate(2px, 2px) }
-                    80% { transform: translate(2px, -2px) }
-                    100% { transform: translate(0) }
+                @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+                .netflix-body {
+                    margin: 0;
+                    padding: 0;
+                    background-color: #000;
+                    color: #fff;
+                    font-family: 'Roboto', sans-serif;
+                    height: 100vh;
+                    width: 100vw;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    overflow: hidden;
+                    position: relative;
                 }
-                
-                /* Animação para a luz piscando tipo lâmpada quebrada */
-                @keyframes flicker {
-                    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; text-shadow: 2px 2px 20px #ff0000; }
-                    20%, 24%, 55% { opacity: 0.1; text-shadow: none; }
+
+                .netflix-bg {
+                    position: absolute;
+                    top: 0; left: 0; width: 100%; height: 100%;
+                    background-image: url('https://static.wikia.nocookie.net/to-aru-majutsu-no-index/images/2/2f/Toaru_Majutsu_no_Index_E20_14m_07s.jpg');
+                    background-size: cover;
+                    background-position: center;
+                    filter: grayscale(100%) brightness(50%); /* Preto e Branco + Escurecido */
+                    z-index: 1;
+                }
+
+                .netflix-overlay {
+                    position: absolute;
+                    top: 0; left: 0; width: 100%; height: 100%;
+                    background: radial-gradient(circle at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
+                    z-index: 2;
+                }
+
+                .netflix-card {
+                    position: relative;
+                    z-index: 3;
+                    background-color: rgba(0, 0, 0, 0.85);
+                    padding: 60px;
+                    border-radius: 4px;
+                    width: 100%;
+                    max-width: 450px;
+                    text-align: center;
+                    border: 1px solid #333;
+                }
+
+                .netflix-logo {
+                    font-size: 2.5rem;
+                    font-weight: 700;
+                    letter-spacing: -1px;
+                    margin-bottom: 40px;
+                    text-transform: uppercase;
+                }
+
+                .netflix-title {
+                    font-size: 1.8rem;
+                    font-weight: 700;
+                    margin-bottom: 15px;
+                    text-transform: uppercase;
+                }
+
+                .netflix-text {
+                    color: #a0a0a0;
+                    font-size: 1rem;
+                    line-height: 1.5;
+                    margin-bottom: 30px;
+                    font-weight: 300;
+                }
+
+                .netflix-btn {
+                    width: 100%;
+                    background-color: #fff;
+                    color: #000;
+                    border: none;
+                    padding: 15px;
+                    font-size: 1rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    border-radius: 2px;
+                    cursor: pointer;
+                    transition: background-color 0.3s;
+                }
+
+                .netflix-btn:hover:not(:disabled) {
+                    background-color: #e0e0e0;
+                }
+
+                .netflix-btn:disabled {
+                    background-color: #555;
+                    color: #888;
+                    cursor: not-allowed;
+                }
+
+                .netflix-footer {
+                    position: absolute;
+                    bottom: 20px;
+                    left: 20px;
+                    font-size: 0.75rem;
+                    color: #555;
+                    font-family: monospace;
+                    z-index: 3;
                 }
                 `}
             </style>
             
-            <div style={{
-                minHeight: '100vh',
-                width: '100vw',
-                backgroundImage: `url('https://static.wikia.nocookie.net/to-aru-majutsu-no-index/images/2/2f/Toaru_Majutsu_no_Index_E20_14m_07s.jpg')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-                fontFamily: "'Courier New', Courier, monospace",
-                backgroundColor: '#000'
-            }}>
-                {/* Camada escura por cima da imagem para dar um clima sombrio */}
-                <div style={{
-                    position: 'absolute',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-                    zIndex: 1
-                }}></div>
-
-                {/* Container do Conteúdo */}
-                <div style={{
-                    zIndex: 2,
-                    textAlign: 'center',
-                    color: 'white',
-                    padding: '50px',
-                    backgroundColor: 'rgba(20, 0, 0, 0.5)',
-                    border: '2px solid #8a0303',
-                    boxShadow: '0 0 40px rgba(138, 3, 3, 0.8)',
-                    borderRadius: '10px',
-                    maxWidth: '800px',
-                    width: '90%',
-                    backdropFilter: 'blur(3px)'
-                }}>
-                    <h1 style={{
-                        fontSize: '3.5rem',
-                        color: '#ff0000',
-                        textTransform: 'uppercase',
-                        animation: 'flicker 4s infinite',
-                        marginBottom: '20px',
-                        lineHeight: '1.2'
-                    }}>
-                        CADÊ AS MÚSICAS QUE EU TE PEDI ??
-                    </h1>
+            <div className="netflix-body">
+                <div className="netflix-bg"></div>
+                <div className="netflix-overlay"></div>
+                
+                <div className="netflix-card">
+                    <div className="netflix-logo">TOARU-FLIX</div>
+                    <h1 className="netflix-title">Rede Restrita</h1>
                     
-                    <p style={{
-                        fontSize: '1.5rem',
-                        color: '#ddd',
-                        animation: 'glitchText 0.1s infinite',
-                        marginBottom: '30px',
-                        fontWeight: 'bold'
-                    }}>
-                        Você achou mesmo que ia rodar o Toaruflix sem a OST?
+                    <p className="netflix-text">
+                        O ACESSO A ESTE SISTEMA EXIGE AUTENTICAÇÃO DE ALTA SEGURANÇA.
+                        POR FAVOR, IDENTIFIQUE-SE USANDO SUAS CREDENCIAIS DO GOOGLE PARA PROSSEGUIR.
                     </p>
 
-                    <div style={{
-                        border: '1px solid #ff0000',
-                        padding: '25px',
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        marginBottom: '40px'
-                    }}>
-                        {/* <h2 style={{ color: '#8a2be2', margin: '0 0 15px 0', fontSize: '1.8rem' }}>TAXA DE SOBREVIVÊNCIA: R$ 50,00</h2>
-                        <p style={{ margin: 0, color: '#aaa', fontSize: '1.1rem' }}>
-                            Efetue o PIX para o desenvolvedor ou o Accelerator vai cuidar dos seus arquivos.
-                        </p> */}
-                    </div>
-
                     <button 
-                        onClick={() => alert('ERRO FATAL: Você não pode fugir. Cadê os arquivos de áudio?!')}
-                        style={{
-                            padding: '15px 40px',
-                            fontSize: '1.3rem',
-                            fontWeight: 'bold',
-                            backgroundColor: '#8a0303',
-                            color: 'white',
-                            border: 'none',
-                            cursor: 'pointer',
-                            textTransform: 'uppercase',
-                            boxShadow: '0 0 20px #ff0000',
-                            transition: 'all 0.3s',
-                            borderRadius: '5px'
-                        }}
-                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ff0000'; e.currentTarget.style.transform = 'scale(1.05)'; }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#8a0303'; e.currentTarget.style.transform = 'scale(1)'; }}
+                        className="netflix-btn"
+                        onClick={handleGoogleLogin}
+                        disabled={loading}
                     >
-                        Tentar Fugir
+                        {loading ? 'PROCESSANDO...' : 'LOGAR COM GOOGLE'}
                     </button>
+                </div>
+
+                <div className="netflix-footer">
+                    STATUS: OFFLINE | NODE: TOARU-2026
                 </div>
             </div>
         </>

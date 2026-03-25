@@ -6,7 +6,7 @@ import { useVideoOptimization } from './VideoOptimization';
 import './Player.css';
 
 // ============================================================================
-// ÍCONES OFICIAIS (Abreviados para não poluir o código aqui - mantenha os seus)
+// ÍCONES OFICIAIS
 // ============================================================================
 const ICONS = {
     rewind10: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NyIgaGVpZ2h0PSI2NyIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDY3IDY3Ij48cGF0aCBmaWxsPSIjZmZmIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTMzLjUgMEM1MiAwIDY3IDE1IDY3IDMzLjVTNTIgNjcgMzMuNSA2NyAwIDUyIDAgMzMuNWMuMDMtMS40IDEuMTctMi41MyAyLjU4LTIuNTMgMS40IDAgMi41NSAxLjEzIDIuNTcgMi41MyAwIDE1LjY1IDEyLjcgMjguMzUgMjguMzUgMjguMzUgMTUuNjYgMCAyOC4zNS0xMi43IDI4LjM1LTI4LjM1IDAtMTUuNjYtMTIuNjktMjguMzUtMjguMzUtMjguMzVoLS4wNGMtNyAwLTEzLjc2IDIuNjEtMTguOTQgNy4zLS40Ni40Mi0uOTEuODUtMS4zNCAxLjI5aDYuNThjMS40MiAwIDIuNTctMS4xNiAyLjU3IDIuNTggMCAxLjQyLTEuMTUgMi41OC0yLjU3IDIuNThINi4wMWMtMS40MiAwLTIuNTctMS4xNi0yLjU3LTIuNThWMi41OEMzLjQ0IDEuMTUgNC41OSAwIDYuMDEgMGMxLjQzIDAgMi41OCAxLjE1IDIuNTggMi41OHY4LjUyYy43OC0uODYgMS42MS0xLjcgMi40Ny0yLjQ3QTMzLjQwNyAzMy40MDcgMCAwIDEgMzMuNDYgMGguMDR6bS40OCA0MS4zNGMtMS42LTIuMjEtMi01LjItMi03Ljg1IDAtMi42NS40LTUuNjMgMi03LjgzIDEuNDQtMS45NyAzLjQ3LTIuODQgNS44OC0yLjg0IDIuNDEgMCA0LjQyLjg3IDUuODYgMi44NCAxLjYxIDIuMjEgMi4wMyA1LjE2IDIuMDMgNy44MyAwIDIuNjYtLjQgNS42NC0yIDcuODUtMS40MyAxLjk3LTMuNDcgMi44NC01Ljg5IDIuODQtMi40MSAwLTQuNDUtLjg2LTUuODgtMi44NHptLTkuNzMtMTIuNzdsLTUgMS41OHYtNC4yMWw1Ljg3LTIuNjVoNC4yOHYyMC40N2gtNS4xNVYyOC41N3ptMTcuNjEgOS45NmMuNjEtMS4zMy42OC0zLjYuNjgtNS4wNHMtLjA3LTMuNy0uNjgtNS4wMmMtLjQtLjg2LTEuMDQtMS4yOS0yLTEuMjktLjk1IDAtMS41OS40Mi0xLjk5IDEuMjktLjYxIDEuMzItLjY4IDMuNTgtLjY4IDUuMDIgMCAxLjQ0LjA3IDMuNzEuNjggNS4wNC40Ljg3IDEuMDQgMS4yOSAxLjk5IDEuMjkuOTYgMCAxLjYtLjQyIDItMS4yOXoiLz48L3N2Zz4=",
@@ -30,61 +30,42 @@ const VideoPlayer = ({ link, type, episodeData }) => {
     // ============================================================================
     const { smartLink, smartType } = useMemo(() => {
         if (!link) return { smartLink: '', smartType: type };
-        
         let l = link.trim();
-        
-        // 1. O admin colou uma tag HTML <iframe> inteira?
         if (l.toLowerCase().includes('<iframe')) {
             const match = l.match(/src=["'](.*?)["']/);
             return { smartLink: match ? match[1] : l, smartType: 'embed' };
         }
-
-        // 2. O admin colou o link do navegador do Google Drive (drive.google.com/.../view)?
         if (l.includes('drive.google.com/file/d/')) {
             const idMatch = l.match(/file\/d\/([a-zA-Z0-9_-]{25,35})/);
-            if (idMatch) {
-                // Transforma /view em /preview para o Google permitir o Iframe
-                return { smartLink: `https://drive.google.com/file/d/${idMatch[1]}/preview`, smartType: 'embed' };
-            }
+            if (idMatch) return { smartLink: `https://drive.google.com/file/d/${idMatch[1]}/preview`, smartType: 'embed' };
         }
-
-        // 3. O admin colou APENAS O ID puro do Google Drive? (ex: 1cZPzlWzNNulz_...)
-        if (/^[a-zA-Z0-9_-]{25,35}$/.test(l)) {
-            return { smartLink: l, smartType: 'drive' };
-        }
-
-        // 4. Detecção automática por extensão (independente do que o admin marcou)
+        if (/^[a-zA-Z0-9_-]{25,35}$/.test(l)) return { smartLink: l, smartType: 'drive' };
         if (l.includes('.mp4')) return { smartLink: l, smartType: 'mp4' };
         if (l.includes('.m3u8')) return { smartLink: l, smartType: 'm3u8' };
-
-        // 5. Se não for nada disso, confia no que veio do banco
         return { smartLink: l, smartType: type };
     }, [link, type]);
 
     // ============================================================================
-    // ESTADOS (UI & PLAYER)
+    // ESTADOS (UI & PLAYER AVANÇADO)
     // ============================================================================
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
+    const [buffered, setBuffered] = useState(0); // ESTADO DO CARREGAMENTO (BUFFER)
     const [volume, setVolume] = useState(1);
+    const [playbackRate, setPlaybackRate] = useState(1); // ESTADO DA VELOCIDADE
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isBuffering, setIsBuffering] = useState(true);
     const [showControls, setShowControls] = useState(true);
     const [showDiagnostic, setShowDiagnostic] = useState(false);
 
-    // ============================================================================
-    // MOTOR DE OTIMIZAÇÃO (Agora usa as variáveis inteligentes)
-    // ============================================================================
     useVideoOptimization(videoRef, smartLink, smartType, setIsBuffering);
 
     useEffect(() => {
         const cdns = ['https://cdn.plyr.io', 'https://cdnjs.cloudflare.com', 'https://unpkg.com', 'https://cdn.jsdelivr.net'];
         cdns.forEach(domain => {
-            const dns = document.createElement('link'); dns.rel = 'dns-prefetch'; dns.href = domain;
-            document.head.appendChild(dns);
-            const preconnect = document.createElement('link'); preconnect.rel = 'preconnect'; preconnect.href = domain; preconnect.crossOrigin = 'anonymous';
-            document.head.appendChild(preconnect);
+            const dns = document.createElement('link'); dns.rel = 'dns-prefetch'; dns.href = domain; document.head.appendChild(dns);
+            const preconnect = document.createElement('link'); preconnect.rel = 'preconnect'; preconnect.href = domain; preconnect.crossOrigin = 'anonymous'; document.head.appendChild(preconnect);
         });
     }, []);
 
@@ -115,12 +96,32 @@ const VideoPlayer = ({ link, type, episodeData }) => {
         else videoRef.current.pause();
     }, []);
 
+    // Atualiza a barra cinza de carregamento (Buffer)
+    const handleProgress = () => {
+        if (videoRef.current && videoRef.current.buffered.length > 0) {
+            const bufferedEnd = videoRef.current.buffered.end(videoRef.current.buffered.length - 1);
+            setBuffered((bufferedEnd / duration) * 100);
+        }
+    };
+
     const handleVolumeChange = (e) => {
         const newVolume = parseFloat(e.target.value);
         setVolume(newVolume);
         if (videoRef.current) {
             videoRef.current.volume = newVolume;
             videoRef.current.muted = newVolume === 0;
+        }
+    };
+
+    // Alterna a velocidade do player (1x -> 1.25x -> 1.5x -> 2x)
+    const togglePlaybackRate = (e) => {
+        e.stopPropagation();
+        const rates = [1, 1.25, 1.5, 2];
+        const nextIndex = (rates.indexOf(playbackRate) + 1) % rates.length;
+        const newRate = rates[nextIndex];
+        setPlaybackRate(newRate);
+        if (videoRef.current) {
+            videoRef.current.playbackRate = newRate;
         }
     };
 
@@ -165,10 +166,8 @@ const VideoPlayer = ({ link, type, episodeData }) => {
     };
 
     // ============================================================================
-    // RENDERIZAÇÃO INTELIGENTE
+    // RENDERIZAÇÃO
     // ============================================================================
-    
-    // CASO 1: SE A INTELIGÊNCIA DECIDIU QUE É UM EMBED/IFRAME
     if (smartType === 'embed') {
         return (
             <div className="pv-player-container controls-active" ref={playerContainerRef}>
@@ -182,18 +181,11 @@ const VideoPlayer = ({ link, type, episodeData }) => {
                         </button>
                     </div>
                 </div>
-                <iframe 
-                    src={smartLink}
-                    className="pv-video-element" 
-                    frameBorder="0" 
-                    allowFullScreen 
-                    style={{ width: '100%', height: '100%', pointerEvents: 'auto' }}
-                ></iframe>
+                <iframe src={smartLink} className="pv-video-element" frameBorder="0" allowFullScreen style={{ width: '100%', height: '100%', pointerEvents: 'auto' }}></iframe>
             </div>
         );
     }
 
-    // CASO 2: SE FOR MP4, M3U8 OU ID PURO DO DRIVE (USA O PLAYER CUSTOMIZADO)
     return (
         <div 
             className={`pv-player-container ${showControls ? 'controls-active' : 'controls-hidden'}`}
@@ -211,6 +203,7 @@ const VideoPlayer = ({ link, type, episodeData }) => {
                 preload="auto"
                 onClick={togglePlay}
                 onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
+                onProgress={handleProgress}
                 onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
                 onWaiting={() => setIsBuffering(true)}
                 onPlaying={() => { setIsBuffering(false); setIsPlaying(true); }}
@@ -223,6 +216,11 @@ const VideoPlayer = ({ link, type, episodeData }) => {
                 <div className="pv-top-right">
                     <button className="pv-action-btn" onClick={forceHideControls} title="Esconder Controles">
                         <FaEyeSlash size={22} color="#fff" />
+                    </button>
+
+                    {/* BOTÃO DE VELOCIDADE (NOVO) */}
+                    <button className="pv-action-btn pv-speed-btn" onClick={togglePlaybackRate} title="Velocidade de Reprodução">
+                        {playbackRate}x
                     </button>
 
                     <div className="pv-volume-wrapper">
@@ -255,8 +253,30 @@ const VideoPlayer = ({ link, type, episodeData }) => {
 
                 <div className="pv-bottom-controls" onClick={(e) => e.stopPropagation()}>
                     <div className="pv-time-display">{formatTime(currentTime)} / {formatTime(duration)}</div>
+                    
+                    {/* BARRA DE PROGRESSO AVANÇADA (NOVO ESTILO MULTICAMADAS) */}
                     <div className="pv-progress-wrapper">
-                        <input type="range" className="pv-seekbar" min="0" max={duration || 100} value={currentTime} onChange={(e) => { const newTime = parseFloat(e.target.value); videoRef.current.currentTime = newTime; setCurrentTime(newTime); }} style={{ '--progress': `${(currentTime / duration) * 100}%` }} />
+                        <div className="pv-progress-track-container">
+                            <div className="pv-progress-background"></div>
+                            {/* Barra de Buffer Cinza Clara */}
+                            <div className="pv-progress-buffered" style={{ width: `${buffered}%` }}></div>
+                            {/* Barra Branca do Tempo Atual */}
+                            <div className="pv-progress-filled" style={{ width: `${(currentTime / duration) * 100}%` }}></div>
+                            
+                            {/* O Input de Range (Transparente por cima para capturar o clique) */}
+                            <input 
+                                type="range" 
+                                className="pv-seekbar" 
+                                min="0" 
+                                max={duration || 100} 
+                                value={currentTime} 
+                                onChange={(e) => { 
+                                    const newTime = parseFloat(e.target.value); 
+                                    if(videoRef.current) videoRef.current.currentTime = newTime; 
+                                    setCurrentTime(newTime); 
+                                }} 
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react'; 
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaPlay, FaClock, FaStar, FaRegPlayCircle, FaPlus, FaCheck } from 'react-icons/fa'; 
+import { FaPlay, FaClock, FaStar, FaRegPlayCircle, FaPlus, FaCheck, FaInfoCircle } from 'react-icons/fa'; 
 
-// ✅ IMPORTAÇÕES DO FIREBASE
+// IMPORTAÇÕES DO FIREBASE
 import { doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore'; 
 import { getAuth } from 'firebase/auth';
 import { db } from '../firebase/config'; 
 
-// ✅ IMPORTAÇÃO DO DATA SERVICE
+// IMPORTAÇÃO DO DATA SERVICE
 import { getMediaById } from '../services/dataService'; 
 
 import Spinner from '../components/shared/Spinner'; 
-import '../pages/Details.css'; 
+import './Details.css'; // SEU NOVO ARQUIVO CSS AQUI
 
 // --- CONFIGURAÇÃO ---
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/'; 
@@ -22,7 +22,7 @@ const MINIMUM_DELAY_MS = 1000;
 const formatRuntime = (minutes) => (minutes && minutes > 0 ? `${minutes} min` : 'N/D');
 const formatRating = (rating) => (rating && typeof rating === 'number' ? rating.toFixed(1) : 'N/D');
 
-// --- HOOK DE DADOS ---
+// --- HOOK DE DADOS (Mantido Intacto) ---
 const useUnifiedMediaDetails = (slug) => {
     const [seriesData, setSeriesData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -38,7 +38,6 @@ const useUnifiedMediaDetails = (slug) => {
             let foundMedia = null;
             let currentSource = null;
 
-            // TENTATIVA 1: BUSCAR NO FIRESTORE
             try {
                 const seriesRef = doc(db, 'animes', slug);
                 const seriesSnap = await getDoc(seriesRef);
@@ -64,7 +63,6 @@ const useUnifiedMediaDetails = (slug) => {
                 console.warn(`[Details] Falha Firestore:`, fbError.message);
             }
             
-            // TENTATIVA 2: FALLBACK API EXTERNA
             if (!foundMedia) {
                 try {
                     let mediaFallback = await getMediaById('series', slug);
@@ -113,7 +111,6 @@ const useUnifiedMediaDetails = (slug) => {
     return { seriesData, groupedEpisodes, loading, error, source };
 };
 
-
 // --- COMPONENTE PRINCIPAL ---
 const Details = () => {
     const { slug } = useParams(); 
@@ -125,11 +122,9 @@ const Details = () => {
     const [selectedSeason, setSelectedSeason] = useState(1); 
     const [minimumDelayPassed, setMinimumDelayPassed] = useState(false);
     
-    // Estado para Minha Lista
     const [isInMyList, setIsInMyList] = useState(false);
     const [listLoading, setListLoading] = useState(false);
     
-    // Verifica se está na lista
     useEffect(() => {
         if (!user || !seriesData) return;
         
@@ -141,7 +136,6 @@ const Details = () => {
         return () => unsubscribe();
     }, [user, seriesData]);
 
-    // Função para Adicionar/Remover da Lista (CORRIGIDA)
     const handleToggleList = async () => {
         if (!user || !seriesData) return alert("Faça login para salvar na lista.");
         
@@ -152,15 +146,14 @@ const Details = () => {
             if (isInMyList) {
                 await deleteDoc(itemRef);
             } else {
-                // ✅ CORREÇÃO AQUI: Previne valores 'undefined'
                 const imageToSave = seriesData.poster_path || seriesData.imageUrl || seriesData.backdropUrl || null;
                 const titleToSave = seriesData.titulo || seriesData.title || seriesData.name || 'Sem Título';
 
                 await setDoc(itemRef, {
                     id: seriesData.id,
                     title: titleToSave,
-                    poster_path: imageToSave, // Garante que nunca seja undefined
-                    imageUrl: imageToSave,    // Garante que nunca seja undefined
+                    poster_path: imageToSave, 
+                    imageUrl: imageToSave,    
                     type: 'anime', 
                     addedAt: new Date()
                 });
@@ -188,9 +181,8 @@ const Details = () => {
     }, []); 
 
     if (loading || !minimumDelayPassed) return <Spinner />; 
-    if (error || !seriesData) return <h1 className="error-message" style={{color: 'white', textAlign: 'center', marginTop: '100px'}}>{error || "Título não encontrado."}</h1>;
+    if (error || !seriesData) return <div className="details-error-screen">{error || "Título não encontrado."}</div>;
 
-    // --- Dados para Renderização ---
     const currentEpisodes = groupedEpisodes[selectedSeason] || [];
     const titleDisplayName = seriesData.titulo || seriesData.title || seriesData.name || 'Título Indisponível';
     const backdropPath = seriesData.backdropUrl || seriesData.backdrop_path;
@@ -216,36 +208,45 @@ const Details = () => {
     };
     
     return (
-        <div className="details-wrapper">
+        <div className="details-page">
             
-            {/* HERÓI PRINCIPAL (BACKDROP) */}
-            <div className="hero-details" style={{ backgroundImage: `url(${backdropUrl})` }}>
-                <div className="hero-gradient-overlay"></div> 
+            {/* 1. HERO / CAPA PRINCIPAL */}
+            <section className="details-hero">
+                <div 
+                    className="hero-background" 
+                    style={{ backgroundImage: `url(${backdropUrl})` }}
+                ></div>
+                <div className="hero-vignette-bottom"></div>
+                <div className="hero-vignette-side"></div>
                 
                 <div className="hero-content">
                     <h1 className="hero-title">{titleDisplayName}</h1>
                     
-                    <div className="hero-metadata">
-                        <span className="metadata-item">{releaseYear}</span>
-                        <span className="metadata-item rating">
-                            <FaStar className="rating-star" /> {formatRating(voteAverage)}
+                    <div className="hero-meta">
+                        <span className="meta-year">{releaseYear}</span>
+                        <span className="meta-rating">
+                            <FaStar className="icon-star" /> {formatRating(voteAverage)}
                         </span>
-                        <span className="metadata-item">
-                            <FaClock /> {formatRuntime(runtime)}
+                        <span className="meta-duration">
+                            {seasonOptions.length > 0 ? `${seasonOptions.length} Temporada(s)` : formatRuntime(runtime)}
                         </span>
+                        <span className="meta-badge">HD</span>
                     </div>
                     
-                    <div className="hero-actions" style={{ display: 'flex', gap: '15px', margin: '20px 0' }}>
-                        {/* BOTÃO PLAY */}
+                    <p className="hero-synopsis">{synopse}</p>
+                    
+                    <div className="hero-buttons">
                         {isWatchable && currentEpisodes.length > 0 && (
-                            <button className="hero-btn play-btn-detail" onClick={() => handleWatch(currentEpisodes[0])}>
+                            <button 
+                                className="btn-primary" 
+                                onClick={() => handleWatch(currentEpisodes[0])}
+                            >
                                 <FaPlay /> Assistir
                             </button>
                         )}
 
-                        {/* BOTÃO MINHA LISTA */}
                         <button 
-                            className={`hero-btn list-btn ${isInMyList ? 'active' : ''}`} 
+                            className={`btn-secondary ${isInMyList ? 'in-list' : ''}`} 
                             onClick={handleToggleList}
                             disabled={listLoading}
                         >
@@ -254,77 +255,131 @@ const Details = () => {
                         </button>
                     </div>
 
-                    <p className="hero-overview">{synopse}</p>
-                    
                     {!isWatchable && (
-                        <div className="partner-notice-box">
-                            <p><strong>Conteúdo de Parceria:</strong> Disponível para consulta. A reprodução é feita no serviço de streaming original.</p>
+                        <div className="partner-notice">
+                            <FaInfoCircle className="icon-info" />
+                            <p><strong>Conteúdo de Parceria:</strong> Disponível no serviço original.</p>
                         </div>
                     )}
                 </div>
-            </div>
+            </section>
 
-            {/* SEÇÃO DE EPISÓDIOS */}
-            {currentEpisodes.length > 0 && (
-                <div className="episodes-section">
-                    <div className="episodes-header">
-                        <h2 className="episodes-title">Episódios</h2>
-                        {seasonOptions.length > 1 && (
-                            <div className="custom-select-wrapper">
-                                <select 
-                                    className="season-selector"
-                                    value={selectedSeason} 
-                                    onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                                >
-                                    {seasonOptions.map(s => (
-                                        <option key={s.number} value={s.number}>
-                                            {s.name} ({s.count} eps)
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
+            {/* CONTAINER CENTRALIZADO PARA O CONTEÚDO INFERIOR */}
+            <div className="details-container">
+                
+                {/* 3. ÁREA DE INFORMAÇÕES DETALHADAS */}
+                <section className="info-section">
+                    <div className="info-main">
+                        <h3>Sinopse Completa</h3>
+                        <p>{synopse}</p>
                     </div>
+                    <div className="info-sidebar">
+                        <div className="info-block">
+                            <span>Elenco Principal:</span>
+                            <p>N/D (Adicione dados da API aqui)</p>
+                        </div>
+                        <div className="info-block">
+                            <span>Gêneros:</span>
+                            <p>{seriesData.genres ? seriesData.genres.map(g => g.name).join(', ') : 'N/D'}</p>
+                        </div>
+                        <div className="info-block">
+                            <span>Status:</span>
+                            <p>{seriesData.status || 'Finalizado'}</p>
+                        </div>
+                    </div>
+                </section>
 
-                    <div className="episodes-list">
-                        {currentEpisodes.map(ep => (
-                            <div 
-                                key={ep.id} 
-                                className={`episode-card ${isWatchable ? 'watchable' : 'partner-locked'}`} 
-                                onClick={() => isWatchable && handleWatch(ep)}
-                            >
-                                <div className="episode-number">{ep.numeroEpisodio || ep.ep_number}</div>
-                                
-                                <div className="episode-thumbnail">
-                                    <img 
-                                        src={ep.stillPathTmdb || ep.still_path 
-                                            ? (ep.stillPathTmdb || ep.still_path).startsWith('http') ? (ep.stillPathTmdb || ep.still_path) : `${IMAGE_BASE_URL}w300${(ep.stillPathTmdb || ep.still_path)}`
-                                            : seriesData.backdropUrl 
-                                            || 'https://via.placeholder.com/250x140/1a1a1a/FFFFFF?text=SEM+IMAGEM'} 
-                                        alt={`Episódio ${ep.numeroEpisodio || ep.ep_number}`}
-                                    />
-                                    {isWatchable && (
-                                        <div className="play-overlay">
-                                            <FaRegPlayCircle className="play-icon" />
-                                        </div>
-                                    )}
+                {/* 4. SEÇÃO DE EPISÓDIOS */}
+                {currentEpisodes.length > 0 && (
+                    <section className="episodes-section">
+                        <div className="episodes-header">
+                            <h2>Episódios</h2>
+                            
+                            {seasonOptions.length > 1 && (
+                                <div className="season-select-wrapper">
+                                    <select 
+                                        className="season-select"
+                                        value={selectedSeason} 
+                                        onChange={(e) => setSelectedSeason(Number(e.target.value))}
+                                    >
+                                        {seasonOptions.map(s => (
+                                            <option key={s.number} value={s.number}>
+                                                {s.name} ({s.count} eps)
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
-                                
-                                <div className="episode-info">
-                                    <div className="episode-title-meta">
-                                        <h3>{ep.tituloEpisodio || ep.name}</h3>
-                                        <span className="runtime">{formatRuntime(ep.runtime || DEFAULT_RUNTIME)}</span>
+                            )}
+                        </div>
+
+                        <div className="episodes-list">
+                            {currentEpisodes.map((ep, index) => {
+                                const epImage = ep.stillPathTmdb || ep.still_path 
+                                    ? (ep.stillPathTmdb || ep.still_path).startsWith('http') ? (ep.stillPathTmdb || ep.still_path) : `${IMAGE_BASE_URL}w300${(ep.stillPathTmdb || ep.still_path)}`
+                                    : seriesData.backdropUrl || 'https://via.placeholder.com/300x170/1a1a1a/FFFFFF?text=Sem+Imagem';
+
+                                return (
+                                    <div 
+                                        key={ep.id} 
+                                        onClick={() => isWatchable && handleWatch(ep)}
+                                        className={`episode-card ${isWatchable ? 'watchable' : 'locked'}`}
+                                    >
+                                        <div className="episode-number">
+                                            {ep.numeroEpisodio || ep.ep_number || (index + 1)}
+                                        </div>
+                                        
+                                        <div className="episode-thumb-container">
+                                            <img 
+                                                src={epImage} 
+                                                alt={`Episódio ${ep.numeroEpisodio || ep.ep_number}`}
+                                                className="episode-thumb"
+                                            />
+                                            {isWatchable && (
+                                                <div className="episode-play-overlay">
+                                                    <FaRegPlayCircle className="icon-play-overlay" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="episode-details">
+                                            <div className="episode-title-row">
+                                                <h3 className="episode-title">
+                                                    {ep.tituloEpisodio || ep.name || `Episódio ${ep.numeroEpisodio || ep.ep_number}`}
+                                                </h3>
+                                                <span className="episode-runtime">
+                                                    {formatRuntime(ep.runtime || DEFAULT_RUNTIME)}
+                                                </span>
+                                            </div>
+                                            <p className="episode-desc">
+                                                {ep.descricao || ep.overview || 'Nenhuma descrição disponível para este episódio no momento.'}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <p className="episode-overview">
-                                        {ep.descricao || ep.overview ? (ep.descricao || ep.overview).substring(0, 140) + '...' : 'Descrição indisponível.'}
-                                    </p>
+                                );
+                            })}
+                        </div>
+                    </section>
+                )}
+
+                {/* 5. SEÇÃO "MAIS COMO ISSO" (Placeholder Visual) */}
+                <section className="similar-section">
+                    <h2>Títulos Semelhantes</h2>
+                    <div className="similar-grid">
+                        {[1, 2, 3, 4, 5, 6].map(item => (
+                            <div key={item} className="similar-card">
+                                <img 
+                                    src={`https://via.placeholder.com/300x450/111111/333333?text=Recomendado`} 
+                                    alt="Recomendado" 
+                                />
+                                <div className="similar-overlay">
+                                    <FaRegPlayCircle className="icon-play-similar" />
                                 </div>
                             </div>
                         ))}
                     </div>
-                </div>
-            )}
-            
+                </section>
+
+            </div>
         </div>
     );
 };
