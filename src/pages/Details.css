@@ -1,502 +1,528 @@
-/* ==========================================================================
-   DETALHES DA SÉRIE / FILME - ESTILO STARLINK / TELEMETRIA
-   ========================================================================== */
+/* ==========================================================
+   DETAILS.CSS - TEMA BLACK & WHITE PREMIUM (Estilo Netflix)
+   ========================================================== */
 
-   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+/* --- RESET BÁSICO E CONTAINER PRINCIPAL --- */
+.details-page {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
 
-   /* ----------------------------------------------------------------
-      0. VARIÁVEIS DO SISTEMA
-   ----------------------------------------------------------------- */
-   :root {
-       /* Cores */
-       --sl-bg-dark: #000000;
-       --sl-bg-card: rgba(10, 10, 10, 0.85);
-       --sl-bg-card-hover: rgba(20, 20, 20, 0.95);
-       --sl-text-white: #ffffff;
-       --sl-text-muted: #8c8c8c;
-       --sl-border: rgba(255, 255, 255, 0.15);
-       --sl-border-focus: rgba(255, 255, 255, 0.5);
-       --sl-accent: #00ffaa; /* Verde Telemetria / Confirmação */
-       --sl-danger: #ff3333;
-       
-       /* Tipografia */
-       --sl-font-main: 'Inter', sans-serif;
-       --sl-font-mono: 'JetBrains Mono', monospace; /* Para números e dados */
-   }
-   
-   /* Base */
-   .details-wrapper {
-       min-height: 100vh;
-       padding-bottom: 80px;
-       background-color: var(--sl-bg-dark);
-       color: var(--sl-text-white);
-       font-family: var(--sl-font-main);
-       overflow-x: hidden;
-   }
-   
-   /* ----------------------------------------------------------------
-      1. SEÇÃO HERO / BANNER PRINCIPAL
-   ----------------------------------------------------------------- */
-   .hero-details {
-       position: relative;
-       width: 100%;
-       height: 75vh; 
-       min-height: 500px;
-       background-size: cover;
-       background-position: center 20%;
-       display: flex;
-       align-items: flex-end;
-       border-bottom: 1px solid var(--sl-border);
-   }
-   
-   /* Gradiente + Malha de Terminal */
-   .hero-gradient-overlay {
-       position: absolute;
-       inset: 0;
-       background: 
-           linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.8) 100%),
-           linear-gradient(to top, #000000 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
-       
-       /* Grade fina técnica */
-       background-image: 
-           linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.9) 100%),
-           linear-gradient(to top, #000000 0%, transparent 100%),
-           linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-           linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-       background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
-       z-index: 1;
-   }
-   
-   .hero-content {
-       position: relative;
-       z-index: 2;
-       padding: 0 5% 50px 5%;
-       max-width: 1000px;
-       width: 100%;
-   }
-   
-   .hero-title {
-       font-size: clamp(2.2rem, 5vw, 4rem);
-       font-weight: 800;
-       text-transform: uppercase;
-       letter-spacing: 2px;
-       margin-bottom: 15px;
-       line-height: 1.05;
-       text-shadow: 0 4px 20px rgba(0,0,0,1);
-   }
-   
-   /* --- Metadados (Ano, Nota, Duração) --- */
-   .hero-metadata {
-       display: flex;
-       align-items: center;
-       flex-wrap: wrap;
-       gap: 20px;
-       font-family: var(--sl-font-mono);
-       font-size: 0.8rem;
-       color: var(--sl-text-muted);
-       margin-bottom: 25px;
-   }
-   
-   .metadata-item {
-       display: flex;
-       align-items: center;
-       gap: 8px;
-       background: rgba(0, 0, 0, 0.5);
-       padding: 4px 8px;
-       border: 1px solid var(--sl-border);
-   }
-   
-   .rating { color: var(--sl-text-white); }
-   .rating-star { color: var(--sl-accent); font-size: 0.9rem; }
-   
-   /* --- Ações (Botões) --- */
-   .hero-actions {
-       display: flex;
-       gap: 15px;
-       margin-bottom: 25px;
-       flex-wrap: wrap;
-   }
-   
-   .hero-btn {
-       display: flex;
-       align-items: center;
-       justify-content: center;
-       gap: 12px;
-       padding: 16px 32px;
-       border-radius: 0;
-       font-family: var(--sl-font-mono);
-       font-size: 0.8rem;
-       font-weight: 700;
-       cursor: pointer;
-       transition: all 0.2s ease;
-       text-transform: uppercase;
-       letter-spacing: 2px;
-   }
-   
-   .play-btn-detail {
-       background-color: var(--sl-text-white);
-       color: var(--sl-bg-dark);
-       border: 1px solid var(--sl-text-white);
-   }
-   
-   .play-btn-detail:hover {
-       background-color: transparent;
-       color: var(--sl-text-white);
-   }
-   
-   .list-btn {
-       background-color: rgba(0, 0, 0, 0.6);
-       color: var(--sl-text-white);
-       backdrop-filter: blur(5px);
-       border: 1px solid var(--sl-border);
-   }
-   
-   .list-btn:hover {
-       border-color: var(--sl-text-white);
-       background-color: rgba(255, 255, 255, 0.1);
-   }
-   
-   .list-btn.active {
-       border-color: var(--sl-accent);
-       color: var(--sl-accent);
-   }
-   
-   .list-btn.active:hover {
-       background-color: rgba(0, 255, 170, 0.1);
-   }
-   
-   /* --- Sinopse --- */
-   .hero-overview {
-       font-size: 0.95rem;
-       line-height: 1.6;
-       color: #cccccc;
-       max-width: 700px;
-       text-shadow: 0 2px 10px rgba(0,0,0,0.9);
-   }
-   
-   .partner-notice-box {
-       margin-top: 25px;
-       padding: 15px;
-       background: rgba(255, 51, 51, 0.05); 
-       border-left: 3px solid var(--sl-danger);
-       color: var(--sl-danger);
-       font-family: var(--sl-font-mono);
-       font-size: 0.75rem;
-       text-transform: uppercase;
-       letter-spacing: 1px;
-       max-width: 600px;
-   }
-   
-   /* ----------------------------------------------------------------
-      2. SEÇÃO DE EPISÓDIOS (ÍNDICE DE ARQUIVOS)
-   ----------------------------------------------------------------- */
-   .episodes-section {
-       padding: 40px 5%;
-       max-width: 1200px;
-       margin: 0 auto;
-   }
-   
-   .episodes-header {
-       display: flex;
-       justify-content: space-between;
-       align-items: center;
-       margin-bottom: 30px;
-       border-bottom: 1px solid var(--sl-border);
-       padding-bottom: 15px;
-   }
-   
-   .episodes-title {
-       font-family: var(--sl-font-mono);
-       font-size: 1rem;
-       font-weight: 700;
-       text-transform: uppercase;
-       letter-spacing: 4px;
-       color: var(--sl-text-white);
-       margin: 0;
-       display: flex;
-       align-items: center;
-       gap: 10px;
-   }
-   .episodes-title::before {
-       content: '';
-       display: inline-block;
-       width: 8px;
-       height: 8px;
-       background-color: var(--sl-text-white);
-   }
-   
-   /* Select customizado */
-   .season-selector {
-       background-color: var(--sl-bg-dark);
-       color: var(--sl-text-white);
-       padding: 10px 15px;
-       border: 1px solid var(--sl-border);
-       font-family: var(--sl-font-mono);
-       font-size: 0.75rem;
-       text-transform: uppercase;
-       letter-spacing: 1px;
-       cursor: pointer;
-       outline: none;
-       transition: border-color 0.2s;
-   }
-   
-   .season-selector:focus, .season-selector:hover {
-       border-color: var(--sl-border-focus);
-   }
-   
-   /* --- Lista de Episódios --- */
-   .episodes-list {
-       display: flex;
-       flex-direction: column;
-       gap: 15px;
-   }
-   
-   .episode-card {
-       display: flex;
-       align-items: center;
-       gap: 20px;
-       padding: 15px;
-       background: var(--sl-bg-card);
-       border: 1px solid var(--sl-border);
-       transition: all 0.2s ease;
-       position: relative;
-       overflow: hidden;
-   }
-   
-   /* Barra lateral de status */
-   .episode-card::before {
-       content: '';
-       position: absolute;
-       top: 0; left: 0;
-       width: 3px; height: 100%;
-       background-color: transparent;
-       transition: background-color 0.2s;
-   }
-   
-   .episode-card:hover {
-       background-color: var(--sl-bg-card-hover);
-       border-color: var(--sl-border-focus);
-   }
-   
-   .episode-card.watchable:hover::before {
-       background-color: var(--sl-text-white);
-   }
-   
-   /* Episódio Bloqueado (Parceria) */
-   .episode-card.partner-locked {
-       opacity: 0.5;
-       cursor: not-allowed;
-       filter: grayscale(100%);
-   }
-   
-   .episode-card.watchable {
-       cursor: pointer;
-   }
-   
-   /* Número do Episódio */
-   .episode-number {
-       font-family: var(--sl-font-mono);
-       font-size: 1.5rem;
-       font-weight: 700;
-       color: var(--sl-border-focus);
-       width: 50px;
-       text-align: center;
-   }
-   
-   /* Thumbnail */
-   .episode-thumbnail {
-       position: relative;
-       width: 220px;
-       aspect-ratio: 16 / 9; /* Mantém a proporção perfeita */
-       flex-shrink: 0;
-       border: 1px solid var(--sl-border);
-       overflow: hidden;
-       background-color: #111; /* Fallback enquanto carrega */
-   }
-   
-   .episode-thumbnail img {
-       width: 100%;
-       height: 100%;
-       object-fit: cover;
-       filter: grayscale(50%) brightness(0.7);
-       transition: filter 0.3s, transform 0.5s;
-   }
-   
-   /* Hover na Thumbnail */
-   .episode-card.watchable:hover .episode-thumbnail img {
-       filter: grayscale(0%) brightness(1);
-       transform: scale(1.05);
-   }
-   
-   /* Ícone de Play */
-   .play-overlay {
-       position: absolute;
-       inset: 0;
-       background: rgba(0,0,0,0.5);
-       display: flex;
-       align-items: center;
-       justify-content: center;
-       opacity: 0;
-       transition: opacity 0.3s ease;
-   }
-   
-   .play-icon {
-       font-size: 2.5rem;
-       color: var(--sl-text-white);
-       filter: drop-shadow(0 2px 5px rgba(0,0,0,0.8));
-   }
-   
-   .episode-card.watchable:hover .play-overlay {
-       opacity: 1;
-   }
-   
-   /* Informações do Episódio */
-   .episode-info {
-       flex: 1;
-       display: flex;
-       flex-direction: column;
-       gap: 10px;
-       padding-right: 15px;
-   }
-   
-   .episode-title-meta {
-       display: flex;
-       justify-content: space-between;
-       align-items: flex-start;
-       gap: 15px;
-   }
-   
-   .episode-title-meta h3 {
-       margin: 0;
-       font-size: 1rem;
-       font-weight: 600;
-       color: var(--sl-text-white);
-       line-height: 1.4;
-   }
-   
-   .episode-title-meta .runtime {
-       font-family: var(--sl-font-mono);
-       font-size: 0.70rem;
-       color: var(--sl-text-muted);
-       border: 1px solid var(--sl-border);
-       padding: 4px 8px;
-       white-space: nowrap;
-   }
-   
-   .episode-overview {
-       font-size: 0.85rem;
-       color: var(--sl-text-muted);
-       line-height: 1.6;
-       margin: 0;
-       display: -webkit-box;
-       -webkit-line-clamp: 2;
-       -webkit-box-orient: vertical;
-       overflow: hidden;
-   }
-   
-   
-   /* ----------------------------------------------------------------
-      3. RESPONSIVIDADE (MOBILE OPTIMIZED)
-   ----------------------------------------------------------------- */
-   @media (max-width: 768px) {
-       
-       /* Hero Section Mobile */
-       .hero-details {
-           min-height: 550px;
-           height: auto;
-           padding-top: 100px;
-       }
-   
-       .hero-content {
-           padding: 0 20px 30px 20px;
-       }
-   
-       .hero-title {
-           font-size: 2rem;
-           letter-spacing: 0px;
-       }
-   
-       .hero-metadata {
-           margin-bottom: 20px;
-           gap: 10px;
-       }
-   
-       .hero-actions {
-           flex-direction: column; /* Empilha os botões */
-           gap: 10px;
-       }
-   
-       .hero-btn {
-           width: 100%;
-           padding: 16px;
-           font-size: 0.85rem;
-       }
-   
-       .hero-overview {
-           font-size: 0.85rem;
-           -webkit-line-clamp: 4;
-           display: -webkit-box;
-           -webkit-box-orient: vertical;
-           overflow: hidden;
-       }
-   
-       /* Episodes Section Mobile */
-       .episodes-section {
-           padding: 30px 20px;
-       }
-   
-       .episodes-header {
-           flex-direction: column;
-           align-items: stretch;
-           gap: 15px;
-       }
-   
-       .season-selector {
-           width: 100%;
-       }
-   
-       /* Episode Card Mobile: Transforma em grade empilhada */
-       .episode-card {
-           flex-direction: column;
-           align-items: stretch;
-           padding: 0; /* Remove o padding do card para a imagem colar nas bordas */
-           gap: 0;
-       }
-   
-       .episode-number {
-           /* Transforma o número num badge em cima da imagem */
-           position: absolute;
-           top: 10px;
-           left: 10px;
-           z-index: 2;
-           background: rgba(0,0,0,0.8);
-           border: 1px solid var(--sl-border);
-           color: var(--sl-text-white);
-           font-size: 1rem;
-           width: 35px;
-           height: 35px;
-           display: flex;
-           align-items: center;
-           justify-content: center;
-       }
-   
-       .episode-thumbnail {
-           width: 100%; /* Ocupa 100% da largura do card */
-           aspect-ratio: 16 / 9; /* Mantém proporção de vídeo, sem espremer a imagem */
-           border: none;
-           border-bottom: 1px solid var(--sl-border);
-       }
-   
-       .episode-info {
-           padding: 15px; /* Devolve o padding apenas para o texto */
-       }
-   
-       .episode-title-meta {
-           flex-direction: column; /* Tempo desce pra baixo do título */
-           gap: 8px;
-       }
-   
-       .episode-title-meta .runtime {
-           align-self: flex-start;
-       }
-   }
+/* --- HERO SECTION (Capa Principal) --- */
+.details-hero {
+    position: relative;
+    width: 100%;
+    height: 80vh;
+    min-height: 500px;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 5rem;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    z-index: 0;
+    /* Suave efeito de zoom-in ao carregar a página */
+    animation: slowZoom 20s ease-out infinite alternate;
+}
+
+@keyframes slowZoom {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.05); }
+}
+
+/* Gradientes pretos para fundir a imagem com o fundo (Vignette) */
+.hero-vignette-bottom {
+    position: absolute;
+    bottom: -1px; /* Evita linha branca fantasma */
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, #000000 0%, #000000 10%, rgba(0,0,0,0.5) 40%, transparent 100%);
+    z-index: 1;
+}
+
+.hero-vignette-side {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 70%;
+    background: linear-gradient(to right, #000000 0%, rgba(0,0,0,0.7) 40%, transparent 100%);
+    z-index: 1;
+}
+
+/* Conteúdo da Hero */
+.hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 4%;
+    max-width: 900px;
+    width: 100%;
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 1.2rem;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.9);
+    line-height: 1.1;
+    letter-spacing: -1px;
+}
+
+/* Metadados (Ano, Estrela, Duração, HD) */
+.hero-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    font-size: 1.1rem;
+    color: #b3b3b3;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.meta-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.icon-star {
+    color: #ffffff;
+}
+
+.meta-badge {
+    border: 1px solid #b3b3b3;
+    padding: 0.1rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* Sinopse */
+.hero-synopsis-detail {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    color: #e5e5e5;
+    margin-bottom: 2rem;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9);
+    max-width: 700px;
+    display: none;
+    -webkit-line-clamp: 4; /* Limita a 4 linhas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Botões */
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem 2.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border: none;
+}
+
+.btn-primary {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.btn-primary:hover {
+    background-color: #cccccc;
+    transform: scale(1.02);
+}
+
+.btn-secondary {
+    background-color: rgba(30, 30, 30, 0.7);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: #ffffff;
+}
+
+.btn-secondary.in-list {
+    background-color: transparent;
+    border-color: #ffffff;
+}
+
+/* Aviso de Parceiro */
+.partner-notice {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0.8rem 1.2rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid #ffffff;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.95rem;
+    color: #cccccc;
+}
+
+.icon-info {
+    font-size: 1.2rem;
+    color: #ffffff;
+}
+
+/* --- CONTAINER INFERIOR (Resto do conteúdo) --- */
+.details-container {
+    padding: 0 4% 4rem 4%;
+    position: relative;
+    z-index: 2;
+    background-color: #000000;
+}
+
+/* --- INFORMAÇÕES DETALHADAS --- */
+.info-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 4rem;
+    margin-bottom: 4rem;
+    padding-top: 2rem;
+}
+
+.info-main h3 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.info-main p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #b3b3b3;
+}
+
+.info-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.info-block span {
+    color: #666666;
+    font-size: 0.95rem;
+}
+
+.info-block p {
+    color: #ffffff;
+    font-size: 1.05rem;
+    margin-top: 0.3rem;
+    line-height: 1.4;
+}
+
+/* --- SEÇÃO DE EPISÓDIOS --- */
+.episodes-section {
+    margin-bottom: 4rem;
+}
+
+.episodes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #222222;
+    padding-bottom: 1rem;
+}
+
+.episodes-header h2 {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.season-select-wrapper {
+    position: relative;
+}
+
+.season-select {
+    background-color: #111111;
+    color: #ffffff;
+    border: 1px solid #444444;
+    padding: 0.7rem 2.5rem 0.7rem 1.2rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    appearance: none;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.season-select:hover {
+    background-color: #222222;
+}
+
+/* --- LISTA DE EPISÓDIOS --- */
+.episodes-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.episode-card {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background-color: transparent;
+    border-bottom: 1px solid #1a1a1a;
+    transition: background-color 0.2s;
+}
+
+.episode-card.watchable {
+    cursor: pointer;
+}
+
+.episode-card.watchable:hover {
+    background-color: #111111;
+}
+
+.episode-card.locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+}
+
+.episode-number {
+    width: 50px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #444444;
+    text-align: center;
+}
+
+.episode-thumb-container {
+    position: relative;
+    width: 180px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0 1.5rem;
+    aspect-ratio: 16 / 9;
+    background-color: #1a1a1a;
+}
+
+.episode-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+}
+
+.episode-card.watchable:hover .episode-thumb {
+    transform: scale(1.05);
+}
+
+.episode-play-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.episode-card.watchable:hover .episode-play-overlay {
+    opacity: 1;
+}
+
+.icon-play-overlay {
+    font-size: 2.5rem;
+    color: #ffffff;
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));
+}
+
+.episode-details {
+    flex-grow: 1;
+}
+
+.episode-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+}
+
+.episode-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.episode-runtime {
+    color: #888888;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.episode-desc {
+    color: #999999;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* --- TÍTULOS SEMELHANTES --- */
+.similar-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+.similar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.similar-card {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    background-color: #111111;
+    aspect-ratio: 2 / 3;
+}
+
+.similar-card:hover {
+    transform: scale(1.05);
+    z-index: 5;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+}
+
+.similar-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.similar-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.similar-card:hover .similar-overlay {
+    opacity: 1;
+}
+
+.icon-play-similar {
+    font-size: 3rem;
+    color: #ffffff;
+}
+
+/* --- TELA DE ERRO --- */
+.details-error-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000000;
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* ==========================================================
+   MEDIA QUERIES (Responsividade)
+   ========================================================== */
+
+@media (max-width: 992px) {
+    .hero-title { font-size: 3rem; }
+    .info-section { grid-template-columns: 1fr; gap: 2.5rem; }
+}
+
+@media (max-width: 768px) {
+    .details-hero {
+        height: auto;
+        min-height: 80vh;
+        padding-bottom: 3rem;
+    }
+
+    .hero-vignette-side {
+        width: 100%;
+        background: linear-gradient(to top, #000000 0%, #000000 30%, transparent 100%);
+    }
+
+    .hero-content {
+        padding-top: 40vh; /* Empurra o conteúdo para baixo da imagem no mobile */
+    }
+
+    .hero-title { font-size: 2.5rem; }
+
+    .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .episode-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.5rem 0;
+    }
+
+    .episode-number {
+        display: none; /* Esconde o número lateral no mobile para dar espaço */
+    }
+
+    .episode-thumb-container {
+        width: 100%;
+        margin: 0 0 1rem 0;
+        border-radius: 8px;
+    }
+
+    .episode-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}

@@ -11,8 +11,7 @@ import { db } from '../firebase/config';
 import { getMediaById } from '../services/dataService'; 
 
 import Spinner from '../components/shared/Spinner'; 
-import '../pages/Details.css'; 
-import '../pages/detailPArceria.css'; 
+import './detailPArceria.css'; // Importando apenas o CSS desta página
 
 // --- CONFIGURAÇÃO ---
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/'; 
@@ -23,7 +22,7 @@ const MINIMUM_DELAY_MS = 1000;
 const formatRuntime = (minutes) => (minutes && minutes > 0 ? `${minutes} min` : 'N/D');
 const formatRating = (rating) => (rating && typeof rating === 'number' ? rating.toFixed(1) : 'N/D');
 
-// --- HOOK DE DADOS (IDÊNTICO AO ORIGINAL) ---
+// --- HOOK DE DADOS ---
 const useUnifiedMediaDetails = (slug) => {
     const [seriesData, setSeriesData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -39,7 +38,6 @@ const useUnifiedMediaDetails = (slug) => {
             let foundMedia = null;
             let currentSource = null;
 
-            // TENTATIVA 1: BUSCAR NO FIRESTORE
             try {
                 const seriesRef = doc(db, 'animes', slug);
                 const seriesSnap = await getDoc(seriesRef);
@@ -65,7 +63,6 @@ const useUnifiedMediaDetails = (slug) => {
                 console.warn(`[DetailsParceria] Falha Firestore:`, fbError.message);
             }
             
-            // TENTATIVA 2: FALLBACK API EXTERNA
             if (!foundMedia) {
                 try {
                     let mediaFallback = await getMediaById('series', slug);
@@ -114,24 +111,20 @@ const useUnifiedMediaDetails = (slug) => {
     return { seriesData, groupedEpisodes, loading, error, source };
 };
 
-
-// --- COMPONENTE PRINCIPAL (ADAPTADO PARA PARCERIA) ---
+// --- COMPONENTE PRINCIPAL ---
 const DetailsParceria = () => {
     const { slug } = useParams(); 
     const navigate = useNavigate();
     const auth = getAuth();
     const user = auth.currentUser;
     
-    // Usa o mesmo hook, garantindo consistência de dados
     const { seriesData, groupedEpisodes, loading, error } = useUnifiedMediaDetails(slug);
     const [selectedSeason, setSelectedSeason] = useState(1); 
     const [minimumDelayPassed, setMinimumDelayPassed] = useState(false);
     
-    // Estado para Minha Lista
     const [isInMyList, setIsInMyList] = useState(false);
     const [listLoading, setListLoading] = useState(false);
     
-    // Verifica se está na lista
     useEffect(() => {
         if (!user || !seriesData) return;
         const itemRef = doc(db, 'users', user.uid, 'mylist', seriesData.id.toString());
@@ -141,7 +134,6 @@ const DetailsParceria = () => {
         return () => unsubscribe();
     }, [user, seriesData]);
 
-    // Função para Adicionar/Remover da Lista
     const handleToggleList = async () => {
         if (!user || !seriesData) return alert("Faça login para salvar na lista.");
         
@@ -187,9 +179,8 @@ const DetailsParceria = () => {
     }, []); 
 
     if (loading || !minimumDelayPassed) return <Spinner />; 
-    if (error || !seriesData) return <h1 className="error-message" style={{color: 'white', textAlign: 'center', marginTop: '100px'}}>{error || "Título não encontrado."}</h1>;
+    if (error || !seriesData) return <div className="error-screen-parceria">{error || "Título não encontrado."}</div>;
 
-    // --- DADOS PARA RENDERIZAÇÃO ---
     const currentEpisodes = groupedEpisodes[selectedSeason] || [];
     const titleDisplayName = seriesData.titulo || seriesData.title || seriesData.name || 'Título Indisponível';
     const backdropPath = seriesData.backdropUrl || seriesData.backdrop_path;
@@ -208,49 +199,51 @@ const DetailsParceria = () => {
     
     // --- 🔥 LÓGICA DE ASSISTIR COM TRAVA DE PARCERIA ---
     const handleWatch = (episode, isLocked) => {
-        // 1. Se estiver bloqueado, avisa
         if (isLocked) {
-             alert("🔒 Episódio exclusivo para assinantes Premium. Assine para liberar a temporada completa!");
+             alert("Episódio exclusivo para assinantes Premium. Assine para liberar a temporada completa!");
              return;
         }
-
-        // 2. Se estiver livre, vai para a rota de WatchParceria
         const seriesSlug = seriesData.id; 
         navigate(`/watch-parceria/${seriesSlug}/${episode.id}`); 
     };
     
     return (
-        <div className="details-wrapper">
+        <div className="details-wrapper-parceria">
             
             {/* HERÓI PRINCIPAL (BACKDROP) */}
-            <div className="hero-details" style={{ backgroundImage: `url(${backdropUrl})` }}>
-                <div className="hero-gradient-overlay"></div> 
+            <section className="hero-section-parceria">
+                <div 
+                    className="hero-background-parceria" 
+                    style={{ backgroundImage: `url(${backdropUrl})` }}
+                ></div>
+                <div className="hero-vignette-bottom-parceria"></div>
+                <div className="hero-vignette-side-parceria"></div>
                 
-                <div className="hero-content">
-                    <h1 className="hero-title">{titleDisplayName}</h1>
+                <div className="hero-content-parceria">
+                    <h1 className="hero-title-parceria">{titleDisplayName}</h1>
                     
-                    <div className="hero-metadata">
-                        <span className="metadata-item">{releaseYear}</span>
-                        <span className="metadata-item rating">
-                            <FaStar className="rating-star" /> {formatRating(voteAverage)}
+                    <div className="hero-metadata-parceria">
+                        <span className="metadata-item-parceria">{releaseYear}</span>
+                        <span className="metadata-item-parceria rating-parceria">
+                            <FaStar className="rating-star-parceria" /> {formatRating(voteAverage)}
                         </span>
-                        <span className="metadata-item">
+                        <span className="metadata-item-parceria">
                             <FaClock /> {formatRuntime(runtime)}
                         </span>
-                        <span className="metadata-item quality">HD</span>
+                        <span className="metadata-badge-parceria">HD</span>
                     </div>
                     
-                    <div className="hero-actions" style={{ display: 'flex', gap: '15px', margin: '20px 0' }}>
-                        {/* BOTÃO PLAY - Sempre tenta tocar o ep 1 */}
+                    <p className="hero-overview-parceria">{synopse}</p>
+                    
+                    <div className="hero-actions-parceria">
                         {currentEpisodes.length > 0 && (
-                            <button className="hero-btn play-btn-detail" onClick={() => handleWatch(currentEpisodes[0], false)}>
+                            <button className="hero-btn-parceria play-btn-parceria" onClick={() => handleWatch(currentEpisodes[0], false)}>
                                 <FaPlay /> Assistir Ep. 1
                             </button>
                         )}
 
-                        {/* BOTÃO MINHA LISTA */}
                         <button 
-                            className={`hero-btn list-btn ${isInMyList ? 'active' : ''}`} 
+                            className={`hero-btn-parceria list-btn-parceria ${isInMyList ? 'active-parceria' : ''}`} 
                             onClick={handleToggleList}
                             disabled={listLoading}
                         >
@@ -259,34 +252,25 @@ const DetailsParceria = () => {
                         </button>
                     </div>
 
-                    <p className="hero-overview">{synopse}</p>
-                    
-                    {/* AVISO DE PARCERIA (Única diferença visual no Hero) */}
-                    <div className="partner-notice-box" style={{ 
-                        background: 'rgba(46, 204, 113, 0.15)', 
-                        borderLeft: '4px solid #2ecc71',
-                        padding: '15px',
-                        borderRadius: '4px',
-                        marginTop: '20px',
-                        backdropFilter: 'blur(5px)'
-                    }}>
-                        <p style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0, color: '#e0e0e0' }}>
-                            <FaCrown style={{ color: '#f1c40f' }} />
+                    {/* AVISO DE PARCERIA */}
+                    <div className="partner-notice-box-parceria">
+                        <p className="partner-notice-text-parceria">
+                            <FaCrown className="crown-icon-parceria" />
                             <strong>Degustação Gratuita:</strong> Assista aos 3 primeiros episódios da 1ª Temporada.
                         </p>
                     </div>
                 </div>
-            </div>
+            </section>
 
             {/* SEÇÃO DE EPISÓDIOS */}
             {currentEpisodes.length > 0 && (
-                <div className="episodes-section">
-                    <div className="episodes-header">
-                        <h2 className="episodes-title">Episódios</h2>
+                <div className="episodes-container-parceria">
+                    <div className="episodes-header-parceria">
+                        <h2 className="episodes-title-parceria">Episódios</h2>
                         {seasonOptions.length > 1 && (
-                            <div className="custom-select-wrapper">
+                            <div className="custom-select-wrapper-parceria">
                                 <select 
-                                    className="season-selector"
+                                    className="season-selector-parceria"
                                     value={selectedSeason} 
                                     onChange={(e) => setSelectedSeason(Number(e.target.value))}
                                 >
@@ -300,61 +284,53 @@ const DetailsParceria = () => {
                         )}
                     </div>
 
-                    <div className="episodes-list">
+                    <div className="episodes-list-parceria">
                         {currentEpisodes.map((ep, index) => {
-                            // 🔥 LÓGICA DE CADEADO
-                            // Grátis se: Temporada for 1 E índice for menor que 3 (0, 1, 2)
+                            // LÓGICA DE CADEADO
                             const isSeasonOne = selectedSeason === 1;
                             const isFree = isSeasonOne && index < 3;
                             const isLocked = !isFree;
 
+                            const epImage = ep.stillPathTmdb || ep.still_path 
+                                ? (ep.stillPathTmdb || ep.still_path).startsWith('http') ? (ep.stillPathTmdb || ep.still_path) : `${IMAGE_BASE_URL}w300${(ep.stillPathTmdb || ep.still_path)}`
+                                : seriesData.backdropUrl || 'https://via.placeholder.com/300x170/1a1a1a/FFFFFF?text=SEM+IMAGEM';
+
                             return (
                                 <div 
                                     key={ep.id} 
-                                    className={`episode-card ${isLocked ? 'locked-content' : 'watchable'}`} 
+                                    className={`episode-card-parceria ${isLocked ? 'locked-content-parceria' : 'watchable-parceria'}`} 
                                     onClick={() => handleWatch(ep, isLocked)}
-                                    // Adicionamos estilos inline para reforçar o visual de bloqueio sem precisar criar CSS novo
-                                    style={{ 
-                                        cursor: isLocked ? 'not-allowed' : 'pointer',
-                                        opacity: isLocked ? 0.6 : 1,
-                                        position: 'relative'
-                                    }}
                                 >
-                                    <div className="episode-number">{ep.numeroEpisodio || ep.ep_number}</div>
+                                    <div className="episode-number-parceria">
+                                        {ep.numeroEpisodio || ep.ep_number || (index + 1)}
+                                    </div>
                                     
-                                    <div className="episode-thumbnail">
+                                    <div className="episode-thumbnail-container-parceria">
                                         <img 
-                                            src={ep.stillPathTmdb || ep.still_path 
-                                                ? (ep.stillPathTmdb || ep.still_path).startsWith('http') 
-                                                    ? (ep.stillPathTmdb || ep.still_path) 
-                                                    : `${IMAGE_BASE_URL}w300${(ep.stillPathTmdb || ep.still_path)}`
-                                                : seriesData.backdropUrl 
-                                                || 'https://via.placeholder.com/250x140/1a1a1a/FFFFFF?text=SEM+IMAGEM'} 
+                                            src={epImage} 
                                             alt={`Episódio ${ep.numeroEpisodio || ep.ep_number}`}
-                                            // Se bloqueado, deixa a imagem preto e branco
-                                            style={{ filter: isLocked ? 'grayscale(90%)' : 'none' }}
+                                            className="episode-thumbnail-parceria"
                                         />
                                         
-                                        <div className="play-overlay">
-                                            {/* Troca o ícone de Play pelo Cadeado se bloqueado */}
+                                        <div className="play-overlay-parceria">
                                             {isLocked ? (
-                                                <FaLock className="play-icon" style={{color: '#e74c3c'}} />
+                                                <FaLock className="play-icon-parceria lock-icon-parceria" />
                                             ) : (
-                                                <FaRegPlayCircle className="play-icon" />
+                                                <FaRegPlayCircle className="play-icon-parceria" />
                                             )}
                                         </div>
                                     </div>
                                     
-                                    <div className="episode-info">
-                                        <div className="episode-title-meta">
-                                            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: isLocked ? '#999' : 'white' }}>
-                                                {ep.tituloEpisodio || ep.name}
-                                                {isLocked && <span style={{fontSize:'0.7rem', background:'#e74c3c', padding:'2px 6px', borderRadius:'4px', color:'white'}}>Premium</span>}
+                                    <div className="episode-info-parceria">
+                                        <div className="episode-title-meta-parceria">
+                                            <h3 className="episode-name-parceria">
+                                                {ep.tituloEpisodio || ep.name || `Episódio ${ep.numeroEpisodio || ep.ep_number}`}
+                                                {isLocked && <span className="premium-badge-parceria">Premium</span>}
                                             </h3>
-                                            <span className="runtime">{formatRuntime(ep.runtime || DEFAULT_RUNTIME)}</span>
+                                            <span className="runtime-parceria">{formatRuntime(ep.runtime || DEFAULT_RUNTIME)}</span>
                                         </div>
-                                        <p className="episode-overview">
-                                            {ep.descricao || ep.overview ? (ep.descricao || ep.overview).substring(0, 140) + '...' : 'Descrição indisponível.'}
+                                        <p className="episode-overview-parceria">
+                                            {ep.descricao || ep.overview ? (ep.descricao || ep.overview).substring(0, 140) + '...' : 'Descrição indisponível no momento.'}
                                         </p>
                                     </div>
                                 </div>

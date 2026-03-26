@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react'; 
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaPlay, FaClock, FaStar, FaRegPlayCircle, FaPlus, FaCheck, FaInfoCircle } from 'react-icons/fa'; 
+import { FaPlay, FaStar, FaRegPlayCircle, FaPlus, FaCheck, FaInfoCircle } from 'react-icons/fa'; 
 
-// IMPORTAÇÕES DO FIREBASE
-import { doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore'; 
+// IMPORTAÇÕES DO FIREBASE (Adicionado o 'limit')
+import { doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc, onSnapshot, limit } from 'firebase/firestore'; 
 import { getAuth } from 'firebase/auth';
 import { db } from '../firebase/config'; 
 
@@ -11,7 +11,7 @@ import { db } from '../firebase/config';
 import { getMediaById } from '../services/dataService'; 
 
 import Spinner from '../components/shared/Spinner'; 
-import './Details.css'; // SEU NOVO ARQUIVO CSS AQUI
+import './Details.css'; 
 
 // --- CONFIGURAÇÃO ---
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/'; 
@@ -22,7 +22,7 @@ const MINIMUM_DELAY_MS = 1000;
 const formatRuntime = (minutes) => (minutes && minutes > 0 ? `${minutes} min` : 'N/D');
 const formatRating = (rating) => (rating && typeof rating === 'number' ? rating.toFixed(1) : 'N/D');
 
-// --- HOOK DE DADOS (Mantido Intacto) ---
+// --- HOOK DE DADOS ---
 const useUnifiedMediaDetails = (slug) => {
     const [seriesData, setSeriesData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -124,7 +124,11 @@ const Details = () => {
     
     const [isInMyList, setIsInMyList] = useState(false);
     const [listLoading, setListLoading] = useState(false);
+
+    // NOVO ESTADO: Títulos Semelhantes
+    const [similarTitles, setSimilarTitles] = useState([]);
     
+    // Efeito para verificar a Minha Lista
     useEffect(() => {
         if (!user || !seriesData) return;
         
@@ -135,6 +139,33 @@ const Details = () => {
 
         return () => unsubscribe();
     }, [user, seriesData]);
+
+    // NOVO EFEITO: Buscar Títulos Semelhantes no Firestore
+    useEffect(() => {
+        const fetchSimilarTitles = async () => {
+            try {
+                // Busca até 8 animes para ter uma margem de segurança ao filtrar o atual
+                const animesRef = collection(db, 'animes');
+                const q = query(animesRef, limit(8)); 
+                const querySnapshot = await getDocs(q);
+                
+                const titles = [];
+                querySnapshot.forEach((doc) => {
+                    // Evita mostrar o anime que o usuário já está vendo
+                    if (doc.id !== slug) {
+                        titles.push({ id: doc.id, ...doc.data() });
+                    }
+                });
+                
+                // Limita a exibição a 6 itens na tela
+                setSimilarTitles(titles.slice(0, 6));
+            } catch (err) {
+                console.error("Erro ao buscar títulos semelhantes:", err);
+            }
+        };
+
+        fetchSimilarTitles();
+    }, [slug]);
 
     const handleToggleList = async () => {
         if (!user || !seriesData) return alert("Faça login para salvar na lista.");
@@ -206,6 +237,13 @@ const Details = () => {
         const seriesSlug = seriesData.id; 
         navigate(`/watch/${seriesSlug}/${episode.id}`); 
     };
+
+    // Navegação ao clicar em um título semelhante
+    const handleSimilarClick = (similarSlug) => {
+        // Ajuste a rota abaixo de acordo com a rota configurada no seu App.js/Router
+        navigate(`/details/${similarSlug}`); 
+        window.scrollTo(0, 0); // Sobe a tela para o topo ao carregar a nova página
+    };
     
     return (
         <div className="details-page">
@@ -233,7 +271,7 @@ const Details = () => {
                         <span className="meta-badge">HD</span>
                     </div>
                     
-                    <p className="hero-synopsis">{synopse}</p>
+                    <p className="hero-synopsis-detail">{synopse}</p>
                     
                     <div className="hero-buttons">
                         {isWatchable && currentEpisodes.length > 0 && (
@@ -361,23 +399,35 @@ const Details = () => {
                     </section>
                 )}
 
-                {/* 5. SEÇÃO "MAIS COMO ISSO" (Placeholder Visual) */}
-                <section className="similar-section">
-                    <h2>Títulos Semelhantes</h2>
-                    <div className="similar-grid">
-                        {[1, 2, 3, 4, 5, 6].map(item => (
-                            <div key={item} className="similar-card">
-                                <img 
-                                    src={`https://via.placeholder.com/300x450/111111/333333?text=Recomendado`} 
-                                    alt="Recomendado" 
-                                />
-                                <div className="similar-overlay">
-                                    <FaRegPlayCircle className="icon-play-similar" />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
+                {/* 5. SEÇÃO TÍTULOS SEMELHANTES COM DADOS DO FIREBASE */}
+                {similarTitles.length > 0 && (
+                    <section className="similar-section">
+                        <h2>Títulos Semelhantes</h2>
+                        <div className="similar-grid">
+                            {similarTitles.map(anime => {
+                                // Pega o poster ou o backdrop. Se não tiver nenhum, usa placeholder.
+                                const coverImage = anime.posterUrl || anime.backdropUrl || `https://via.placeholder.com/300x450/111111/333333?text=${encodeURIComponent(anime.titulo || 'Anime')}`;
+
+                                return (
+                                    <div 
+                                        key={anime.id} 
+                                        className="similar-card"
+                                        onClick={() => handleSimilarClick(anime.slug || anime.id)}
+                                    >
+                                        <img 
+                                            src={coverImage} 
+                                            alt={anime.titulo} 
+                                            title={anime.titulo}
+                                        />
+                                        <div className="similar-overlay">
+                                            <FaRegPlayCircle className="icon-play-similar" />
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </section>
+                )}
 
             </div>
         </div>

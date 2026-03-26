@@ -1,8 +1,7 @@
-// ARQUIVO: src/pages/WatchParceria.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getAnimeFromMyApi, getTmdbShowDetails, getNextEpisodeDetails } from '../services/tmdb'; 
-import { FaArrowLeft, FaPlay, FaBookmark, FaGem, FaExclamationTriangle, FaShieldAlt, FaDatabase } from 'react-icons/fa';
+import { FaArrowLeft, FaPlay, FaBookmark, FaGem, FaExclamationTriangle, FaShieldAlt, FaDatabase, FaLock } from 'react-icons/fa';
 import './WatchParceria.css';
 
 const WatchParceria = () => {
@@ -24,7 +23,7 @@ const WatchParceria = () => {
                 }
 
                 if (currentEp > 3) {
-                    alert("PROTOCOLO DE SEGURANÇA: Episódio exclusivo para assinantes Premium.");
+                    alert("Acesso Premium: Este episódio é exclusivo para assinantes.");
                     navigate(`/details-parceria/${slug}`);
                     return;
                 }
@@ -40,7 +39,7 @@ const WatchParceria = () => {
                     showTitle = myApiData.title;
                 }
 
-                let currentTitle = `ARQUIVO EP. ${currentEp}`;
+                let currentTitle = `EPISÓDIO ${currentEp}`;
                 let season = 1; 
 
                 if (tmdbId) {
@@ -69,7 +68,7 @@ const WatchParceria = () => {
                 const nextEpNum = currentEp + 1;
                 const isLocked = nextEpNum > 3;
                 let nextThumb = backdrop; 
-                let nextTitle = `ARQUIVO EP. ${nextEpNum}`;
+                let nextTitle = `EPISÓDIO ${nextEpNum}`;
 
                 const hasNextLink = myApiData?.links?.["1"]?.[String(nextEpNum)];
 
@@ -94,7 +93,7 @@ const WatchParceria = () => {
                 }
 
             } catch (error) {
-                console.error("Erro geral no terminal:", error);
+                console.error("Erro geral no player:", error);
             }
             setLoading(false);
         };
@@ -103,24 +102,22 @@ const WatchParceria = () => {
     }, [slug, episodeId, navigate]);
 
     return (
-        <div className="watch-parceria-container">
-            {/* GRID DE FUNDO (STARLINK MESH) */}
-            <div className="wp-system-mesh"></div>
-
+        <div className="container-watch-parceria">
+            
             {/* HEADER */}
-            <div className="wp-header">
-                <button className="wp-back-btn" onClick={() => navigate(`/MAXPLAY`)}>
-                    <FaArrowLeft /> VOLTAR AO DIRETÓRIO
+            <div className="header-watch-parceria">
+                <button className="back-btn-watch-parceria" onClick={() => navigate(`/MAXPLAY`)}>
+                    <FaArrowLeft /> VOLTAR
                 </button>
             </div>
 
             {/* PLAYER SECTION */}
-            <section className="wp-player-section">
-                <div className="wp-video-container">
+            <section className="player-section-watch-parceria">
+                <div className="video-wrapper-watch-parceria">
                     {loading && (
-                        <div className="wp-loader-overlay">
-                            <div className="wp-spinner"></div>
-                            <span className="wp-status-text">Sincronizando Sinal...</span>
+                        <div className="loader-overlay-watch-parceria">
+                            <div className="spinner-watch-parceria"></div>
+                            <span className="status-text-watch-parceria">Carregando player...</span>
                         </div>
                     )}
                     
@@ -128,75 +125,85 @@ const WatchParceria = () => {
                         <iframe 
                             src={embedUrl}
                             title="Terminal Player"
-                            className="wp-iframe"
+                            className="iframe-watch-parceria"
                             allowFullScreen
                             allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
                         ></iframe>
                     ) : !loading && (
-                        <div className="wp-loader-overlay">
-                            <FaExclamationTriangle size={40} color="#ff3333" />
-                            <span className="wp-status-text" style={{color: '#ff3333'}}>Falha de Conexão</span>
+                        <div className="loader-overlay-watch-parceria error-state-watch-parceria">
+                            <FaExclamationTriangle size={40} className="error-icon-watch-parceria" />
+                            <span className="status-text-watch-parceria error-text-watch-parceria">Falha na conexão do vídeo</span>
                         </div>
                     )}
                 </div>
             </section>
 
             {/* INFO BAR */}
-            <section className="wp-info-bar">
-                <div className="wp-info-grid">
-                    <div className="wp-info-left">
-                        <div className="wp-status-badge">
-                            <FaShieldAlt /> SINAL EXTERNO VERIFICADO
-                        </div>
-                        
-                        <h4 className="wp-anime-title" onClick={() => navigate(`/details-parceria/${slug}`)}>
+            <section className="info-bar-watch-parceria">
+                <div className="info-grid-watch-parceria">
+                    
+                    {/* ESQUERDA: INFO DO EPISÓDIO ATUAL */}
+                    <div className="info-left-watch-parceria">
+                        <h4 className="anime-title-watch-parceria" onClick={() => navigate(`/details-parceria/${slug}`)}>
                             {episodeData?.tituloSerie}
                         </h4>
 
-                        <div className="wp-ep-title-row">
-                            <h1>{episodeData?.tituloEpisodio}</h1>
-                            <button className="wp-bookmark-btn"><FaBookmark /></button>
+                        <div className="ep-title-row-watch-parceria">
+                            <h1 className="ep-main-title-watch-parceria">{episodeData?.tituloEpisodio}</h1>
+                            <button className="bookmark-btn-watch-parceria"><FaBookmark /></button>
                         </div>
 
-                        <div className="wp-metadata-row">
-                            <span className="rating-l">ID: CLASSIFICADO</span>
-                            <span className="meta-divider">|</span>
-                            <span className="meta-text">TEMP_{episodeData?.temporada}</span>
-                            <span className="meta-divider">|</span>
-                            <span className="meta-text">ARQUIVO_{episodeData?.numeroEpisodio}</span>
+                        <div className="metadata-row-watch-parceria">
+                            <span className="meta-badge-watch-parceria"><FaShieldAlt /> VERIFICADO</span>
+                            <span className="meta-divider-watch-parceria">|</span>
+                            <span className="meta-text-watch-parceria">TEMP {episodeData?.temporada}</span>
+                            <span className="meta-divider-watch-parceria">|</span>
+                            <span className="meta-text-watch-parceria">EP {episodeData?.numeroEpisodio}</span>
                         </div>
                     </div>
 
                     {/* DIREITA: PRÓXIMO EPISÓDIO */}
-                    <div className="wp-next-column">
+                    <div className="next-column-watch-parceria">
                         {nextEpInfo ? (
                             <>
-                                <h5 className="wp-next-header"><FaDatabase /> SEQUÊNCIA DETECTADA</h5>
+                                <h5 className="next-header-watch-parceria"><FaDatabase /> PRÓXIMO EPISÓDIO</h5>
                                 <div 
-                                    className={`wp-next-card ${nextEpInfo.locked ? 'locked' : ''}`}
+                                    className={`next-card-watch-parceria ${nextEpInfo.locked ? 'locked-watch-parceria' : ''}`}
                                     onClick={() => !nextEpInfo.locked && navigate(`/watch-parceria/${slug}/${nextEpInfo.num}`)}
                                 >
-                                    <div className="wp-next-thumb">
-                                        <img src={nextEpInfo.thumb} alt="Próximo" onError={(e) => e.target.src = episodeData.backdrop} />
-                                        <div className="wp-duration-badge">24M</div>
-                                        {!nextEpInfo.locked && <div className="wp-play-overlay"><FaPlay /></div>}
+                                    <div className="next-thumb-container-watch-parceria">
+                                        <img 
+                                            src={nextEpInfo.thumb} 
+                                            alt="Próximo" 
+                                            className="next-thumb-img-watch-parceria"
+                                            onError={(e) => e.target.src = episodeData.backdrop} 
+                                        />
+                                        <div className="duration-badge-watch-parceria">24m</div>
+                                        
+                                        <div className="play-overlay-watch-parceria">
+                                            {nextEpInfo.locked ? <FaLock /> : <FaPlay />}
+                                        </div>
                                     </div>
                                     
-                                    <div className="wp-next-info">
-                                        <span className="next-ep-number">
-                                            ARQUIVO_{nextEpInfo.num} {nextEpInfo.locked ? '// BLOQUEADO' : ''}
+                                    <div className="next-info-watch-parceria">
+                                        <span className="next-ep-number-watch-parceria">
+                                            EPISÓDIO {nextEpInfo.num}
                                         </span>
-                                        <span className="next-ep-title">
-                                            {nextEpInfo.locked ? 'ADQUIRIR ACESSO PREMIUM' : nextEpInfo.title}
+                                        <span className="next-ep-title-watch-parceria">
+                                            {nextEpInfo.locked ? 'ACESSO PREMIUM' : nextEpInfo.title}
                                         </span>
                                     </div>
 
-                                    {nextEpInfo.locked && <div className="wp-lock-icon"><FaGem /></div>}
+                                    {nextEpInfo.locked && (
+                                        <div className="lock-icon-watch-parceria">
+                                            <FaGem />
+                                        </div>
+                                    )}
                                 </div>
                             </>
                         ) : (
-                            <div className="wp-next-empty">
-                                <h5 className="wp-next-header">FIM DO DIRETÓRIO</h5>
+                            <div className="next-empty-watch-parceria">
+                                <h5 className="next-header-watch-parceria">FIM DA TEMPORADA</h5>
                             </div>
                         )}
                     </div>
