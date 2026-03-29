@@ -4,24 +4,24 @@ import { useAuth } from './contexts/AuthContext';
 
 /* --- PÁGINAS DO SISTEMA --- */
 import Login from './pages/Login';
-import Landing from './pages/Landing'; 
+import Landing from './pages/Landing';
 import Profiles from './pages/Profiles';
 import EditProfiles from './pages/EditProfiles';
 import Browse from './pages/Browse';
 import Details from './pages/Details';
-import MyList from './pages/MyList'; 
-import MusicPage from './pages/MusicPage'; 
+import MyList from './pages/MyList';
+import MusicPage from './pages/MusicPage';
 import AdminCentral from './pages/AdminPage';
 import WatchPage from './pages/WatchPage'; // Player padrão (Logado)
 import TierList from './pages/TierList';
 import LightNovel from './pages/LightNovel';
 import Manga from './pages/Manga';
 import Account from './pages/Account';
-import Support from './pages/Support'; 
-import Privacy from './pages/Privacy'; 
+import Support from './pages/Support';
+import Privacy from './pages/Privacy';
 
 /* --- PÁGINAS DA PARCERIA (FLUXO EXTERNO/FREEMIUM) --- */
-import LandingPageFinal from './pages/Parceria/LandingPage'; 
+import LandingPageFinal from './pages/Parceria/LandingPage';
 import DetailsParceria from './pages/DetailsParceria';
 import WatchParceria from './pages/WatchParceria'; // ✅ O Player da parceria
 
@@ -30,10 +30,10 @@ import Terror from './pages/Terror';
 
 /* --- COMPONENTES --- */
 import Header from './components/Header';
-import CookieConsentBanner from './components/CookieConsentBanner'; 
+import CookieConsentBanner from './components/CookieConsentBanner';
 
 // --- DADOS ---
-const ADMIN_EMAIL = 'joao@gmail.com'; 
+const ADMIN_EMAIL = 'joao@gmail.com';
 
 /* --- COMPONENTES AUXILIARES --- */
 
@@ -67,7 +67,7 @@ const ProtectedRoute = ({ children, useLayout = false }) => {
     const { user, loading, selectedProfile } = useAuth();
 
     if (loading) return <LoadingScreen />;
-    
+
     // 1. Se não tá logado, manda pro Login
     if (!user) return <Navigate to="/login" />;
 
@@ -116,17 +116,17 @@ function ToaruflixApp() {
 
     return (
         <BrowserRouter>
-            <CookieConsentBanner /> 
-            
+            <CookieConsentBanner />
+
             <Routes>
                 {/* --- ROTAS PÚBLICAS / INSTITUCIONAIS --- */}
-                <Route path="/privacy" element={<Privacy />} /> 
-                
+                <Route path="/privacy" element={<Privacy />} />
+
                 {/* --- FLUXO PARCERIA (MAXPLAY FREE) --- */}
                 <Route path="/MAXPLAY" element={<LandingPageFinal />} />
                 <Route path="/details-parceria/:slug" element={<DetailsParceria />} />
                 <Route path="/watch-parceria/:slug/:episodeId" element={<WatchParceria />} />
-                
+
                 {/* --- ROTAS DE AUTENTICAÇÃO --- */}
                 <Route path="/" element={!user ? <Landing /> : <Navigate to="/profiles" replace />} />
                 <Route path="/login" element={!user ? <Login /> : <Navigate to="/profiles" />} />
@@ -137,23 +137,23 @@ function ToaruflixApp() {
 
                 {/* --- ROTAS DE CONTEÚDO (Logado + Perfil Selecionado + Header) --- */}
                 <Route path="/browse" element={<ProtectedRoute useLayout={true}><Browse /></ProtectedRoute>} />
-                
+
                 {/* Detalhes Padrão (Sistema Logado) */}
                 <Route path="/details/:slug" element={<ProtectedRoute useLayout={true}><Details /></ProtectedRoute>} />
-                
+
                 {/* Minha Lista */}
                 <Route path="/mylist" element={<ProtectedRoute useLayout={true}><MyList /></ProtectedRoute>} />
 
                 {/* Tier List */}
                 <Route path="/tier-list" element={<ProtectedRoute useLayout={true}><TierList /></ProtectedRoute>} />
-                
+
                 {/* Música */}
                 <Route path="/music" element={<ProtectedRoute useLayout={false}><MusicPage /></ProtectedRoute>} />
 
                 {/* Outras Categorias */}
                 <Route path="/light-novels" element={<ProtectedRoute useLayout={true}><LightNovel /></ProtectedRoute>} />
                 <Route path="/manga" element={<ProtectedRoute useLayout={true}><Manga /></ProtectedRoute>} />
-                
+
                 {/* Conta e Suporte */}
                 <Route path="/account" element={<ProtectedRoute useLayout={true}><Account /></ProtectedRoute>} />
                 <Route path="/support" element={<ProtectedRoute useLayout={true}><Support /></ProtectedRoute>} />
@@ -171,36 +171,4 @@ function ToaruflixApp() {
     );
 }
 
-/* =====================================================================
-   O PORTEIRO - CONTROLE DE ACESSO GLOBAL
-   ===================================================================== */
-
-// CHAVE DE ACESSO:
-// 'htmlprojetc on' -> Bloqueia a rede (Ativa Tela Terror)
-// 'falseProject'   -> Libera o sistema direto (Roda o App)
-const _SYSTEM_BOOT_SEQUENCE_ = 'htmlprojetc on'; 
-
-// Verifica se a trava de segurança já foi liberada no navegador
-const isSystemPermanentlyUnlocked = () => {
-    return localStorage.getItem('toaruflix_unlocked') === 'true';
-};
-
-export default function App() {
-    // 1. Prioridade Máxima: Se o sistema já foi desbloqueado, ignora a chave de boot
-    if (isSystemPermanentlyUnlocked()) {
-        return <ToaruflixApp />;
-    }
-
-    // 2. Sistema travado - Chama a tela do Accelerator
-    if (_SYSTEM_BOOT_SEQUENCE_ === 'htmlprojetc on') {
-        return <Terror />; 
-    }
-    
-    // 3. Sistema livre (modo desenvolvimento sem trava)
-    if (_SYSTEM_BOOT_SEQUENCE_ === 'falseProject') {
-        return <ToaruflixApp />;
-    }
-
-    // Fallback de segurança 
-    return <div style={{ background: '#000000', height: '100vh', width: '100vw' }} />;
-}
+export default ToaruflixApp;
