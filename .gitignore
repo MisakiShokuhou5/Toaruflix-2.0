@@ -45,3 +45,9 @@ importar_ln_para_o_site.json
 Credentials.json
 .env
 serviceAccountKey.json
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
